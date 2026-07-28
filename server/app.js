@@ -8,13 +8,19 @@
 // Binds 127.0.0.1 only — never 0.0.0.0.
 
 import express from 'express';
+import cookieParser from 'cookie-parser';
 
-import { HOST, PORT } from './config.js';
+import { HOST, PORT, AUTH_SECRET } from './config.js';
 import { buildRouter } from './routes.js';
 
 const app = express();
 
 app.use(express.json({ limit: '1mb' }));
+
+// Signs and verifies the session cookie. A cookie whose HMAC does not verify is
+// dropped by cookie-parser rather than surfaced, so a forged session never
+// reaches route code as a value.
+app.use(cookieParser(AUTH_SECRET));
 
 app.use('/api', buildRouter());
 

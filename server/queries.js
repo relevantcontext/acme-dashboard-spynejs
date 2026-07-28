@@ -17,7 +17,11 @@ const ITEMS_PER_PAGE = 6;
 export async function fetchRevenue() {
   // NOTE: no ORDER BY, exactly as upstream. Postgres therefore returns rows in
   // arbitrary physical order, and the chart's month order changes after a
-  // truncate+reseed. Kept verbatim pending a ruling — see the tranche 2 report.
+  // truncate+reseed — on both sides, independently.
+  //
+  // Ratified as a known limitation rather than fixed: faithfulness to the
+  // reference implementation outranks cosmetic stability, and how sorting gets
+  // solved is itself material for the comparison as both apps evolve.
   return sql`SELECT * FROM revenue`;
 }
 

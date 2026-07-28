@@ -67,12 +67,52 @@ const mutationChannel = () =>
     pause: true,
   });
 
+/**
+ * Auth.
+ *
+ * Login is paused — it must never fire on registration. Drive it with the
+ * credentials from the form:
+ *
+ *   this.sendInfoToChannel('CHANNEL_ACME_AUTH_REQUEST_EVENT', {
+ *     url: '/api/auth/login',
+ *     method: 'POST',
+ *     headers: { 'Content-Type': 'application/json' },
+ *     body: JSON.stringify({ email, password }),
+ *   });
+ *
+ * A bad credential returns 401, which arrives on
+ * CHANNEL_ACME_AUTH_ERROR_EVENT with `message: 'Invalid credentials.'` — the
+ * same string the Next.js login form shows. Sign out by sending the same
+ * request event with url '/api/auth/logout'.
+ *
+ * The session lives in a signed, httpOnly cookie, so it is deliberately NOT
+ * readable from here. Ask the server who you are via CHANNEL_ACME_SESSION,
+ * which returns { user } or { user: null }.
+ *
+ * Every data channel above requires that session — without it they return 401
+ * on their *_ERROR_EVENT action.
+ */
+const authChannels = () => [
+  new ChannelFetch('CHANNEL_ACME_AUTH', {
+    url: `${API_BASE}/auth/login`,
+    pause: true,
+    method: 'POST',
+  }),
+  new ChannelFetch('CHANNEL_ACME_SESSION', {
+    url: `${API_BASE}/auth/session`,
+  }),
+];
+
 export const registerAcmeApiChannels = () => {
-  // Dashboard summary cards. Not paused: fetching on registration doubles as a
-  // liveness probe for the whole browser -> proxy -> API -> Postgres path.
+  authChannels().forEach((c) => SpyneApp.registerChannel(c));
+
+  // Dashboard summary cards. Paused: this endpoint now requires a session, so
+  // firing on registration would just produce a 401 before anyone has logged
+  // in. Request it once the session channel reports a user.
   SpyneApp.registerChannel(
     new ChannelFetch('CHANNEL_ACME_CARDS', {
       url: `${API_BASE}/cards`,
+      pause: true,
     }),
   );
 

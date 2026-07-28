@@ -64,6 +64,9 @@ app. No business logic lives here that the Next.js side does not also have.
 | Method | Route | Source function (`app/lib/…`) |
 | --- | --- | --- |
 | GET | `/api/health` | — (liveness probe; runs `fetchCustomers`) |
+| POST | `/api/auth/login` | `auth.ts` `Credentials.authorize` |
+| POST | `/api/auth/logout` | `auth.ts` `signOut` |
+| GET | `/api/auth/session` | `auth.ts` `auth()` |
 | GET | `/api/revenue` | `data.ts` `fetchRevenue` |
 | GET | `/api/cards` | `data.ts` `fetchCardData` |
 | GET | `/api/invoices/latest` | `data.ts` `fetchLatestInvoices` |
@@ -103,11 +106,52 @@ semantics exactly.
 mutations. Those are Next-specific cache and navigation concerns with no database
 effect, so the equivalent is the SpyneJS side's own responsibility.
 
-## Still open
+## Auth
 
-- **`fetchRevenue` has no `ORDER BY`**, exactly as upstream, so Postgres returns
-  months in arbitrary order and the chart reshuffles after a reseed. Kept
-  verbatim pending a ruling — see the tranche 2 report.
-- **No auth yet.** The credential check mirroring `auth.ts` and the session
-  mechanism are tranche 3, and the session approach needs ratification before
-  it is built. Every endpoint here is currently unauthenticated.
+**Everything except `/api/health` and `/api/auth/*` requires a session.** That
+mirrors the `authorized()` callback in `auth.config.ts` which gates `/dashboard`.
+The Next.js app protects *pages* and reaches its data functions only through
+them; here the data is the surface, so the guard sits on the endpoints. Requests
+get a 401 rather than a redirect, because the caller is a fetch, not a browser
+navigation.
+
+The credential check is a direct mirror of `auth.ts`: the same zod schema
+(`email()`, `password.min(6)`), the same `SELECT * FROM users WHERE email = $1`,
+the same `bcrypt.compare`. Every rejection path — malformed input, unknown user,
+wrong password — returns the identical `{ message: 'Invalid credentials.' }`,
+matching both `auth.ts`'s uniform `null` and the string the Next.js login form
+displays. Distinguishing them would let an attacker enumerate valid emails.
+
+The session mechanism is where the two necessarily differ. NextAuth issues an
+encrypted JWT in an httpOnly cookie; this tier issues a **signed** httpOnly
+cookie carrying the same claims:
+
+```
+HttpOnly; Secure; SameSite=Lax; Max-Age=2592000; Path=/
+```
+
+Both are stateless, both are keyed off the same `AUTH_SECRET`, and neither is
+readable from page JavaScript — so session security is equivalent and only the
+implementation differs. `cookie-parser` drops any cookie whose HMAC fails, so a
+forged session never reaches route code as a value.
+
+Sign in from the command line:
+
+```bash
+curl -k -c /tmp/acme.txt -X POST https://localhost:8443/api/auth/login -H 'Content-Type: application/json' -d '{"email":"user@nextmail.com","password":"123456"}'
+```
+
+Then pass `-b /tmp/acme.txt` on subsequent requests. In the browser the cookie is
+handled automatically; the SpyneJS side drives it through `CHANNEL_ACME_AUTH`.
+
+Note `bcrypt` here is v6 while the Next.js app pins v5. Both read and write the
+same `$2b$` format, and v6 verifies the v5-generated seed hashes correctly —
+confirmed by a successful login against the seeded user.
+
+## Known limitation
+
+**`fetchRevenue` has no `ORDER BY`**, exactly as upstream, so Postgres returns
+months in arbitrary order and the chart reshuffles after a reseed — on both
+sides, independently. Kept verbatim: faithfulness to the reference
+implementation outranks cosmetic stability, and how sorting eventually gets
+solved is itself material for the comparison as both apps evolve.

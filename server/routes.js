@@ -5,6 +5,13 @@ import { Router } from 'express';
 
 import * as q from './queries.js';
 import { parseCreateInvoice, parseUpdateInvoice } from './validation.js';
+import {
+  verifyCredentials,
+  issueSession,
+  clearSession,
+  readSession,
+  requireAuth,
+} from './auth.js';
 
 // Wraps an async handler so a rejection reaches the central error handler
 // instead of hanging the request.
@@ -13,15 +20,54 @@ const h = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 export function buildRouter() {
   const router = Router();
 
+  // ── Public ────────────────────────────────────────────────────────────────
+
   router.get(
     '/health',
     h(async (_req, res) => {
       // Proves the whole path: browser -> https dev server -> proxy -> this
-      // tier -> Postgres over TLS. Cheap enough to poll.
+      // tier -> Postgres over TLS. Cheap enough to poll. Left unauthenticated
+      // so it stays usable as a liveness probe.
       const [row] = await q.fetchCustomers();
       res.json({ ok: true, db: row ? 'connected' : 'empty' });
     }),
   );
+
+  router.post(
+    '/auth/login',
+    h(async (req, res) => {
+      const user = await verifyCredentials(req.body ?? {});
+
+      if (!user) {
+        // Single message for every rejection path — bad email format, unknown
+        // user, wrong password. auth.ts behaves the same way, and the string
+        // matches what actions.ts `authenticate` returns to the Next.js form.
+        return res.status(401).json({ message: 'Invalid credentials.' });
+      }
+
+      issueSession(res, user);
+      res.json({ user: { id: user.id, name: user.name, email: user.email } });
+    }),
+  );
+
+  router.post('/auth/logout', (_req, res) => {
+    clearSession(res);
+    res.json({ message: 'Signed out.' });
+  });
+
+  router.get('/auth/session', (req, res) => {
+    const session = readSession(req);
+    if (!session) return res.json({ user: null });
+    const { id, name, email } = session;
+    res.json({ user: { id, name, email } });
+  });
+
+  // ── Everything below requires a session ──────────────────────────────────
+  //
+  // Equivalent to the authorized() callback gating /dashboard in the Next.js
+  // app. There the data functions are reachable only through protected pages;
+  // here the data is the surface, so the guard sits on the endpoints.
+  router.use(requireAuth);
 
   router.get(
     '/revenue',
