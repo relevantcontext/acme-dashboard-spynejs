@@ -11,3 +11,13 @@ dist/*
 src/tests/results/*
 !dist/.gitkeep
 src/scss/scripts/*
+
+# API tier credentials — holds POSTGRES_URL with the database password.
+.env
+.env.*
+!.env.example
+
+# TLS material (webpack dev-server generates its own self-signed cert).
+*.pem
+*.key
+*.crt

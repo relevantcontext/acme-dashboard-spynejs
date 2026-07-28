@@ -8,6 +8,7 @@ import { SpyneApp, ChannelFetch, SpyneAppProperties } from 'spyne';
 import { ChannelMenuDrawer } from 'channels/channel-menu-drawer';
 import { ChannelApp } from 'channels/channel-app.js';
 import { ChannelLocalStorage } from 'channels/channel-local-storage.js';
+import { registerAcmeApiChannels } from 'channels/channel-acme-api.js';
 //plugins
 
 //data fetch
@@ -26,6 +27,9 @@ SpyneAppProperties.setProp('pageItemTemplateLookup', pageItemTemplateLookup);
 SpyneApp.registerChannel(new ChannelApp());
 SpyneApp.registerChannel(new ChannelLocalStorage());
 SpyneApp.registerChannel(new ChannelMenuDrawer());
+
+// Acme API tier — data path for the Next.js comparison. See channel-acme-api.js.
+registerAcmeApiChannels();
 
 const registerCmsChannels = () => {
   const mapFn = SpyneApp.pluginsFn.mapCmsData || ((d) => d);
