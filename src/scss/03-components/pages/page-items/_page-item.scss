@@ -1,0 +1,99 @@
+/* _page-item.scss
+   --------------------------------------------------
+   Semantic page section container.
+   Page-items are enabled by default and provide
+   consistent surface, spacing, and rhythm.
+   Components inside page-items must not define
+   background, radius, or elevation.
+*/
+
+.page-view {
+  /* --------------------------------------------------
+     Full-bleed utility (used by hero / edge-to-edge)
+     --------------------------------------------------
+     Note: bleed behavior is normally applied via
+     .page-item--bleed rather than this utility.
+  -------------------------------------------------- */
+  .full-bleed {
+    margin-inline: calc(50% - 50vw);
+    max-inline-size: 100vw;
+  }
+
+  /* --------------------------------------------------
+     Base Page Item Contract (DEFAULT)
+     --------------------------------------------------
+     - Applied automatically unless container.enabled=false
+     - Establishes surface, padding, and elevation
+     - Safe for CMS + AI-generated output
+  -------------------------------------------------- */
+  .page-item {
+    /* overridable design tokens */
+
+    --pi-padding: var(--spacing-section);
+
+    --pi-radius: var(--radius-lg);
+    --pi-shadow: var(--shadow-lg);
+
+    background: var(--bg);
+    color: var(--text);
+    padding: var(--pi-padding);
+    border-radius: var(--pi-radius);
+    box-shadow: var(--pi-shadow);
+    max-width: var(--max-content-width);
+
+    /* ensures images, iframes, maps respect radius */
+    overflow: clip;
+  }
+
+  /* --------------------------------------------------
+     Vertical Rhythm (DEFAULT)
+     --------------------------------------------------
+     Since containers are enabled by default,
+     page-items automatically space themselves.
+  -------------------------------------------------- */
+  .page-item + .page-item {
+    margin-top: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  /* --------------------------------------------------
+     Page Item Modifiers
+     --------------------------------------------------
+     These are opt-in adjustments to the default
+     container behavior. They never add surface,
+     only modify it.
+  -------------------------------------------------- */
+
+  /* removes internal padding (hero, media-first) */
+  .page-item--flush {
+    padding: 0;
+  }
+
+  /* full-width section that breaks page constraints */
+  .page-item--bleed {
+    margin-inline: calc(50% - 50vw);
+    max-inline-size: 100vw;
+    border-radius: 0;
+  }
+
+  /* subtle / secondary surface (contextual sections) */
+  .page-item--muted {
+    background: var(--paper, #f7f7f9);
+    box-shadow: none;
+  }
+
+  /* --------------------------------------------------
+     Spacing Modifiers
+     --------------------------------------------------
+     Used when container.spacing is provided.
+  -------------------------------------------------- */
+
+  /* removes automatic vertical spacing */
+  .page-item--no-spacing {
+    margin-top: 0 !important;
+  }
+
+  /* tighter vertical rhythm between items */
+  .page-item--tight-spacing + .page-item {
+    margin-top: clamp(0.75rem, 2vw, 1.25rem);
+  }
+}

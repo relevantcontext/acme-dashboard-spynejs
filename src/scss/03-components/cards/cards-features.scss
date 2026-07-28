@@ -1,0 +1,50 @@
+@use '../../02-variables/palette' as palette;
+@use 'sass:color';
+
+.features {
+  /*  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1rem;*/
+
+  display: grid;
+  /* Exactly 3 columns on sufficiently wide screens */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  list-style: none;
+  margin: 3rem 0 0 0;
+}
+
+.feature-card {
+  background: palette.$Neutral-100;
+  padding: 1rem;
+  // width: 250px;
+  border: 1px solid #d1d7dd;
+  border-radius: 4px;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+  min-height: 190px;
+}
+
+.feature-card h2 {
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  font-size: 0.95rem;
+  color: palette.$Neutral-800;
+  line-height: 1.4;
+}
+
+/* For smaller screens, you could add a media query to reduce columns */
+@media (max-width: 900px) {
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .features {
+    grid-template-columns: 1fr;
+  }
+}

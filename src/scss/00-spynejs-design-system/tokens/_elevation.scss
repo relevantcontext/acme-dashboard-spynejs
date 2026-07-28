@@ -1,0 +1,50 @@
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md:
+  0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+$shadow-lg:
+  0 3px 4px rgba(0, 0, 0, 0.04),
+  0 8px 24px rgba(0, 0, 0, 0.06);
+
+$shadow-xl:
+  0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// Z-index scale
+$z-index-0: 0;
+$z-index-10: 10;
+$z-index-20: 20;
+$z-index-30: 30;
+$z-index-40: 40;
+$z-index-50: 50;
+$z-index-auto: auto;
+
+$elevation-map: (
+  sm: $shadow-sm,
+  md: $shadow-md,
+  lg: $shadow-lg,
+  xl: $shadow-xl,
+);
+
+$z-index-map: (
+  0: $z-index-0,
+  10: $z-index-10,
+  20: $z-index-20,
+  30: $z-index-30,
+  40: $z-index-40,
+  50: $z-index-50,
+  auto: $z-index-auto,
+);
+
+@mixin inject-elevation-vars {
+  main#app {
+    @each $key, $value in $elevation-map {
+      --shadow-#{$key}: #{$value};
+    }
+    @each $key, $value in $z-index-map {
+      --z-index-#{$key}: #{$value};
+    }
+  }
+}

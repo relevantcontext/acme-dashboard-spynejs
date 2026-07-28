@@ -1,0 +1,97 @@
+@use '../core/globals' as *;
+@use 'responsive' as resp;
+@use 'containers' as cq;
+
+@mixin flex-utilities($prefix: '', $addPrefixToCssVars: false) {
+  // Decide if CSS vars should be prefixed
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  // Display
+  .#{$prefix}flex {
+    display: flex;
+  }
+  .#{$prefix}inline-flex {
+    display: inline-flex;
+  }
+
+  // Direction
+  .#{$prefix}flex-row {
+    flex-direction: row;
+  }
+  .#{$prefix}flex-col {
+    flex-direction: column;
+  }
+
+  @include resp.responsive-variants('#{$prefix}flex-row') {
+    flex-direction: row;
+  }
+  @include resp.responsive-variants('#{$prefix}flex-col') {
+    flex-direction: column;
+  }
+
+  @include cq.container-variants('#{$prefix}flex-row') {
+    flex-direction: row;
+  }
+  @include cq.container-variants('#{$prefix}flex-col') {
+    flex-direction: column;
+  }
+
+  // Justify Content
+  .#{$prefix}justify-center {
+    justify-content: center;
+  }
+  .#{$prefix}justify-between {
+    justify-content: space-between;
+  }
+
+  @include resp.responsive-variants('#{$prefix}justify-center') {
+    justify-content: center;
+  }
+  @include resp.responsive-variants('#{$prefix}justify-between') {
+    justify-content: space-between;
+  }
+
+  // Align Items
+  .#{$prefix}items-center {
+    align-items: center;
+  }
+  .#{$prefix}items-start {
+    align-items: flex-start;
+  }
+
+  @include resp.responsive-variants('#{$prefix}items-center') {
+    align-items: center;
+  }
+  @include resp.responsive-variants('#{$prefix}items-start') {
+    align-items: flex-start;
+  }
+
+  // Gap Utilities (themeable via vars)
+  @each $i in (0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 56, 64) {
+    $val: var(--#{$prefixVar}spacing-#{$i});
+
+    .#{$prefix}gap-#{$i} {
+      gap: #{$val};
+    }
+    .#{$prefix}gap-x-#{$i} {
+      column-gap: #{$val};
+    }
+    .#{$prefix}gap-y-#{$i} {
+      row-gap: #{$val};
+    }
+
+    @include resp.responsive-variants('#{$prefix}gap-#{$i}') {
+      gap: #{$val};
+    }
+    @include resp.responsive-variants('#{$prefix}gap-x-#{$i}') {
+      column-gap: #{$val};
+    }
+    @include resp.responsive-variants('#{$prefix}gap-y-#{$i}') {
+      row-gap: #{$val};
+    }
+  }
+}

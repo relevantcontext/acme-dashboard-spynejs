@@ -1,0 +1,152 @@
+@use 'sass:map';
+@use 'sass:math';
+
+// Spacing scale (rem-based, 1rem = 16px)
+
+$spacing-0: 0;
+$spacing-1: 0.25rem; // 4px
+$spacing-2: 0.5rem; // 8px
+$spacing-3: 0.75rem; // 12px
+$spacing-4: 1rem; // 16px
+$spacing-5: 1.25rem; // 20px
+$spacing-6: 1.5rem; // 24px
+$spacing-7: 1.75rem; // 28px
+$spacing-8: 2rem; // 32px
+$spacing-9: 2.25rem; // 36px
+$spacing-10: 2.5rem; // 40px
+$spacing-11: 2.75rem; // 44px
+$spacing-12: 3rem; // 48px
+$spacing-14: 3.5rem; // 56px
+$spacing-16: 4rem; // 64px
+$spacing-20: 5rem; // 80px
+$spacing-24: 6rem; // 96px
+$spacing-28: 7rem; // 112px
+$spacing-32: 8rem; // 128px
+$spacing-36: 9rem; // 144px
+$spacing-40: 10rem; // 160px
+$spacing-44: 11rem; // 176px
+$spacing-48: 12rem; // 192px
+$spacing-52: 13rem; // 208px
+$spacing-56: 14rem; // 224px
+$spacing-60: 15rem; // 240px
+$spacing-64: 16rem; // 256px
+
+// Section-level spacing
+$spacing-section-y: $spacing-16; // default vertical section padding
+$spacing-section-x: $spacing-12;
+
+// Large / hero sections
+$spacing-section-y-lg: $spacing-20;
+
+// Compact sections
+$spacing-section-y-sm: $spacing-12;
+
+$grid-gutter: 1rem;
+$grid-breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+);
+
+$spacing-map: (
+  0: $spacing-0,
+  1: $spacing-1,
+  2: $spacing-2,
+  3: $spacing-3,
+  4: $spacing-4,
+  5: $spacing-5,
+  6: $spacing-6,
+  7: $spacing-7,
+  8: $spacing-8,
+  9: $spacing-9,
+  10: $spacing-10,
+  11: $spacing-11,
+  12: $spacing-12,
+  14: $spacing-14,
+  16: $spacing-16,
+  20: $spacing-20,
+  24: $spacing-24,
+  28: $spacing-28,
+  32: $spacing-32,
+  36: $spacing-36,
+  40: $spacing-40,
+  44: $spacing-44,
+  48: $spacing-48,
+  52: $spacing-52,
+  56: $spacing-56,
+  60: $spacing-60,
+  64: $spacing-64,
+);
+
+// --------------------------------------------------
+// Card Image Ratios (Canonical)
+// --------------------------------------------------
+
+// Wide / marketing cards (default)
+$card-image-ratio-wide: math.div(3, 1);
+
+// Standard content cards (docs, CMS, editorial)
+$card-image-ratio-standard: math.div(4, 3);
+
+// Square / system cards (icons, tools)
+$card-image-ratio-square: math.div(1, 1);
+
+@mixin inject-breakpoint-vars {
+  main#app {
+    @each $name, $value in $grid-breakpoints {
+      --break-#{$name}: #{$value};
+    }
+  }
+}
+
+@mixin inject-spacing-vars {
+  main#app {
+    @each $key, $value in $spacing-map {
+      --spacing-#{$key}: #{$value};
+    }
+    --grid-gutter: #{$grid-gutter};
+
+    // Card image ratios
+    --card-image-ratio-wide: #{$card-image-ratio-wide};
+    --card-image-ratio-standard: #{$card-image-ratio-standard};
+    --card-image-ratio-square: #{$card-image-ratio-square};
+
+    // Default
+    --card-image-ratio-default: var(--card-image-ratio-wide);
+
+    // semantic spacing
+    --spacing-section-y: #{$spacing-section-y};
+    --spacing-section-x: #{$spacing-section-x};
+    --spacing-section-y-lg: #{$spacing-section-y-lg};
+    --spacing-section-y-sm: #{$spacing-section-y-sm};
+
+    --spacing-section-sm: clamp(1rem, 2vw, 1.5rem);
+    --spacing-section: clamp(1.5rem, 3vw, 2.5rem);
+    --spacing-section-lg: clamp(2rem, 4vw, 3.5rem);
+  }
+}
+
+@mixin respond-to($breakpoint) {
+  $value: map.get($grid-breakpoints, $breakpoint);
+
+  @if $value {
+    @media (max-width: $value) {
+      @content;
+    }
+  } @else {
+    @warn "No breakpoint named `#{$breakpoint}` found in $grid-breakpoints map.";
+  }
+}
+
+@mixin respond-from($breakpoint) {
+  $value: map.get($grid-breakpoints, $breakpoint);
+
+  @if $value {
+    @media (min-width: $value) {
+      @content;
+    }
+  } @else {
+    @warn "No breakpoint named `#{$breakpoint}` found in $grid-breakpoints map.";
+  }
+}

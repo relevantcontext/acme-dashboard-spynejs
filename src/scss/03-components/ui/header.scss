@@ -1,0 +1,156 @@
+@use '../../02-variables/palette' as palette;
+@use '../../00-spynejs-design-system/tokens' as *;
+/* Site Header */
+.site-header,
+#site-header {
+  /* Don’t force a fixed height — let padding define rhythm */
+  min-block-size: var(--header-height);
+  background-color: var(--paper);
+  border-block-end: 1px solid var(--rule);
+  position: sticky;
+  inset-block-start: 0;
+  inline-size: 100%;
+  z-index: 1000; // keep above content
+  display: flex;
+  align-items: center;
+  height: calc($spacing-12);
+  border-bottom: 1px solid var(--text-muted);
+
+  .header-content {
+    inline-size: min(100%, var(--max-content-width));
+    margin-inline: auto;
+    padding-inline: clamp(0.25rem, 2vw, 1rem);
+    padding-block: 0.5rem;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem; // adds breathing room if more items appear
+    min-width: 0;
+  }
+
+  .branding,
+  .site-title {
+    flex: 0 0 auto;
+    margin: 0;
+    color: palette.$Neutral-900;
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+
+      a {
+        text-decoration: none;
+        color: var(--brand);
+      }
+
+      svg {
+        path {
+          fill: var(--logo-color);
+        }
+      }
+    }
+  }
+
+  .theme-toggle {
+    border-radius: 50%;
+    border: none;
+    padding: 0.15rem 0.1rem 0rem 0.2rem;
+    cursor: pointer;
+    align-self: center;
+    svg {
+      width: 16px;
+    }
+  }
+
+  .site-nav {
+    display: flex;
+    gap: 1rem;
+
+    a.nav {
+      text-decoration: none;
+      color: var(--text-link);
+      text-transform: uppercase;
+      font-weight: 500;
+      font-size: 0.875rem;
+      letter-spacing: 0.02em;
+      padding: 0.25rem 0;
+      min-width: fit-content;
+
+      transition: color 0.2s ease;
+
+      &:hover,
+      &.selected {
+        color: var(--link-selected);
+      }
+    }
+  }
+
+  /* Hamburger / mobile drawer toggle stays visible */
+  #menu_toggle {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .site-nav {
+      display: none;
+    }
+    #menu_toggle {
+      display: block;
+    }
+
+    .branding {
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+}
+
+/* Sticky header (opt-in)
+ * ** NEEDS JS TO WORK PROPERLY
+ * const header = document.getElementById('site-header');
+  if (header?.classList.contains('sticky') && header.classList.contains('sticky--shadow')) {
+  const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 0);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
+USAGE
+<header id="site-header" class="site-header sticky">…</header>
+<header id="site-header" class="site-header sticky sticky--shadow">…</header>
+<header id="site-header" class="site-header sticky sticky--glass sticky--shadow">…</header>
+
+ */
+.site-header.sticky,
+#site-header.sticky {
+  position: sticky;
+  inset-block-start: 0;
+  /* Respect iOS notches while staying pinned */
+  top: env(safe-area-inset-top, 0px);
+  z-index: 1000; /* above content */
+}
+
+/* Optional: add a shadow when the page has scrolled */
+.site-header.sticky.sticky--shadow,
+#site-header.sticky.sticky--shadow {
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Toggle this state (via JS) when scrolled past 0 */
+.site-header.sticky.sticky--shadow.is-scrolled,
+#site-header.sticky.sticky--shadow.is-scrolled {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-block-end-color: transparent; /* if you prefer shadow over border */
+}
+
+/* Optional: glass effect variant */
+.site-header.sticky.sticky--glass,
+#site-header.sticky.sticky--glass {
+  background-color: color-mix(in oklab, white 80%, transparent);
+  @supports (backdrop-filter: blur(8px)) {
+    backdrop-filter: blur(8px);
+  }
+}

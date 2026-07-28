@@ -1,0 +1,167 @@
+@mixin input-styles($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  // Label spacing and style
+  label {
+    display: block;
+    margin-bottom: var(--#{$prefixVar}spacing-2); // breathing room before input
+    font-size: var(--#{$prefixVar}font-size-sm);
+    font-weight: var(--#{$prefixVar}font-weight-medium);
+    color: var(--#{$prefixVar}text-secondary);
+    line-height: var(--#{$prefixVar}line-height-normal);
+
+    &.required::after {
+      content: ' *';
+      color: var(--#{$prefixVar}danger);
+      font-weight: var(--#{$prefixVar}font-weight-bold);
+    }
+  }
+
+  // Inputs
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'] {
+    display: block;
+    width: 100%;
+    padding: var(--#{$prefixVar}spacing-2) var(--#{$prefixVar}spacing-3);
+    font-family: var(--#{$prefixVar}font-sans);
+    font-size: var(--#{$prefixVar}font-size-base);
+    line-height: var(--#{$prefixVar}line-height-normal);
+    color: var(--#{$prefixVar}text-primary);
+
+    background-color: var(--#{$prefixVar}paper);
+    border: 1px solid var(--#{$prefixVar}border);
+    border-radius: var(--#{$prefixVar}radius-md);
+
+    transition:
+      border-color var(--#{$prefixVar}duration-200)
+        var(--#{$prefixVar}ease-in-out),
+      box-shadow var(--#{$prefixVar}duration-200)
+        var(--#{$prefixVar}ease-in-out);
+
+    // Focus only (no hover)
+    &:focus {
+      outline: none;
+      border-color: var(--#{$prefixVar}brand);
+      box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--#{$prefixVar}brand) 40%, transparent);
+      background-color: var(--#{$prefixVar}paper);
+    }
+
+    &:disabled {
+      background-color: var(--#{$prefixVar}bg);
+      color: var(--#{$prefixVar}text-muted);
+      border-color: var(--#{$prefixVar}border);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    // Ensure spacing between stacked inputs
+    margin-bottom: var(--#{$prefixVar}spacing-4);
+  }
+
+  // Validation States
+  input.success {
+    border-color: var(--success);
+    background-color: color-mix(in srgb, var(--success) 8%, var(--paper));
+
+    & + .input-hint {
+      color: var(--success);
+      font-size: var(--font-size-sm);
+      margin-top: var(--spacing-1);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+
+      &::before {
+        content: '✓';
+        font-weight: bold;
+      }
+    }
+  }
+
+  input.error {
+    border-color: var(--danger);
+    background-color: color-mix(in srgb, var(--danger) 8%, var(--paper));
+
+    & + .input-hint {
+      color: var(--danger);
+      font-size: var(--font-size-sm);
+      margin-top: var(--spacing-1);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+
+      &::before {
+        content: '✕';
+        font-weight: bold;
+      }
+    }
+  }
+  input.danger {
+    border-color: var(--#{$prefixVar}danger);
+    background-color: color-mix(
+      in srgb,
+      var(--#{$prefixVar}danger) 8%,
+      var(--#{$prefixVar}paper)
+    );
+
+    &:focus {
+      box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--#{$prefixVar}danger) 40%, transparent);
+    }
+  }
+
+  input.warning {
+    border-color: var(--#{$prefixVar}warning);
+    background-color: color-mix(
+      in srgb,
+      var(--#{$prefixVar}warning) 8%,
+      var(--#{$prefixVar}paper)
+    );
+  }
+}
+
+@mixin label-styles($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  label {
+    display: block;
+    margin-bottom: var(--#{$prefixVar}spacing-2);
+    font-size: var(--#{$prefixVar}font-size-sm);
+    font-weight: var(--#{$prefixVar}font-weight-semibold);
+    color: var(--#{$prefixVar}text-secondary);
+    line-height: var(--#{$prefixVar}line-height-normal);
+    cursor: pointer;
+    transition: color var(--#{$prefixVar}duration-200)
+      var(--#{$prefixVar}ease-in-out);
+
+    // Required indicator
+    &.required::after {
+      content: ' *';
+      color: var(--#{$prefixVar}danger);
+      font-weight: var(--#{$prefixVar}font-weight-bold);
+    }
+  }
+
+  // Validation states (labels inherit color from context)
+  label.success {
+    color: var(--#{$prefixVar}success);
+  }
+  label.error,
+  label.danger {
+    color: var(--#{$prefixVar}danger);
+  }
+  label.warning {
+    color: var(--#{$prefixVar}warning);
+  }
+}

@@ -1,0 +1,70 @@
+@use 'variables' as _vars;
+
+/* Modern reset (logical props, no opinionated look) */
+*:where(:not(iframe, canvas, img, svg, video):not(svg *)) {
+  all: unset;
+  display: revert; /* respect native display */
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+img,
+svg,
+video {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+a {
+  cursor: pointer;
+  text-decoration: none;
+}
+button {
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Document */
+html,
+body {
+  block-size: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Type scale (clamp for responsive rhythm) */
+:root {
+  --fs-1: clamp(0.875rem, 0.82rem + 0.2vw, 1rem);
+  --fs-2: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --fs-3: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --fs-4: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+}
+.h1 {
+  font-size: var(--fs-4);
+  font-weight: 700;
+}
+.h2 {
+  font-size: var(--fs-3);
+  font-weight: 600;
+}
+.p {
+  font-size: var(--fs-2);
+  color: var(--text);
+}
+
+/* Card shell (brand-neutral) */
+.card {
+  background: var(--paper);
+  border-radius: var(--radius-3);
+  box-shadow: #{_vars.$shadow-1};
+  padding: var(--space-5);
+}

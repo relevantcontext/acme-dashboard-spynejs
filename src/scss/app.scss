@@ -1,0 +1,87 @@
+//@use '01-vendors/normalize.css';
+//@use '02-variables/mixins.scss';
+
+// 1. SpyneJS Design System
+
+@use '00-spynejs-design-system/utilities/flex-utils' as flex;
+@use '00-spynejs-design-system/utilities/grid-utils' as grid;
+@use '00-spynejs-design-system/utilities/spacing-utils' as spacing;
+@use '00-spynejs-design-system/index' as designSystem;
+
+@use '~node_modules/highlight.js/scss/qtcreator-dark';
+
+@use '03-components/ui/containers';
+
+@use '03-components/pages/pages.scss';
+@use '03-components/pages/page-404.scss';
+@use '03-components/ui/header.scss';
+@use '03-components/ui/menu-drawer.scss';
+@use '03-components/ui/menu-hamburger.scss';
+@use '03-components/ui/footer.scss';
+@use '03-components/ui/breadcrumbs.scss';
+@use '03-components/ui/_codeblock';
+
+@use '03-components/cards/cards';
+@use '03-components/cards/cards-grid';
+@use '03-components/core-components/forms/inputs' as inputs;
+@use '03-components/core-components/forms/textarea' as textarea;
+@use '03-components/core-components/forms/checkboxes' as checkboxes;
+@use '03-components/core-components/forms/radio' as radio;
+@use '03-components/core-components/forms/select' as select;
+@use '03-components/core-components/sections/hero';
+
+@use '03-components/ui/containers' as *;
+
+// TO DISABLE THE DESIGN SYSTEM COMMENT ON THE DESIGN INJECTION
+@include designSystem.inject-design-system('main#app');
+
+// temp csm mode fix
+body.spyne-plugin-cms-mode{
+  header#site-header{
+    width: 50vw;
+  }
+}
+
+
+
+// ---------------------------------------------
+// Inject utilities (scoped to #app to avoid global pollution)
+// ---------------------------------------------
+main#app {
+
+  --logo-color: #323f4b; /* neutral-800 for light mode */
+
+  &[data-theme='dark'] {
+    --logo-color: #e4e7eb; /* neutral-100 for dark mode */
+  }
+
+  @include flex.flex-utilities;
+  @include grid.grid-utilities;
+  @include spacing.spacing-utilities;
+  @include inputs.input-styles();
+  @include inputs.label-styles();
+  @include textarea.textarea-styles();
+  @include checkboxes.checkbox-styles();
+  @include radio.radio-styles();
+  @include select.select-styles();
+
+  @include containers.header-container();
+  @include containers.main-container();
+  @include containers.form-container();
+  @include containers.footer-container();
+
+  ul,
+  ol {
+    color: var(--text-secondary);
+  }
+}
+
+// ---------------------------------------------
+// Main app container
+// ---------------------------------------------
+#app {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 100%;
+}

@@ -1,0 +1,75 @@
+// Font families
+$font-sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+$font-serif: 'Merriweather', Georgia, serif;
+$font-mono: 'Fira Code', Menlo, monospace;
+
+$font-weight-thin: 100;
+$font-weight-extralight: 200;
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+$font-weight-black: 900;
+
+$font-size-xxs: 0.65rem; // 12px
+$font-size-xs: 0.75rem; // 12px
+
+$font-size-sm: 0.875rem; // keep small sizes fixed
+$font-size-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+$font-size-lg: clamp(1.125rem, 1rem + 0.25vw, 1.25rem);
+$font-size-xl: 1.25rem; // 20px
+
+$font-size-2xl: clamp(1.5rem, 1.25rem + 0.5vw, 1.75rem);
+$font-size-3xl: clamp(1.875rem, 1.5rem + 1vw, 2.25rem);
+$font-size-4xl: clamp(2.25rem, 1.75rem + 1.5vw, 3rem);
+$font-size-5xl: clamp(3rem, 2.5rem + 2vw, 4rem);
+$font-size-6xl: 3.75rem; // 60px
+$font-size-7xl: 4.5rem; // 72px
+$font-size-8xl: 6rem; // 96px
+$font-size-9xl: 8rem; // 128px
+
+// Line heights
+$line-height-tight: 1.1;
+$line-height-snug: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.625;
+$line-height-loose: 2;
+
+$typography-tokens: (
+  font-sans: $font-sans,
+  font-serif: $font-serif,
+  font-mono: $font-mono,
+
+  font-weight-thin: $font-weight-thin,
+  font-weight-extralight: $font-weight-extralight,
+  font-weight-light: $font-weight-light,
+  font-weight-normal: $font-weight-normal,
+  font-weight-medium: $font-weight-medium,
+  font-weight-semibold: $font-weight-semibold,
+  font-weight-bold: $font-weight-bold,
+  font-weight-extrabold: $font-weight-extrabold,
+  font-weight-black: $font-weight-black,
+
+  font-size-xxs: $font-size-xxs,
+  font-size-xs: $font-size-xs,
+  font-size-sm: $font-size-sm,
+  font-size-base: $font-size-base,
+  font-size-lg: $font-size-lg,
+  font-size-xl: $font-size-xl,
+  font-size-2xl: $font-size-2xl,
+  font-size-3xl: $font-size-3xl,
+  font-size-4xl: $font-size-4xl,
+  font-size-5xl: $font-size-5xl,
+  font-size-6xl: $font-size-6xl,
+  font-size-7xl: $font-size-7xl,
+  font-size-8xl: $font-size-8xl,
+  font-size-9xl: $font-size-9xl,
+
+  line-height-tight: $line-height-tight,
+  line-height-snug: $line-height-snug,
+  line-height-normal: $line-height-normal,
+  line-height-relaxed: $line-height-relaxed,
+  line-height-loose: $line-height-loose,
+);

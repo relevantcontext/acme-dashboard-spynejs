@@ -1,0 +1,51 @@
+@forward 'core/globals';
+@forward 'core/reset';
+@forward 'core/base';
+
+@use 'tokens' as *;
+@use 'theme/theme-utils' as utils;
+@use 'theme/light' as light;
+@use 'theme/dark' as dark;
+@use 'elements/typography' as typography;
+@use 'elements/buttons' as buttons;
+@use 'elements/forms' as forms;
+@use 'elements/tables' as tables;
+@use 'elements/links' as links;
+@use 'elements/lists' as lists;
+// Utilities
+@use 'utilities/spacing-utils' as spacing;
+@use 'utilities/flex-utils' as flex;
+@use 'utilities/grid-utils' as grid;
+
+// Master mixin
+@mixin inject-design-system(
+  $scope: 'main#app',
+  $prefix: '',
+  $addPrefixToCssVars: false
+) {
+  #{$scope} {
+    // Theme vars
+    //@include utils.theme-vars(light.$light-theme);
+    @include utils.theme-vars(light.$light-theme, $prefix, $addPrefixToCssVars);
+
+    &[data-theme='dark'] {
+      //@include utils.theme-vars(dark.$dark-theme);
+      @include utils.theme-vars(dark.$dark-theme, $prefix, $addPrefixToCssVars);
+    }
+
+    // Elements
+    @include typography.typography-styles($prefix, $addPrefixToCssVars);
+    @include buttons.button-styles(
+      $prefix
+    ); // (buttons don’t use prefixed vars yet — can be extended if needed)
+    @include forms.form-styles($prefix, $addPrefixToCssVars);
+    @include tables.table-styles($prefix, $addPrefixToCssVars);
+    @include links.link-styles($prefix, $addPrefixToCssVars);
+    @include lists.list-styles($prefix, $addPrefixToCssVars);
+
+    // Utilities (spacing, flex, grid)
+    @include spacing.spacing-utilities($prefix, $addPrefixToCssVars);
+    @include flex.flex-utilities($prefix, $addPrefixToCssVars);
+    @include grid.grid-utilities($prefix, $addPrefixToCssVars);
+  }
+}

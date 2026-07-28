@@ -1,0 +1,68 @@
+// components/ui-elements/_codeblock.scss
+
+@use '../../00-spynejs-design-system/core/globals' as *; // bring in radius, colors, etc.
+
+@use '../../00-spynejs-design-system/tokens/spacing' as spacing;
+
+.codeblock {
+  margin: 1.5rem 0;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $surface-900; // background behind header & code
+  width: 100%;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0.25rem 0.5rem;
+    background: $surface-800;
+    border-bottom: 1px solid $surface-700;
+  }
+
+  &__copy {
+    appearance: none;
+    border: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $text-200;
+    background: transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: background $duration-200 $ease-in-out;
+
+    &:hover {
+      background: $surface-700;
+      color: $text-100;
+    }
+    &:active {
+      background: $surface-600;
+    }
+    &:focus {
+      outline: 2px solid $brand;
+      outline-offset: 2px;
+    }
+  }
+
+  pre {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    background: $surface-900;
+    font-size: 1rem;
+    line-height: 1.5;
+    code {
+      background: $surface-900;
+    }
+
+    @include spacing.respond-to(md) {
+      font-size: $font-size-xxs;
+      padding: 0.5rem;
+    }
+  }
+
+  code {
+    font-family: $font-mono;
+  }
+}

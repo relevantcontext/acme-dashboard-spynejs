@@ -1,0 +1,45 @@
+@use '../core/globals' as *;
+
+@mixin list-styles($prefix: '', $addPrefixToCssVars: false) {
+  // Decide if CSS variables should be prefixed
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  .#{$prefix}list {
+    ul,
+    ol {
+      margin-bottom: var(--#{$prefixVar}spacing-4);
+      padding-left: var(--#{$prefixVar}spacing-6);
+      font-size: var(--#{$prefixVar}font-size-base);
+      line-height: var(--#{$prefixVar}line-height-relaxed);
+      color: var(--#{$prefixVar}text-primary);
+    }
+
+    ul li {
+      list-style-type: disc;
+      margin-bottom: var(--#{$prefixVar}spacing-2);
+    }
+
+    ol li {
+      list-style-type: decimal;
+      margin-bottom: var(--#{$prefixVar}spacing-2);
+    }
+
+    dl {
+      margin-bottom: var(--#{$prefixVar}spacing-4);
+    }
+
+    dt {
+      font-weight: var(--#{$prefixVar}font-weight-semibold);
+      color: var(--#{$prefixVar}text-primary);
+    }
+
+    dd {
+      margin-left: var(--#{$prefixVar}spacing-4);
+      color: var(--#{$prefixVar}text-secondary);
+    }
+  }
+}

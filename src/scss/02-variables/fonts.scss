@@ -1,0 +1,11 @@
+$STATIC_DIR: '' !default;
+
+@mixin addFontFace($faceName, $fileName) {
+  $f2: #{$STATIC_DIR} + $fileName + '.ttf';
+  @font-face {
+    font-family: $faceName;
+    src: url($f2) format('truetype');
+  }
+}
+
+//@include addFontFace('Borel', 'fonts/Borel-Regular');

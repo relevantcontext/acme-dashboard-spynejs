@@ -1,0 +1,165 @@
+@use '../../00-spynejs-design-system/tokens/spacing' as spacing;
+@use 'page-items/page-item';
+@use 'page-items/section-title';
+
+#stage-view {
+  background: var(--bg-base);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding-bottom: 4rem;
+}
+
+.page-view {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  margin-inline: auto;
+  max-width: var(--max-content-width);
+
+  .page-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+body.spyne-plugin-cms-mode {
+  header#site-header {
+    width: 50%;
+  }
+
+  .page-view,
+  nav.breadcrumbs {
+    &::before {
+      position: relative;
+      width: inherit;
+      background: none;
+      content: '\00a0';
+      flex-shrink: 0;
+      flex-grow: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @include spacing.respond-to(lg) {
+      margin: 0 4rem;
+      padding-right: 0;
+
+      &::before {
+        width: 0;
+        transition: width 0.25s ease;
+      }
+    }
+
+    @include spacing.respond-to(md) {
+      margin: 0 2rem;
+    }
+  }
+}
+
+.page-view,
+nav.breadcrumbs {
+  .page-body {
+    max-width: 100%;
+
+    &.default-content {
+      .hero-component {
+        margin-top: 2rem;
+      }
+    }
+  }
+}
+
+.page-view {
+  .button-examples {
+    line-height: 2.65;
+  }
+}
+
+#stage-view {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  min-block-size: 0;
+
+  // header is fixed so pushes everything down
+  padding-top: 1.5rem;
+}
+
+.page-container {
+  inline-size: min(100%, var(--max-content-width));
+  margin-inline: auto;
+
+  padding-inline: clamp(0.25rem, 2vw, 1rem);
+  //padding-block: clamp(0.5rem, 1.5vw, 1rem);
+
+  display: block;
+}
+
+/* ===== Stage (wraps breadcrumbs + page content) ===== */
+/*
+
+#stage-view {
+  !* expands within main (which is flex:1) *!
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  min-block-size: 0;
+
+  // header is fixed so pushes everything down
+  padding-top: 3rem;
+  background: var(--paper);
+
+}
+
+!* ===== Page container (centers + spaces the page) ===== *!
+.page-container {
+  inline-size: 100%;
+  max-inline-size: var(--max-content-width);
+  margin-inline: auto;
+
+  !* fluid gutters that feel good at all sizes *!
+  padding-inline: clamp(1rem, 4vw, 2rem);
+  padding-block: clamp(1rem, 3vw, 2rem);
+
+  !* sensible layout defaults for stacked sections *!
+  display: grid;
+  gap: var(--page-gap, 1.25rem);
+
+  !* allow children with overflow to behave correctly *!
+  min-block-size: 0;
+
+  .page-view{
+    margin-inline: 0;
+  }
+
+
+}
+
+!* ===== Variants / utilities ===== *!
+
+!* Wider/fluid pages when needed (e.g., dashboards) *!
+.page-container.is-fluid {
+  max-inline-size: none;
+}
+
+!* Full-bleed child inside a centered container *!
+.page-container .full-bleed {
+  margin-inline: calc(50% - 50vw);
+  max-inline-size: 100vw;
+
+}
+
+!* Compact spacing on small screens *!
+@media (max-width: 767px) {
+  .page-container {
+    padding-inline: 1rem;
+    padding-block: 1rem;
+    gap: 1rem;
+  }
+}
+
+*/

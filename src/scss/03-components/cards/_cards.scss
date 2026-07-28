@@ -1,0 +1,90 @@
+@use '../../02-variables/palette' as palette;
+
+:root {
+  --card-bg: var(--paper, #fff);
+  --card-text-color: #333;
+  --card-meta-color: #666;
+  --card-radius: 6px;
+  --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  /* Default card image ratio (from spacing tokens) */
+  --card-image-ratio-default: var(--card-image-ratio-wide);
+}
+
+[data-theme='light'] .page-card {
+  background-color: #fff;
+  color: #222;
+  --card-text-color: #222;
+  --card-meta-color: #666;
+}
+
+[data-theme='dark'] .page-card {
+  background-color: #181818;
+  color: #f2f2f2;
+  --card-text-color: #f2f2f2;
+  --card-meta-color: #aaa;
+}
+
+.page-card {
+  display: block;
+  text-decoration: none;
+  color: var(--card-text-color);
+  background-color: var(--card-bg);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.page-card:focus {
+  outline: 3px solid hotpink;
+  outline-offset: -3px;
+}
+
+/* ---------------------------------------- */
+/* Card Image (Canonical Wrapper Pattern)   */
+/* ---------------------------------------- */
+
+.card__image-wrapper {
+  width: 100%;
+  aspect-ratio: var(--card-image-ratio-default);
+  overflow: hidden;
+}
+
+.card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---------------------------------------- */
+
+.card__content {
+  padding: 1rem;
+  text-align: left;
+}
+
+.card__title {
+  font-size: 1.125rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--card-text-color);
+}
+
+.card__meta {
+  margin: 0 0 1rem;
+  color: var(--card-meta-color);
+  font-size: 0.9rem;
+  line-height: 1.4;
+
+  &.card__meta__cta {
+    color: palette.$Primary-400;
+  }
+}
+
+.card__cta {
+  font-weight: bold;
+  color: #007acc;
+  font-size: 0.95rem;
+}
