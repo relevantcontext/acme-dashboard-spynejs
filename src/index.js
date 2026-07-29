@@ -11,8 +11,14 @@ import { SpyneApp, ChannelFetch, SpyneAppProperties } from 'spyne';
 import { ChannelMenuDrawer } from 'channels/channel-menu-drawer';
 import { ChannelApp } from 'channels/channel-app.js';
 import { ChannelLocalStorage } from 'channels/channel-local-storage.js';
-import { registerAcmeApiChannels } from 'channels/channel-acme-api.js';
+import { ChannelAcmeApi } from 'channels/channel-acme-api.js';
 //plugins
+
+// views
+import { AcmeApiRequester } from 'components/acme-api-requester.js';
+
+// traits
+import { AcmeDbConnectionsTraits } from 'traits/channel/acme-db-connections-traits.js';
 
 //data fetch
 import AppModelURL from 'data/app.model.json';
@@ -31,8 +37,19 @@ SpyneApp.registerChannel(new ChannelApp());
 SpyneApp.registerChannel(new ChannelLocalStorage());
 SpyneApp.registerChannel(new ChannelMenuDrawer());
 
-// Acme API tier — data path for the Next.js comparison. See channel-acme-api.js.
-registerAcmeApiChannels();
+// Acme SQL connection. The ChannelFetch instances are registered from a trait
+// rather than inline, so every channel the app owns is still discoverable here
+// without this file carrying six instantiations. See
+// traits/channel/acme-db-connections-traits.js.
+AcmeDbConnectionsTraits.acmeDbConnections$RegisterChannels();
+
+// The intermediary between those fetch channels and UI events.
+SpyneApp.registerChannel(new ChannelAcmeApi());
+
+// A ChannelFetch request can only be sent from a ViewStream, so this null-
+// appended view listens to CHANNEL_ACME_API and performs them. It renders
+// nothing and exists solely to hold that boundary.
+new AcmeApiRequester().appendToNull();
 
 const registerCmsChannels = () => {
   const mapFn = SpyneApp.pluginsFn.mapCmsData || ((d) => d);
