@@ -28,6 +28,22 @@ export default {
   ],
   theme: {
     extend: {
+      // The Next.js app has no fontFamily config — next/font/google generates a
+      // class per family and it applies `inter.className` to <body> and
+      // `lusitana.className` per component. Without that generator the
+      // equivalent here is a theme entry, which yields `font-sans` (Inter, and
+      // the Preflight default) and `font-lusitana` for headings, the logo and
+      // the dashboard card figures.
+      //
+      // NOTE: the CMS also drives a font, via --selected-font / fontFamilyStr
+      // in app.model.json (currently Open Sans), applied further down the
+      // cascade on the app shell. These do not fight — the CMS keeps the shell,
+      // these utilities are for Acme components — but if the two should be
+      // reconciled, that is a decision to make rather than a bug to fix.
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        lusitana: ['Lusitana', 'ui-serif', 'Georgia', 'serif'],
+      },
       gridTemplateColumns: {
         13: 'repeat(13, minmax(0, 1fr))',
       },

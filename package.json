@@ -9,6 +9,7 @@
     "start:api": "node --env-file=.env server/app.js",
     "start:web": "webpack serve --open",
     "build": "webpack --mode production --env build",
+    "css:inspect": "tailwindcss -c tailwind.config.js -i src/scss/tailwind.scss -o dist/tailwind-inspect.css",
     "lint": "eslint --config eslint.config.js",
     "lint:fix": "eslint --config eslint.config.js --fix",
     "format": "prettier --write 'src/**/*.{js,css,scss,html}'"

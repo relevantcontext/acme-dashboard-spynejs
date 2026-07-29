@@ -13,10 +13,24 @@
     <meta name="author" content="Your Name or Organization" />
 
 
+    <!--
+      Inter + Lusitana, matching the Next.js Acme app's app/ui/fonts.ts:
+      Inter on the body, Lusitana (400/700, the only weights it ships) on
+      headings, the logo wordmark and the dashboard card figures.
+
+      Both families are requested in ONE stylesheet call rather than two, so
+      this costs a single round trip.
+
+      Next.js does this with next/font/google, which downloads and self-hosts
+      the files at build time — no runtime request to Google at all. That is a
+      genuine advantage it has here, and it is deliberately not replicated: a
+      plain <link> is the ordinary way to do this, and the difference is itself
+      worth showing rather than papering over.
+    -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lusitana:wght@400;700&display=swap"
       rel="stylesheet"
     />
 
