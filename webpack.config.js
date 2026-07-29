@@ -157,6 +157,16 @@ export default (env = { mode: 'development' }) => {
                 url: false,
               },
             },
+            // Runs Tailwind + autoprefixer (see postcss.config.js). Sits
+            // between css-loader and sass-loader so it processes the CSS that
+            // Sass has already compiled — @tailwind directives in a .scss file
+            // are passed through by Sass untouched and expanded here.
+            {
+              loader: 'postcss-loader',
+              options: {
+                sourceMap: true,
+              },
+            },
             {
               loader: 'sass-loader',
               options: {

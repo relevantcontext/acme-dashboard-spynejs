@@ -1,4 +1,7 @@
 // inject styles
+// Tailwind first — its base layer is a reset, so the design system in app.scss
+// must cascade on top of it, not the other way round.
+import './scss/tailwind.scss';
 import './scss/app.scss';
 
 // load spyne

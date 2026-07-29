@@ -1,0 +1,38 @@
+/*
+ * Ported from the Next.js app's app/ui/global.css.
+ *
+ * Imported BEFORE app.scss in src/index.js, deliberately. Tailwind's `base`
+ * layer is Preflight — an opinionated reset that strips default margins, list
+ * styling and heading sizes, and normalises borders. Loading it first means the
+ * SpyneJS design system in app.scss cascades on top of the reset rather than
+ * being flattened by it.
+ *
+ * The number-input rules below are carried over verbatim: the Acme invoice form
+ * uses <input type="number"> for the amount, and without them the browser's
+ * spinner buttons render and the two apps' forms look different.
+ *
+ * Kept as .scss rather than .css (the Next.js file is global.css) because the
+ * webpack rule matches all of sass/scss/css and prepends $STATIC_DIR via
+ * sass-loader's additionalData — a Sass variable, which is a hard error inside
+ * plain CSS. Sass passes @tailwind at-rules through untouched, so postcss still
+ * expands them downstream.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
