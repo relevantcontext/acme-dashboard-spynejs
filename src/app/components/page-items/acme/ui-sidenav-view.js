@@ -1,12 +1,12 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import SideNavTmpl from './templates/sidenav.tmpl.html';
+import UISideNavTmpl from './templates/ui-sidenav-view.tmpl.html';
 
 /**
  * Converted from app/ui/dashboard/sidenav.tsx.
  *
  * Two slots are left empty for nested ViewStreams — `[data-slot="acme-logo"]`
- * takes AcmeLogoView and `[data-slot="nav-links"]` takes the NavLinkView
+ * takes UIAcmeLogoView and `[data-slot="nav-links"]` takes the UINavLinkView
  * instances. Composition happens at the ViewStream level, so the template
  * describes the shape and the mounting comes later.
  *
@@ -14,11 +14,11 @@ import SideNavTmpl from './templates/sidenav.tmpl.html';
  * `signOut` server action. There is no server action here, so the form is
  * dropped and the button stands on its own; the click is wired later.
  */
-export class SideNavView extends ViewStream {
+export class UISideNavView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class = 'flex h-full flex-col px-3 py-4 md:px-2';
-    props.template = SideNavTmpl;
+    props.template = UISideNavTmpl;
     props.data = {
       signOutText: 'Sign Out',
       svgPower: withClass('power', 'w-6'),

@@ -33,7 +33,7 @@
 @use '03-components/ui/containers' as *;
 
 // TO DISABLE THE DESIGN SYSTEM COMMENT ON THE DESIGN INJECTION
-@include designSystem.inject-design-system('main#app');
+//@include designSystem.inject-design-system('main#app');
 
 // temp csm mode fix
 body.spyne-plugin-cms-mode{

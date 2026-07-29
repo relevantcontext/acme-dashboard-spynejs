@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import LatestInvoiceRowTmpl from './templates/latest-invoice-row.tmpl.html';
+import InvoicesLatestRowTmpl from './templates/invoices-latest-row-view.tmpl.html';
 
 const ROW_BASE = 'flex flex-row items-center justify-between py-4';
 
@@ -19,11 +19,11 @@ const ROW_BASE = 'flex flex-row items-center justify-between py-4';
  * @param {String} props.imageUrl
  * @param {Boolean} [props.isFirst]
  */
-export class LatestInvoiceRowView extends ViewStream {
+export class InvoicesLatestRowView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class = props.isFirst ? ROW_BASE : `${ROW_BASE} border-t`;
-    props.template = LatestInvoiceRowTmpl;
+    props.template = InvoicesLatestRowTmpl;
     props.data = {
       name: props.name || '',
       email: props.email || '',

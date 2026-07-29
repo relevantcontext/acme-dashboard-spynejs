@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import RevenueChartTmpl from './templates/revenue-chart.tmpl.html';
+import RevenueChartTmpl from './templates/revenue-chart-view.tmpl.html';
 
 /**
  * Converted from app/ui/dashboard/revenue-chart.tsx (outer markup).

@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import InvoiceCreateButtonTmpl from './templates/invoice-create-button.tmpl.html';
+import InvoicesCreateButtonTmpl from './templates/invoices-create-button-view.tmpl.html';
 
 /**
  * Converted from the CreateInvoice export in app/ui/invoices/buttons.tsx.
@@ -16,7 +16,7 @@ import InvoiceCreateButtonTmpl from './templates/invoice-create-button.tmpl.html
  * is correct but will not resolve until that route is added through the App
  * Builder, which is where route config is authored.
  */
-export class InvoiceCreateButtonView extends ViewStream {
+export class InvoicesCreateButtonView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'a';
     props.class =
@@ -28,7 +28,7 @@ export class InvoiceCreateButtonView extends ViewStream {
       topicId: 'invoices',
       eventPreventDefault: 'true',
     };
-    props.template = InvoiceCreateButtonTmpl;
+    props.template = InvoicesCreateButtonTmpl;
     props.data = {
       label: 'Create Invoice',
       svgPlus: withClass('plus', 'h-5 md:ml-4'),

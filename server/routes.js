@@ -25,9 +25,9 @@ export function buildRouter() {
   router.get(
     '/health',
     h(async (_req, res) => {
-      // Proves the whole path: browser -> https dev server -> proxy -> this
-      // tier -> Postgres over TLS. Cheap enough to poll. Left unauthenticated
-      // so it stays usable as a liveness probe.
+      // Proves the whole path: browser -> dev server -> proxy -> this tier ->
+      // Postgres over TLS. Cheap enough to poll. Left unauthenticated so it
+      // stays usable as a liveness probe.
       const [row] = await q.fetchCustomers();
       res.json({ ok: true, db: row ? 'connected' : 'empty' });
     }),

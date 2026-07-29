@@ -1,11 +1,11 @@
 import { ViewStream } from 'spyne';
-import InvoiceCardTmpl from './templates/invoice-card.tmpl.html';
+import InvoicesCardTmpl from './templates/invoices-card-view.tmpl.html';
 
 /**
  * The below-md card of app/ui/invoices/table.tsx — the same invoice rendered
  * for narrow viewports.
  *
- * Slots: [data-slot="status"] for InvoiceStatusView, [data-slot="card-actions"]
+ * Slots: [data-slot="status"] for InvoicesStatusView, [data-slot="card-actions"]
  * for the update/delete buttons.
  *
  * @param {Object} props
@@ -15,11 +15,11 @@ import InvoiceCardTmpl from './templates/invoice-card.tmpl.html';
  * @param {String} props.date       formatted
  * @param {String} props.imageUrl
  */
-export class InvoiceCardView extends ViewStream {
+export class InvoicesCardView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class = 'mb-2 w-full rounded-md bg-white p-4';
-    props.template = InvoiceCardTmpl;
+    props.template = InvoicesCardTmpl;
     props.data = {
       name: props.name || '',
       email: props.email || '',

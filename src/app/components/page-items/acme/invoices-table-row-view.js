@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import InvoiceTableRowTmpl from './templates/invoice-table-row.tmpl.html';
+import InvoicesTableRowTmpl from './templates/invoices-table-row-view.tmpl.html';
 
 const ROW_CLASS =
   'w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg';
@@ -12,7 +12,7 @@ const ROW_CLASS =
  * the template.
  *
  * Two slots hold nested ViewStreams: [data-slot="status"] for
- * InvoiceStatusView, [data-slot="row-actions"] for the update/delete buttons.
+ * InvoicesStatusView, [data-slot="row-actions"] for the update/delete buttons.
  *
  * @param {Object} props
  * @param {String} props.name
@@ -21,11 +21,11 @@ const ROW_CLASS =
  * @param {String} props.date       formatted
  * @param {String} props.imageUrl
  */
-export class InvoiceTableRowView extends ViewStream {
+export class InvoicesTableRowView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'tr';
     props.class = ROW_CLASS;
-    props.template = InvoiceTableRowTmpl;
+    props.template = InvoicesTableRowTmpl;
     props.data = {
       name: props.name || '',
       email: props.email || '',

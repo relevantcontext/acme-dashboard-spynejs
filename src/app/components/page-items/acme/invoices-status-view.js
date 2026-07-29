@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import InvoiceStatusTmpl from './templates/invoice-status.tmpl.html';
+import InvoicesStatusTmpl from './templates/invoices-status-view.tmpl.html';
 
 const PILL_BASE = 'inline-flex items-center rounded-full px-2 py-1 text-xs';
 
@@ -21,13 +21,13 @@ const PILL_BY_STATUS = {
  * @param {Object} props
  * @param {'pending'|'paid'} props.status
  */
-export class InvoiceStatusView extends ViewStream {
+export class InvoicesStatusView extends ViewStream {
   constructor(props = {}) {
     const status = props.status === 'paid' ? 'paid' : 'pending';
 
     props.tagName = 'span';
     props.class = `${PILL_BASE} ${PILL_BY_STATUS[status]}`;
-    props.template = InvoiceStatusTmpl;
+    props.template = InvoicesStatusTmpl;
     props.data =
       status === 'paid'
         ? { isPaid: { svgCheck: withClass('check', 'ml-1 w-4 text-white') } }

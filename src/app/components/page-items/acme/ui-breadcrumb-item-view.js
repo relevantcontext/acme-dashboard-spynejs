@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import BreadcrumbItemTmpl from './templates/breadcrumb-item.tmpl.html';
+import UIBreadcrumbItemTmpl from './templates/ui-breadcrumb-item-view.tmpl.html';
 
 /**
  * One crumb of app/ui/invoices/breadcrumbs.tsx.
@@ -18,11 +18,11 @@ import BreadcrumbItemTmpl from './templates/breadcrumb-item.tmpl.html';
  * @param {Boolean} [props.active]
  * @param {Boolean} [props.isLast]
  */
-export class BreadcrumbItemView extends ViewStream {
+export class UIBreadcrumbItemView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'li';
     props.class = props.active ? 'text-gray-900' : 'text-gray-500';
-    props.template = BreadcrumbItemTmpl;
+    props.template = UIBreadcrumbItemTmpl;
     props.data = {
       label: props.label || '',
       attrHref: props.href || '',

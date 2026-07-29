@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import SearchTmpl from './templates/search.tmpl.html';
+import UISearchTmpl from './templates/ui-search-view.tmpl.html';
 
 /**
  * Converted from app/ui/search.tsx.
@@ -24,11 +24,11 @@ import SearchTmpl from './templates/search.tmpl.html';
  * @param {String} [props.query]        current search term, for round-tripping
  * @param {String} [props.acmeAction]   defaults to the invoices search
  */
-export class SearchView extends ViewStream {
+export class UISearchView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class = 'relative flex flex-1 flex-shrink-0';
-    props.template = SearchTmpl;
+    props.template = UISearchTmpl;
     props.data = {
       inputId: props.inputId || 'search',
       labelText: 'Search',

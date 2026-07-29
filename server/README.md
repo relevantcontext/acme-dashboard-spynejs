@@ -19,7 +19,7 @@ So the two data paths are:
 
 ```
 Next.js   browser → (server component) ────────────────→ Postgres
-SpyneJS   browser → https://localhost:8443/api → :8090 → Postgres
+SpyneJS   browser → http://localhost:8443/api → :8090 → Postgres
 ```
 
 That asymmetry is the real architectural difference the comparison exists to
@@ -29,13 +29,23 @@ show, not a handicap applied to one side.
 
 | Piece | Address |
 | --- | --- |
-| SpyneJS dev server | `https://localhost:8443` |
+| SpyneJS dev server | `http://localhost:8443` |
 | API tier | `http://127.0.0.1:8090` (loopback only, never addressed by the page) |
 | Postgres | `localhost:5433`, TLS required |
 
 The dev server proxies `/api` → `127.0.0.1:8090`, so the browser only ever sees
-one HTTPS origin. No mixed-content block, and no CORS layer to build or keep in
-sync.
+one origin. Nothing is cross-origin, so there is no CORS layer to build or keep
+in sync.
+
+Plain HTTP, matching how `next dev` serves the Next.js side. Nothing in the app
+needs a secure context, and the proxy already removes the mixed-content problem
+HTTPS would otherwise be solving — a self-signed cert would only add a browser
+warning to one side of a side-by-side comparison. `DEV_SERVER_PROTOCOL=https`
+opts back in.
+
+This says nothing about the database: Node always connects to Postgres with
+postgres.js `ssl: 'require'`. That is a server-to-server connection and is
+encrypted either way.
 
 ## Running
 
@@ -48,10 +58,6 @@ the pattern already used in `spynejs-ai-codegen`. Either process dying takes the
 other down, so you never get a half-running stack.
 
 Individually: `npm run start:web`, `npm run start:api`.
-
-The dev server uses a self-signed certificate; accept the browser warning once
-per session. `DEV_SERVER_PROTOCOL=http` drops to plain HTTP — that exists only
-for headless browsers that cannot click through the warning, not for normal use.
 
 Requires `.env` (gitignored) next to `package.json` with the same
 `POSTGRES_URL` the Next.js app uses. Copy `.env.example`.
@@ -138,7 +144,7 @@ forged session never reaches route code as a value.
 Sign in from the command line:
 
 ```bash
-curl -k -c /tmp/acme.txt -X POST https://localhost:8443/api/auth/login -H 'Content-Type: application/json' -d '{"email":"user@nextmail.com","password":"123456"}'
+curl -c /tmp/acme.txt -X POST http://localhost:8443/api/auth/login -H 'Content-Type: application/json' -d '{"email":"user@nextmail.com","password":"123456"}'
 ```
 
 Then pass `-b /tmp/acme.txt` on subsequent requests. In the browser the cookie is

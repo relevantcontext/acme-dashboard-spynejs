@@ -71,7 +71,10 @@ export function issueSession(res, user) {
     signed: true, // HMAC-SHA256 over AUTH_SECRET — tampering invalidates it
     httpOnly: true, // unreadable from page JavaScript, so XSS cannot exfiltrate it
     sameSite: 'lax', // blocks cross-site submission (CSRF) while keeping normal nav
-    secure: true, // the dev server is HTTPS, so this holds in dev too
+    // Correct for a deployed origin. In dev the app is served over plain
+    // http://localhost, which browsers treat as trustworthy, so the cookie is
+    // still set. It would NOT be set over http:// on a LAN address.
+    secure: true,
     maxAge: SESSION_MAX_AGE_MS,
     path: '/',
   });

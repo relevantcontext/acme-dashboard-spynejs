@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import AcmeLogoTmpl from './templates/acme-logo.tmpl.html';
+import UIAcmeLogoTmpl from './templates/ui-acme-logo-view.tmpl.html';
 
 /**
  * Converted from app/ui/acme-logo.tsx.
@@ -12,12 +12,12 @@ import AcmeLogoTmpl from './templates/acme-logo.tmpl.html';
  * a class per family at build time; the SpyneJS side declares the families in
  * tailwind.config.js instead, so the utility is the equivalent.
  */
-export class AcmeLogoView extends ViewStream {
+export class UIAcmeLogoView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class =
       'font-lusitana flex flex-row items-center leading-none text-white';
-    props.template = AcmeLogoTmpl;
+    props.template = UIAcmeLogoTmpl;
     props.data = {
       svgGlobeAlt: withClass('globeAlt', 'h-12 w-12 rotate-[15deg]'),
       logoText: 'Acme',

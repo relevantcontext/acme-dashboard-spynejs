@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import InvoiceDeleteButtonTmpl from './templates/invoice-delete-button.tmpl.html';
+import InvoicesDeleteButtonTmpl from './templates/invoices-delete-button-view.tmpl.html';
 
 /**
  * Converted from the DeleteInvoice export in app/ui/invoices/buttons.tsx.
@@ -16,7 +16,7 @@ import InvoiceDeleteButtonTmpl from './templates/invoice-delete-button.tmpl.html
  * @param {Object} props
  * @param {String} props.id  invoice id
  */
-export class InvoiceDeleteButtonView extends ViewStream {
+export class InvoicesDeleteButtonView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'button';
     props.type = 'button';
@@ -26,7 +26,7 @@ export class InvoiceDeleteButtonView extends ViewStream {
       acmeAction: 'DeleteInvoice',
       id: props.id,
     };
-    props.template = InvoiceDeleteButtonTmpl;
+    props.template = InvoicesDeleteButtonTmpl;
     props.data = {
       label: 'Delete',
       svgTrash: withClass('trash', 'w-5'),

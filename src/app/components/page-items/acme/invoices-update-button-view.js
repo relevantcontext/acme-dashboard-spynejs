@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import InvoiceUpdateButtonTmpl from './templates/invoice-update-button.tmpl.html';
+import InvoicesUpdateButtonTmpl from './templates/invoices-update-button-view.tmpl.html';
 
 /**
  * Converted from the UpdateInvoice export in app/ui/invoices/buttons.tsx.
@@ -11,7 +11,7 @@ import InvoiceUpdateButtonTmpl from './templates/invoice-update-button.tmpl.html
  * @param {Object} props
  * @param {String} props.id  invoice id
  */
-export class InvoiceUpdateButtonView extends ViewStream {
+export class InvoicesUpdateButtonView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'a';
     props.class = 'rounded-md border p-2 hover:bg-gray-100';
@@ -23,7 +23,7 @@ export class InvoiceUpdateButtonView extends ViewStream {
       invoiceId: props.id,
       eventPreventDefault: 'true',
     };
-    props.template = InvoiceUpdateButtonTmpl;
+    props.template = InvoicesUpdateButtonTmpl;
     props.data = {
       svgPencil: withClass('pencil', 'w-5'),
     };

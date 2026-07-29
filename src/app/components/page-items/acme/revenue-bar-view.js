@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import RevenueBarTmpl from './templates/revenue-bar.tmpl.html';
+import RevenueBarTmpl from './templates/revenue-bar-view.tmpl.html';
 
 /**
  * One bar of app/ui/dashboard/revenue-chart.tsx.
