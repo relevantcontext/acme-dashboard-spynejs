@@ -1,0 +1,23 @@
+<div class="flex items-center justify-between border-b pb-4">
+  <div>
+    <div class="mb-2 flex items-center">
+      <img
+        src="{{attrImageSrc}}"
+        class="mr-2 rounded-full"
+        width="28"
+        height="28"
+        alt="{{attrImageAlt}}"
+      />
+      <p>{{name}}</p>
+    </div>
+    <p class="text-sm text-gray-500">{{email}}</p>
+  </div>
+  <div data-slot="status"></div>
+</div>
+<div class="flex w-full items-center justify-between pt-4">
+  <div>
+    <p class="text-xl font-medium">{{amount}}</p>
+    <p>{{date}}</p>
+  </div>
+  <div class="flex justify-end gap-2" data-slot="card-actions"></div>
+</div>
