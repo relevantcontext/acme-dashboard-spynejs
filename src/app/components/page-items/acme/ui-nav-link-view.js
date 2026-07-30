@@ -1,38 +1,35 @@
 import { ViewStream } from 'spyne';
-import { withClass } from 'traits/utils/svg-icons.js';
 import UINavLinkTmpl from './templates/ui-nav-link-view.tmpl.html';
-
-const LINK_BASE =
-  'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3';
 
 /**
  * Converted from app/ui/dashboard/nav-links.tsx.
  *
- * The source maps over a hard-coded `links` array and renders one Link each.
- * Here each link is its own module; the list that renders three of them is
- * composition and belongs to whatever mounts them.
+ * Renders the whole nav list, not one link: `props.data` is the navLinks array
+ * off the route payload, and the template iterates it into one anchor per entry
+ * carrying its own ROUTE data attributes.
  *
- * The active state is applied from `props.isActive` rather than compared
- * against a pathname — route awareness is wiring, not markup.
+ * The root is `display: contents`, so it disappears from layout and the anchors
+ * become direct flex children of the sidenav's
+ * `flex ... md:flex-col md:space-y-2` wrapper. That mirrors the source, where
+ * NavLinks returns a fragment and the links are laid out by SideNav's wrapper —
+ * which is what makes `md:justify-start` on each anchor left-align them in a
+ * column.
  *
- * @param {Object} props
- * @param {String} props.name
- * @param {String} props.href
- * @param {String} props.icon      key from traits/utils/svg-icons.js
- * @param {Boolean} [props.isActive]
+ * Two things this class must NOT do, both learned the hard way:
+ *
+ *   1. Put a single link's styles on `props.class`. The class is applied to the
+ *      root as well, which turned it into a 48px flex row and collapsed all
+ *      seven links into it.
+ *
+ *   2. Set `display` inline on the anchors. An inline style beats every class,
+ *      so `flex` never applied and `md:justify-start` silently did nothing —
+ *      justify-content has no effect on a block element.
  */
 export class UINavLinkView extends ViewStream {
   constructor(props = {}) {
-    props.class = props.isActive
-      ? `${LINK_BASE} bg-sky-100 text-blue-600`
-      : LINK_BASE;
-    props.href = props.href || '';
+    props.class = 'contents';
     props.template = UINavLinkTmpl;
-    console.log("PROPS DATA IS ",props.data);
-    props.data1 = {
-      name: props.name || '',
-      svgIcon: props.icon ? withClass(props.icon, 'w-6') : '',
-    };
+    props.data = props.data || [];
 
     super(props);
   }
@@ -42,9 +39,7 @@ export class UINavLinkView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [
-      ['a', 'click']
-    ];
+    return [['a', 'click']];
   }
 
   onRendered() {}

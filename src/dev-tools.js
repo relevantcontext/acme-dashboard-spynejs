@@ -10,14 +10,16 @@ const cmsPluginConfig = {
   maximize: true,
 };
 
+console.log('dev tools laoded');
+
 export const devToolsReady = new Promise((resolve) => {
   const spyneCmsPlugin = new SpyneCmsPlugin(cmsPluginConfig);
   SpyneApp.registerPlugin(spyneCmsPlugin);
 
   SpyneApp.registerPlugin(
     new SpynePluginConsole({
-      position: ['bottom', 'left'],
-      minimize: false,
+      position: ['bottom', 'right'],
+      minimize: true,
     }),
   );
 

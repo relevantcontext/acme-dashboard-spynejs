@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import UICardTmpl from './templates/ui-card-view.tmpl.html';
+import DashboardStatCardTmpl from './templates/dashboard-stat-card-view.tmpl.html';
 
 // Card type -> icon, from the iconMap in app/ui/dashboard/cards.tsx.
 const ICON_BY_TYPE = {
@@ -21,13 +21,13 @@ const ICON_BY_TYPE = {
  * @param {String|Number} props.value
  * @param {'invoices'|'customers'|'pending'|'collected'} props.type
  */
-export class UICardView extends ViewStream {
+export class DashboardStatCardView extends ViewStream {
   constructor(props = {}) {
     const iconName = ICON_BY_TYPE[props.type];
 
     props.tagName = 'div';
     props.class = 'rounded-xl bg-gray-50 p-2 shadow-sm';
-    props.template = UICardTmpl;
+    props.template = DashboardStatCardTmpl;
     props.data = {
       title: props.title || '',
       value: props.value === undefined ? '' : String(props.value),

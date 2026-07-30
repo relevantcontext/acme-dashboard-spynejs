@@ -1,0 +1,13 @@
+<main class="page-content">
+  <h1 class="font-lusitana mb-4 text-xl md:text-2xl">{{pageHeading}}</h1>
+
+  <!-- DashboardStatsContainer mounts here; it supplies its own grid. -->
+  <div data-region="main"></div>
+
+  <!-- Layout-only row from page.tsx: chart and latest-invoices sit side by side.
+       Both carry md:col-span-4, which is inert without this grid parent. -->
+  <div
+    data-region="panels"
+    class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8"
+  ></div>
+</main>

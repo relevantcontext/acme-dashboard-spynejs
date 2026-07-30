@@ -1,0 +1,30 @@
+<div class="flex items-center justify-between border-b pb-4">
+  <div>
+    <div class="mb-2 flex items-center">
+      <div class="flex items-center gap-3">
+        <img
+          src="{{attrImageSrc}}"
+          class="rounded-full"
+          alt="{{attrImageAlt}}"
+          width="28"
+          height="28"
+        />
+        <p>{{name}}</p>
+      </div>
+    </div>
+    <p class="text-sm text-gray-500">{{email}}</p>
+  </div>
+</div>
+<div class="flex w-full items-center justify-between border-b py-5">
+  <div class="flex w-1/2 flex-col">
+    <p class="text-xs">Pending</p>
+    <p class="font-medium">{{totalPending}}</p>
+  </div>
+  <div class="flex w-1/2 flex-col">
+    <p class="text-xs">Paid</p>
+    <p class="font-medium">{{totalPaid}}</p>
+  </div>
+</div>
+<div class="pt-4 text-sm">
+  <p>{{totalInvoices}} invoices</p>
+</div>

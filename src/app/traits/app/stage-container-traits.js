@@ -20,6 +20,9 @@ export class StageContainerTraits extends SpyneTrait {
     if (is404) {
       PageClass = Page404View;
     }
+
+    const hideUI = pageId === 'login';
+    this.props.el$('.slot-ui').toggle('hide', hideUI);
     const data = e.payload;
     this.appendView(new PageClass({ data, isDeepLink }), '.page-container');
   }
@@ -30,6 +33,6 @@ export class StageContainerTraits extends SpyneTrait {
 
   static stage$OnRendered() {
     this.appendView(new UISideNavView(), '.slot-ui');
-    this.appendView(new NavBreadcrumbView(), '.slot-page');
+    this.appendView(new NavBreadcrumbView(), '.slot-ui');
   }
 }

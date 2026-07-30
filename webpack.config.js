@@ -123,6 +123,14 @@ export default (env = { mode: 'development' }) => {
     plugins: getWebpackPlugins(ctx),
 
     optimization: {
+      // Guarantees `process.env.NODE_ENV` is substituted with a string literal
+      // in EVERY mode. webpack derives this from `mode` by default, which means
+      // mode 'none' (the test build) leaves the expression untouched and it
+      // throws in the browser — src/index.js reads it to decide whether to load
+      // the CMS. For development and production this matches the default
+      // exactly, so only the test build changes.
+      nodeEnv: isTest ? 'test' : mode,
+
       // Split everything from node_modules into a single long-lived vendor chunk.
       splitChunks: {
         cacheGroups: {

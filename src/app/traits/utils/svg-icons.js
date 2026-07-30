@@ -13,6 +13,8 @@
 import arrowLeft from 'svgs/heroicons/arrow-left.svg';
 import arrowPath from 'svgs/heroicons/arrow-path.svg';
 import arrowRight from 'svgs/heroicons/arrow-right.svg';
+// The login button uses the 20/solid arrow (filled), not the 24/outline one.
+import arrowRightSolid from 'svgs/heroicons/arrow-right-solid.svg';
 import atSymbol from 'svgs/heroicons/at-symbol.svg';
 import banknotes from 'svgs/heroicons/banknotes.svg';
 import calendar from 'svgs/heroicons/calendar.svg';
@@ -39,6 +41,7 @@ export const icons = {
   arrowLeft,
   arrowPath,
   arrowRight,
+  arrowRightSolid,
   atSymbol,
   banknotes,
   calendar,

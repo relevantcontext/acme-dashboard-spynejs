@@ -116,6 +116,7 @@ SpyneApp.registerChannel(new ChannelAcmeApi());
 // nothing and exists solely to hold that boundary.
 new AcmeApiRequester().appendToNull();
 
+
 const registerCmsChannels = () => {
   const mapFn = SpyneApp.pluginsFn.mapCmsData || ((d) => d);
 
@@ -127,12 +128,17 @@ const registerCmsChannels = () => {
   );
 };
 
+// webpack substitutes this expression with a string literal at build time, in
+// every mode — see `optimization.nodeEnv` in webpack.config.js. Do not guard it
+// with `typeof process`: webpack replaces only this exact expression, leaving a
+// bare `process` undefined in the browser, so such a guard is always false and
+// silently disables the CMS.
 if (process.env.NODE_ENV === 'development') {
   import('./dev-tools.js').then(({ devToolsReady }) => {
     devToolsReady.then(registerCmsChannels);
   });
 } else {
-  // production: no CMS, no delay
+  // production and test: no CMS, no delay
   registerCmsChannels();
 }
 

@@ -30,10 +30,10 @@ export class AppContainerTraits extends SpyneTrait {
   }
 
   static app$OnAppViewRendered() {
-    this.appendView(new UIHeaderView());
-    this.appendView(new UIMenuDrawerView());
+   // this.appendView(new UIHeaderView());
+   // this.appendView(new UIMenuDrawerView());
     this.appendView(new StageContainer());
-    this.appendView(new UIFooterView());
+   // this.appendView(new UIFooterView());
     new LocalStorageNullView().appendToNull();
   }
 }

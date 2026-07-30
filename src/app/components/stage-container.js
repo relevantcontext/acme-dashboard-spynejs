@@ -6,8 +6,19 @@ export class StageContainer extends ViewStream {
     props.id = 'stage-view';
     props.traits = [StageContainerTraits];
     props.channels = ['CHANNEL_APP', 'CHANNEL_ROUTE'];
-    props.template = `<div class="slot slot-ui"></div>
-                      <div class="slot slot-page  page-container "></div>`;
+
+    // Layout ported from the Next.js app's dashboard/layout.tsx:
+    //
+    //   <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
+    //     <div className="w-full flex-none md:w-64">      <SideNav />
+    //     <div className="grow p-6 md:overflow-y-auto md:p-12">{children}
+    //
+    // The sidenav column is fixed at w-64 from md up and the page column takes
+    // the remaining width and scrolls independently. Below md both stack, which
+    // is why the nav is a row on narrow viewports.
+    props.class = 'flex h-screen flex-col md:flex-row md:overflow-hidden';
+    props.template = `<div class="slot slot-ui w-full flex-none md:w-64"></div>
+                      <div class="slot slot-page page-container grow p-6 md:overflow-y-auto md:p-12"></div>`;
     super(props);
   }
 

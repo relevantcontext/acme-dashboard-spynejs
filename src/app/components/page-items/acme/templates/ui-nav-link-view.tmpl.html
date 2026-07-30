@@ -1,15 +1,13 @@
-{{svgIcon}}
-<p class="hidden md:block">{{name}}</p>
-
 {{#}}
-<a style="display:block"
+<a
   data-channel="ROUTE"
   data-page-id="{{pageId}}"
   data-topic-id="{{topicId}}"
   data-option-id="{{optionId}}"
   data-event-type="menuDrawer"
   data-event-prevent-default="true"
-  class="nav link menu-drawer-link ds-link nav-level-{{navLevel}}"
-  href="{{href}}">{{title}}</a>
-
+  class="nav link menu-drawer-link ds-link nav-level-{{navLevel}} flex h-[48px] grow items-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
+  href="{{href}}"
+  >{{title}}</a
+>
 {{/}}

@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import RevenueBarTmpl from './templates/revenue-bar-view.tmpl.html';
+import DashboardRevenueBarTmpl from './templates/dashboard-revenue-bar-view.tmpl.html';
 
 /**
  * One bar of app/ui/dashboard/revenue-chart.tsx.
@@ -12,11 +12,11 @@ import RevenueBarTmpl from './templates/revenue-bar-view.tmpl.html';
  * @param {String} props.month
  * @param {Number} props.barHeight  already resolved to pixels
  */
-export class RevenueBarView extends ViewStream {
+export class DashboardRevenueBarView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class = 'flex flex-col items-center gap-2';
-    props.template = RevenueBarTmpl;
+    props.template = DashboardRevenueBarTmpl;
     props.data = {
       month: props.month || '',
       barHeight: String(props.barHeight || 0),

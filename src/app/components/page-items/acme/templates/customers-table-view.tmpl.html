@@ -1,0 +1,28 @@
+<h1 class="font-lusitana mb-8 text-xl md:text-2xl">{{heading}}</h1>
+<div data-slot="search"></div>
+<div class="mt-6 flow-root">
+  <div class="overflow-x-auto">
+    <div class="inline-block min-w-full align-middle">
+      <div class="overflow-hidden rounded-md bg-gray-50 p-2 md:pt-0">
+        <div class="md:hidden" data-slot="customer-cards"></div>
+        <table class="hidden min-w-full rounded-md text-gray-900 md:table">
+          <thead
+            class="rounded-md bg-gray-50 text-left text-sm font-normal"
+          >
+            <tr>
+              <th scope="col" class="px-4 py-5 font-medium sm:pl-6">Name</th>
+              <th scope="col" class="px-3 py-5 font-medium">Email</th>
+              <th scope="col" class="px-3 py-5 font-medium">Total Invoices</th>
+              <th scope="col" class="px-3 py-5 font-medium">Total Pending</th>
+              <th scope="col" class="px-4 py-5 font-medium">Total Paid</th>
+            </tr>
+          </thead>
+          <tbody
+            class="divide-y divide-gray-200 text-gray-900"
+            data-slot="customer-rows"
+          ></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
