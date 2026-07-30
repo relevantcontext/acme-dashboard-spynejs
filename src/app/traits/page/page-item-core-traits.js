@@ -121,10 +121,12 @@ export class PageItemCoreTraits extends SpyneTrait {
     }
 
     if (content) {
-      this.appendView(
+      // no cards for this experience
+
+     /* this.appendView(
         new CardsContainerView({ data: content, pageType }),
         '.page-body',
-      );
+      );*/
     }
 
     if (pageItems) {

@@ -12,10 +12,14 @@ export class AcmeNavTraits extends SpyneTrait {
   static acmeNav$OnInitNav(e) {
     const {navLinks} = e.payload;
 
-    console.log("NAV LINKS ",{e, navLinks})
+    const data = Array.from(navLinks).filter(o => o.pageId==='dashboard')
+
+
+
+    console.log("NAV LINKS ",{e, data, navLinks})
 
     this.appendView(new UINavLinkView({
-      data: navLinks
+      data
     }), `[data-slot='nav-links']`);
 
   }
