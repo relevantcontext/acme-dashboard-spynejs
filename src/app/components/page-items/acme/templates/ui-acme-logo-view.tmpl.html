@@ -1,2 +1,6 @@
 {{svgGlobeAlt}}
-<p class="text-[44px]">{{logoText}}</p>
+<!-- whitespace-nowrap keeps "Acme" on one line. At 44px Lusitana the word
+     measures 109px and the icon is 48px, which overflows the 144px wrapper the
+     login page gives it (w-36) — without this, flex shrinks both and the word
+     wraps onto a second line. -->
+<p class="whitespace-nowrap text-[44px]">{{logoText}}</p>

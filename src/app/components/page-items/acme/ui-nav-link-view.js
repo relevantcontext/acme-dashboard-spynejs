@@ -39,7 +39,9 @@ export class UINavLinkView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [['a', 'click']];
+    return [
+      ['a', 'click']
+    ];
   }
 
   onRendered() {}

@@ -36,7 +36,9 @@ export class UISideNavView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [];
+    return [
+      ['button#sign-out', 'click']
+    ];
   }
 
   onRendered() {

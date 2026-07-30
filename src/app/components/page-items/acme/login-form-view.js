@@ -1,5 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
+import { FormLoginTraits } from 'traits/form/form-login-traits.js';
 import LoginFormTmpl from './templates/login-form-view.tmpl.html';
 
 const ICON_CLASS =
@@ -27,6 +28,14 @@ export class LoginFormView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'form';
     props.class = 'space-y-3';
+    props.channels = ['CHANNEL_UI'];
+    props.traits = [FormLoginTraits];
+
+    // Stops the browser from navigating on submit, which would reload the page
+    // before the fetch could complete. Spyne reads this off the element that
+    // raised the event.
+    props.dataset = { eventPreventDefault: 'true' };
+
     props.template = LoginFormTmpl;
     props.data = {
       heading: 'Please log in to continue.',
@@ -46,11 +55,13 @@ export class LoginFormView extends ViewStream {
   }
 
   addActionListeners() {
-    return [];
+    return [['CHANNEL_UI_SUBMIT_EVENT', 'login$OnSubmit']];
   }
 
   broadcastEvents() {
-    return [];
+    // The root element IS the form. Spyne falls back to matching the view's own
+    // element when the selector finds nothing inside it, so this binds the root.
+    return [['form', 'submit']];
   }
 
   onRendered() {}

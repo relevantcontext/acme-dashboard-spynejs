@@ -34,6 +34,17 @@ export class ChannelAcmeApi extends Channel {
       // performs the actual fetch. Views do not listen for this.
       'CHANNEL_ACME_API_REQUEST_EVENT',
       'CHANNEL_ACME_API_SESSION_EVENT',
+
+      // Login outcome, split so a view can listen for one or the other without
+      // inspecting the payload. SUCCESS carries { user }; FAILED carries the
+      // API's own message — 'Invalid credentials.' — plus the HTTP status.
+      'CHANNEL_ACME_API_LOGIN_SUCCESS_EVENT',
+      'CHANNEL_ACME_API_LOGIN_FAILED_EVENT',
+
+      // Sign out succeeded — the session cookie has been cleared server-side.
+      'CHANNEL_ACME_API_LOGOUT_EVENT',
+
+      // Any other auth outcome, including a failed sign out.
       'CHANNEL_ACME_API_AUTH_EVENT',
       'CHANNEL_ACME_API_CARDS_EVENT',
       'CHANNEL_ACME_API_INVOICES_EVENT',
