@@ -28,7 +28,72 @@ import { AppContainer } from './app/app-container.js';
 
 import pageItemTemplateLookup from 'traits/utils/page-item-template-lookup.js';
 
-const config = {"channels":{"ROUTE":{"routes":{"routePath":{"routeName":"pageId","home":"","login":"login","dashboard":{"routePath":{"routeName":"topicId","invoices":"invoices","customers":"customers"}}}},"add404s":true},"WINDOW":{"mediaQueries":{"showMenuDrawer":"(min-width: 1024px)"},"events":["click","mouseover","mouseenter","message","keyup","keydown"],"customEvents":[{"name":"spyne_cms_item_connected","buffer":400}],"listenForScroll":true,"listenForOrientation":true,"debounceMSTimeForScroll":50}},"debug":true,"storageConfig":{"storageKey":"spyneAppStorage","theme":"auto","themeDefaults":{"colorScheme":"auto","enableTransitions":true}}};
+const config = {
+  channels: {
+    ROUTE: {
+      routes: {
+        routePath: {
+          routeName: 'pageId',
+          home: '',
+          login: 'login',
+          dashboard: {
+            routePath: {
+              routeName: 'topicId',
+              invoices: {
+                invoices: 'invoices',
+                routePath: {
+                  routeName: 'optionId',
+                  edit: 'edit',
+                  create: 'create',
+                },
+              },
+              customers: {
+                customers: 'customers',
+                routePath: {
+                  routeName: 'optionId',
+                  profile: 'profile',
+                },
+              },
+              routePath: {},
+            },
+          },
+        },
+      },
+      add404s: true,
+    },
+    WINDOW: {
+      mediaQueries: {
+        showMenuDrawer: '(min-width: 1024px)',
+      },
+      events: [
+        'click',
+        'mouseover',
+        'mouseenter',
+        'message',
+        'keyup',
+        'keydown',
+      ],
+      customEvents: [
+        {
+          name: 'spyne_cms_item_connected',
+          buffer: 400,
+        },
+      ],
+      listenForScroll: true,
+      listenForOrientation: true,
+      debounceMSTimeForScroll: 50,
+    },
+  },
+  debug: true,
+  storageConfig: {
+    storageKey: 'spyneAppStorage',
+    theme: 'auto',
+    themeDefaults: {
+      colorScheme: 'auto',
+      enableTransitions: true,
+    },
+  },
+};
 
 SpyneApp.init(config);
 

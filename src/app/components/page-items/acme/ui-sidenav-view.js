@@ -1,6 +1,8 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
+import { UIAcmeLogoView } from 'components/page-items/acme/ui-acme-logo-view.js';
 import UISideNavTmpl from './templates/ui-sidenav-view.tmpl.html';
+import { AcmeNavTraits } from 'traits/acme-nav-traits.js';
 
 /**
  * Converted from app/ui/dashboard/sidenav.tsx.
@@ -19,6 +21,8 @@ export class UISideNavView extends ViewStream {
     props.tagName = 'div';
     props.class = 'flex h-full flex-col px-3 py-4 md:px-2';
     props.template = UISideNavTmpl;
+    props.channels = ['CHANNEL_ROUTE'];
+    props.traits = [AcmeNavTraits]
     props.data = {
       signOutText: 'Sign Out',
       svgPower: withClass('power', 'w-6'),
@@ -28,12 +32,15 @@ export class UISideNavView extends ViewStream {
   }
 
   addActionListeners() {
-    return [];
+    return [['CHANNEL_ROUTE_DEEPLINK_EVENT', 'acmeNav$OnInitNav']];
   }
 
   broadcastEvents() {
     return [];
   }
 
-  onRendered() {}
+  onRendered() {
+    this.appendView(new UIAcmeLogoView(), `[data-slot='acme-logo']`);
+
+  }
 }

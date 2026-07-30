@@ -1,5 +1,6 @@
 import { SpyneTrait } from 'spyne';
 import { NavBreadcrumbView } from 'components/nav/nav-breadcrumb-view.js';
+import { UISideNavView } from 'components/page-items/acme/ui-sidenav-view.js';
 import { Page404View } from 'components/pages/page-404-view.js';
 import { PageView } from 'components/pages/page-view.js';
 
@@ -28,6 +29,7 @@ export class StageContainerTraits extends SpyneTrait {
   }
 
   static stage$OnRendered() {
+    this.appendView(new UISideNavView(), '.slot-ui');
     this.appendView(new NavBreadcrumbView(), '.slot-page');
   }
 }

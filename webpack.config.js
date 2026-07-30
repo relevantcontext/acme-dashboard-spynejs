@@ -76,7 +76,7 @@ export default (env = { mode: 'development' }) => {
 
       // Fixed, not 'auto': the port is part of the comparison's documented
       // setup, and the API proxy below has to be a known quantity.
-      port: 8443,
+      port: 8010,
 
       // Plain HTTP, matching how `next dev` serves the Next.js side. Nothing in
       // this app needs a secure context, and the /api proxy below already

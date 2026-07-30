@@ -23,13 +23,13 @@ const LINK_BASE =
  */
 export class UINavLinkView extends ViewStream {
   constructor(props = {}) {
-    props.tagName = 'a';
     props.class = props.isActive
       ? `${LINK_BASE} bg-sky-100 text-blue-600`
       : LINK_BASE;
     props.href = props.href || '';
     props.template = UINavLinkTmpl;
-    props.data = {
+    console.log("PROPS DATA IS ",props.data);
+    props.data1 = {
       name: props.name || '',
       svgIcon: props.icon ? withClass(props.icon, 'w-6') : '',
     };
@@ -42,7 +42,9 @@ export class UINavLinkView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [];
+    return [
+      ['a', 'click']
+    ];
   }
 
   onRendered() {}
