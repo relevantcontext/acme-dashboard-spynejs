@@ -18,21 +18,25 @@ export const POSTGRES_URL = process.env.POSTGRES_URL;
 // comparison setup has one session secret rather than two to keep in sync.
 export const AUTH_SECRET = process.env.AUTH_SECRET;
 
+// These throw rather than call process.exit(). A long-running server and a
+// serverless function both surface a thrown error usefully; process.exit() kills
+// a function invocation with no message, which is exactly the case that is hard
+// to debug on a host you cannot attach to.
+
 if (!POSTGRES_URL) {
-  console.error(
+  throw new Error(
     '[api] POSTGRES_URL is not set.\n' +
-      '      The server is started with `node --env-file=.env`; create that file\n' +
-      '      next to package.json with the same POSTGRES_URL the Next.js app uses.',
+      '      Locally the server starts with `node --env-file=.env`; create that\n' +
+      '      file next to package.json with the same POSTGRES_URL the Next.js app\n' +
+      '      uses. On a hosted platform, set it as an environment variable.',
   );
-  process.exit(1);
 }
 
 if (!AUTH_SECRET) {
   // Refuse to start rather than fall back to a default: an unset secret would
   // mean every session cookie is signed with a value an attacker can guess.
-  console.error(
+  throw new Error(
     '[api] AUTH_SECRET is not set.\n' +
-      '      Add it to .env — use the same value as the Next.js app.',
+      '      Use the same value as the Next.js app.',
   );
-  process.exit(1);
 }
