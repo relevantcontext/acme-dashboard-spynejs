@@ -15,17 +15,34 @@ const ICON_CLASS =
  *
  * The submit button is inlined rather than slotted — it is intrinsic to the
  * form and always present, so it renders in the static phase. It already
- * carries `data-acme-action="Login"` for the wiring step.
+ * carries `data-btn-type="login"` for the wiring step.
  *
  * [data-slot="error"] holds the ExclamationCircle + message shown on a failed
  * login. Kept empty here — it renders nothing until there is an error, matching
  * the source's `&&`.
  *
  * @param {Object} props
- * @param {String} [props.callbackUrl]  hidden redirectTo, defaults to /dashboard
+ * @param {Object} [props.data]
+ * @param {String} [props.data.heading]
+ * @param {String} [props.data.emailLabel]
+ * @param {String} [props.data.emailPlaceholder]
+ * @param {String} [props.data.passwordLabel]
+ * @param {String} [props.data.passwordPlaceholder]
+ * @param {String} [props.data.loginLabel]
+ * @param {String} [props.data.callbackUrl]  hidden redirectTo, defaults to /dashboard
  */
 export class LoginFormView extends ViewStream {
   constructor(props = {}) {
+    const {
+      heading = 'Please log in to continue.',
+      emailLabel = 'Email',
+      emailPlaceholder = 'Enter your email address',
+      passwordLabel = 'Password',
+      passwordPlaceholder = 'Enter password',
+      loginLabel = 'Log in',
+      callbackUrl = '/dashboard',
+    } = props.data || {};
+
     props.tagName = 'form';
     props.class = 'space-y-3';
     props.channels = ['CHANNEL_UI'];
@@ -38,13 +55,14 @@ export class LoginFormView extends ViewStream {
 
     props.template = LoginFormTmpl;
     props.data = {
-      heading: 'Please log in to continue.',
-      emailLabel: 'Email',
-      emailPlaceholder: 'Enter your email address',
-      passwordLabel: 'Password',
-      passwordPlaceholder: 'Enter password',
-      attrRedirectTo: props.callbackUrl || '/dashboard',
-      loginLabel: 'Log in',
+      ...props.data,
+      heading,
+      emailLabel,
+      emailPlaceholder,
+      passwordLabel,
+      passwordPlaceholder,
+      attrRedirectTo: callbackUrl,
+      loginLabel,
       svgAtSymbol: withClass('atSymbol', ICON_CLASS),
       svgKey: withClass('key', ICON_CLASS),
       // 20/solid arrow, matching the source's <ArrowRightIcon> from that set.

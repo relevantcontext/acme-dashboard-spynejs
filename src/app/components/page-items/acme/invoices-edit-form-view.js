@@ -21,16 +21,18 @@ const DOLLAR_ICON =
  * that step rather than acted on in markup.
  *
  * @param {Object} props
- * @param {Object} props.invoice   { id, customer_id, amount, status }
+ * @param {Object} props.data
+ * @param {Object} props.data.invoice   { id, customer_id, amount, status }
  */
 export class InvoicesEditFormView extends ViewStream {
   constructor(props = {}) {
-    const invoice = props.invoice || {};
+    const { invoice = {} } = props.data || {};
     const isPaid = invoice.status === 'paid';
 
     props.tagName = 'form';
     props.template = InvoicesEditFormTmpl;
     props.data = {
+      ...props.data,
       customerLabel: 'Choose customer',
       customerPlaceholder: 'Select a customer',
       selectedCustomerId: invoice.customer_id || '',
@@ -45,7 +47,7 @@ export class InvoicesEditFormView extends ViewStream {
       cancelLabel: 'Cancel',
       attrCancelHref: '/dashboard/invoices',
       submitLabel: 'Edit Invoice',
-      submitAction: 'UpdateInvoice',
+      submitAction: 'update-invoice',
       svgUserCircle: withClass('userCircle', USER_ICON),
       svgCurrencyDollar: withClass('currencyDollar', DOLLAR_ICON),
       svgClock: withClass('clock', 'h-4 w-4'),

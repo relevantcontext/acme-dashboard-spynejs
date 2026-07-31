@@ -12,26 +12,37 @@ import CustomersTableRowTmpl from './templates/customers-table-row-view.tmpl.htm
  * it lives on props.class here.
  *
  * @param {Object} props
- * @param {String} props.name
- * @param {String} props.email
- * @param {String|Number} props.totalInvoices
- * @param {String} props.totalPending   formatted
- * @param {String} props.totalPaid      formatted
- * @param {String} props.imageUrl
+ * @param {Object} props.data
+ * @param {String} props.data.name
+ * @param {String} props.data.email
+ * @param {String|Number} props.data.totalInvoices
+ * @param {String} props.data.totalPending   formatted
+ * @param {String} props.data.totalPaid      formatted
+ * @param {String} props.data.imageUrl
  */
 export class CustomersTableRowView extends ViewStream {
   constructor(props = {}) {
+    const {
+      name = '',
+      email = '',
+      totalInvoices,
+      totalPending = '',
+      totalPaid = '',
+      imageUrl = '',
+    } = props.data || {};
+
     props.tagName = 'tr';
     props.class = 'group';
     props.template = CustomersTableRowTmpl;
     props.data = {
-      name: props.name || '',
-      email: props.email || '',
-      totalInvoices: String(props.totalInvoices ?? ''),
-      totalPending: props.totalPending || '',
-      totalPaid: props.totalPaid || '',
-      attrImageSrc: props.imageUrl || '',
-      attrImageAlt: `${props.name || ''}'s profile picture`,
+      ...props.data,
+      name,
+      email,
+      totalInvoices: String(totalInvoices ?? ''),
+      totalPending,
+      totalPaid,
+      attrImageSrc: imageUrl,
+      attrImageAlt: `${name}'s profile picture`,
     };
 
     super(props);

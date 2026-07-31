@@ -18,13 +18,16 @@ import { AcmeNavTraits } from 'traits/acme-nav-traits.js';
  */
 export class UISideNavView extends ViewStream {
   constructor(props = {}) {
+    const { signOutText = 'Sign Out' } = props.data || {};
+
     props.tagName = 'div';
     props.class = 'flex h-full flex-col px-3 py-4 md:px-2';
     props.template = UISideNavTmpl;
     props.channels = ['CHANNEL_ROUTE'];
     props.traits = [AcmeNavTraits]
     props.data = {
-      signOutText: 'Sign Out',
+      ...props.data,
+      signOutText,
       svgPower: withClass('power', 'w-6'),
     };
 

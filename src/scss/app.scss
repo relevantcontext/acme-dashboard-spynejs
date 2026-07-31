@@ -55,25 +55,18 @@ main#app {
     --logo-color: #e4e7eb; /* neutral-100 for dark mode */
   }
 
-  @include flex.flex-utilities;
-  @include grid.grid-utilities;
-  @include spacing.spacing-utilities;
-  @include inputs.input-styles();
-  @include inputs.label-styles();
-  @include textarea.textarea-styles();
-  @include checkboxes.checkbox-styles();
-  @include radio.radio-styles();
-  @include select.select-styles();
-
-  @include containers.header-container();
-  @include containers.main-container();
-  @include containers.form-container();
-  @include containers.footer-container();
-
-  ul,
-  ol {
-    color: var(--text-secondary);
-  }
+  // The design system's utility and form styles are NOT injected. Tailwind owns
+  // styling for the Acme UI, and these collided with it: scoped under main#app
+  // they carry specificity like (1,1,2) against Tailwind's (0,1,0), so
+  // `main#app .justify-center` beat `md:justify-start` and
+  // `main#app input[type=email]` beat `pl-10`. Every collision silently won
+  // against the class actually written in the markup.
+  //
+  // Removed rather than fought, so there is one styling system on these pages:
+  //   flex-utilities, grid-utilities, spacing-utilities,
+  //   input-styles, label-styles, textarea-styles, checkbox-styles,
+  //   radio-styles, select-styles,
+  //   header/main/form/footer-container
 }
 
 // ---------------------------------------------

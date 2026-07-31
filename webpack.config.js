@@ -69,9 +69,20 @@ export default (env = { mode: 'development' }) => {
     cache: { type: 'filesystem' },
 
     devServer: {
-      static: {
-        directory: path.resolve(__dirname, 'src'),
-      },
+      static: [
+        {
+          directory: path.resolve(__dirname, 'src'),
+        },
+        // The seed data stores avatar paths as `/customers/<name>.png`, and the
+        // same rows are read by the Next.js app, where they resolve against
+        // public/. The path belongs to the database, so it is served here rather
+        // than rewritten — a rewrite would make the two apps disagree about what
+        // the data says.
+        {
+          directory: path.resolve(__dirname, 'src/static/imgs/customers'),
+          publicPath: '/customers',
+        },
+      ],
       historyApiFallback: true,
 
       // Fixed, not 'auto': the port is part of the comparison's documented
@@ -97,10 +108,14 @@ export default (env = { mode: 'development' }) => {
       //   - the page and the API share a protocol, so no mixed content either
       // The API tier itself binds 127.0.0.1:8090 and is never addressed directly
       // by the page.
+      //
+      // API_PORT is read here for the same reason server/config.js reads it —
+      // the two have to agree, so a second instance can run alongside the first
+      // without either being edited.
       proxy: [
         {
           context: ['/api'],
-          target: 'http://127.0.0.1:8090',
+          target: `http://127.0.0.1:${process.env.API_PORT || 8090}`,
           changeOrigin: false,
           // Surface a clear message if the API process is not up yet, rather
           // than an opaque 504 in the network panel.
@@ -297,6 +312,11 @@ function buildCopyPlugin({ assetsFolder, buildType }) {
   const patterns = [
     { from: './src/static/imgs', to: `${assetsFolder}static/imgs` },
     { from: './src/static/fonts', to: `${assetsFolder}static/fonts` },
+    // Also emitted at /customers, outside assetsFolder: the seed data addresses
+    // these by absolute path, so they have to sit at the web root whatever the
+    // build type. The pattern above already copies them under static/imgs too —
+    // that costs 48KB and keeps them findable where every other image lives.
+    { from: './src/static/imgs/customers', to: 'customers' },
   ];
 
   if (buildType === 'apache') {

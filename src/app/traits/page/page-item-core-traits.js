@@ -12,9 +12,12 @@ import { FormContactUsView } from 'components/page-items/form-contact-us-view.js
 import { DashboardInvoicesLatestRowView } from 'components/page-items/acme/dashboard-invoices-latest-row-view.js';
 import { DashboardInvoicesLatestView } from 'components/page-items/acme/dashboard-invoices-latest-view.js';
 import { DashboardRevenueBarView } from 'components/page-items/acme/dashboard-revenue-bar-view.js';
+import { DashboardRevenueYAxisView } from 'components/page-items/acme/dashboard-revenue-y-axis-view.js';
 import { DashboardRevenueChartView } from 'components/page-items/acme/dashboard-revenue-chart-view.js';
 import { DashboardStatCardView } from 'components/page-items/acme/dashboard-stat-card-view.js';
 import { DashboardStatsContainer } from 'components/page-items/acme/dashboard-stats-container.js';
+import { HomeHeroView } from 'components/page-items/acme/home-hero-view.js';
+import { HomeIntroView } from 'components/page-items/acme/home-intro-view.js';
 import { CustomersCardView } from 'components/page-items/acme/customers-card-view.js';
 import { CustomersTableRowView } from 'components/page-items/acme/customers-table-row-view.js';
 import { CustomersTableView } from 'components/page-items/acme/customers-table-view.js';
@@ -232,9 +235,12 @@ export class PageItemCoreTraits extends SpyneTrait {
       DashboardInvoicesLatestRowView,
       DashboardInvoicesLatestView,
       DashboardRevenueBarView,
+      DashboardRevenueYAxisView,
       DashboardRevenueChartView,
       DashboardStatCardView,
       DashboardStatsContainer,
+      HomeHeroView,
+      HomeIntroView,
       CustomersCardView,
       CustomersTableRowView,
       CustomersTableView,

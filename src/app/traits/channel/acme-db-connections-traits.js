@@ -20,6 +20,16 @@ import { SpyneTrait, ChannelFetch, SpyneApp } from 'spyne';
  * dev server proxies /api to 127.0.0.1:8090, so there is no mixed-content block
  * and no CORS layer to maintain.
  *
+ * There are three, and only three:
+ *
+ *   CHANNEL_ACME_SESSION    who the user is, unpaused
+ *   CHANNEL_ACME_AUTH       login / logout
+ *   CHANNEL_ACME_ENDPOINTS  every other read and write
+ *
+ * Plus ChannelAcmeApi, which is a plain Channel rather than a fetch channel and
+ * is registered from index.js. A channel per URL is what this replaced — the
+ * endpoint is a property of a request, not a reason for another channel.
+ *
  * All but CHANNEL_ACME_SESSION are paused. A paused ChannelFetch does not
  * request on registration; it waits for `{NAME}_REQUEST_EVENT`. That matters
  * here because every one of these endpoints requires a session, so firing on
@@ -65,33 +75,22 @@ export class AcmeDbConnectionsTraits extends SpyneTrait {
       }),
     );
 
+    // One channel for every read and write. Which endpoint a request goes to is
+    // decided per request by ACME_ENDPOINTS, not by having a channel per URL —
+    // see acme-endpoints-traits.js.
+    //
+    // The url here is only a default for a request that names none; every real
+    // request overrides it. Note that this default is also what a SUCCESS
+    // payload reports as its url, since ChannelFetch reads that off
+    // `this.props` — which is exactly why responses are identified by the
+    // `dataKey` their mapFn stamps on, and never by url.
+    //
+    // A validation failure returns 400 with the same { errors, message } shape
+    // the Next.js server action returns, so the two forms render identical
+    // validation text.
     SpyneApp.registerChannel(
-      new ChannelFetch('CHANNEL_ACME_CARDS', {
-        url: `${apiBase}/cards`,
-        pause: true,
-      }),
-    );
-
-    SpyneApp.registerChannel(
-      new ChannelFetch('CHANNEL_ACME_INVOICES', {
-        url: `${apiBase}/invoices`,
-        pause: true,
-      }),
-    );
-
-    SpyneApp.registerChannel(
-      new ChannelFetch('CHANNEL_ACME_CUSTOMERS', {
-        url: `${apiBase}/customers`,
-        pause: true,
-      }),
-    );
-
-    // Create / update / delete. A validation failure returns 400 with the same
-    // { errors, message } shape the Next.js server action returns, so the two
-    // forms render identical validation text.
-    SpyneApp.registerChannel(
-      new ChannelFetch('CHANNEL_ACME_MUTATION', {
-        url: `${apiBase}/invoices`,
+      new ChannelFetch('CHANNEL_ACME_ENDPOINTS', {
+        url: `${apiBase}/bootstrap`,
         pause: true,
       }),
     );

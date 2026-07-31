@@ -1,42 +1,127 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
+import { DashboardRevenueBarView } from 'components/page-items/acme/dashboard-revenue-bar-view.js';
+import { DashboardRevenueYAxisView } from 'components/page-items/acme/dashboard-revenue-y-axis-view.js';
+import { AcmeDataStateTraits } from 'traits/app/acme-data-state-traits.js';
+import { generateYAxis, getBarHeight } from 'traits/utils/acme-chart-utils.js';
 import DashboardRevenueChartTmpl from './templates/dashboard-revenue-chart-view.tmpl.html';
 
 /**
- * Converted from app/ui/dashboard/revenue-chart.tsx (outer markup).
+ * Converted from app/ui/dashboard/revenue-chart.tsx.
  *
- * Bars are DashboardRevenueBarView instances mounted into [data-slot="bars"], and the
- * y-axis labels into [data-slot="y-axis"].
+ * The bars are DashboardRevenueBarView instances in [data-slot="bars"] and the
+ * axis labels a single DashboardRevenueYAxisView in [data-slot="y-axis"], both
+ * built from the revenue slice of the /api/bootstrap dump.
  *
- * The source's `if (!revenue.length) return <p>No data available.</p>` early
- * return is a rendering decision, not markup — it belongs to whatever mounts
- * this, so it is not represented here.
+ * Same reason as the latest-invoices list for building these as child views
+ * rather than a template section: on a cold load the page mounts before the dump
+ * lands, and a DomElementTemplate renders once.
+ *
+ * ── What is computed here ───────────────────────────────────────────────────
+ *
+ * The source does two calculations inline that a template cannot express:
+ *
+ *   generateYAxis(revenue)                      -> labels, and the top of scale
+ *   (chartHeight / topLabel) * month.revenue    -> each bar's pixel height
+ *
+ * Both are ported verbatim in acme-chart-utils.js and resolved before the
+ * children are constructed, so a bar receives a finished height and the template
+ * stays free of arithmetic.
+ *
+ * The source's `if (!revenue.length) return <p>No data available.</p>` cannot be
+ * an early return here, since this view exists before its data does. It renders
+ * as an empty chart frame that fills in when the dump lands.
  *
  * @param {Object} props
- * @param {Number} [props.chartHeight]  defaults to the source's 350
+ * @param {Object} props.data
+ * @param {String} [props.data.heading]
+ * @param {String} [props.data.footerText]
+ * @param {Number} [props.data.chartHeight]  defaults to the source's 350
  */
 export class DashboardRevenueChartView extends ViewStream {
   constructor(props = {}) {
+    const {
+      heading = 'Recent Revenue',
+      footerText = 'Last 12 months',
+      chartHeight = 350,
+    } = props.data || {};
+
     props.tagName = 'div';
     props.class = 'w-full md:col-span-4';
     props.template = DashboardRevenueChartTmpl;
+    props.channels = ['CHANNEL_ACME_API'];
     props.data = {
-      heading: props.heading || 'Recent Revenue',
-      footerText: props.footerText || 'Last 12 months',
-      chartHeight: String(props.chartHeight || 350),
+      ...props.data,
+      heading,
+      footerText,
+      chartHeight: String(chartHeight),
       svgCalendar: withClass('calendar', 'h-5 w-5 text-gray-500'),
     };
 
     super(props);
+
+    this.chartHeight = chartHeight;
+    this.childViews = [];
   }
 
   addActionListeners() {
-    return [];
+    return [
+      ['CHANNEL_ACME_API_DATA_LOADED_EVENT', 'onDataChanged'],
+      ['CHANNEL_ACME_API_DATA_UPDATED_EVENT', 'onDataChanged'],
+    ];
   }
 
   broadcastEvents() {
     return [];
   }
 
-  onRendered() {}
+  onRendered() {
+    this.renderChart();
+  }
+
+  onDataChanged() {
+    this.renderChart();
+  }
+
+  renderChart() {
+    const revenue = AcmeDataStateTraits.acmeData$GetSlice('revenue') || [];
+
+    this.childViews.forEach((view) => view.disposeViewStream());
+    this.childViews = [];
+
+    if (revenue.length === 0) return;
+
+    // topLabel is the top of the scale every bar is measured against, so the
+    // axis and the bars have to be generated from one call — computing them
+    // separately would let the tallest bar disagree with the top label.
+    const { yAxisLabels, topLabel } = generateYAxis(revenue);
+
+    this.appendChild(
+      new DashboardRevenueYAxisView({
+        data: yAxisLabels.map((label) => ({ label })),
+      }),
+      `[data-slot='y-axis']`,
+    );
+
+    revenue.forEach((month) => {
+      this.appendChild(
+        new DashboardRevenueBarView({
+          data: {
+            month: month.month,
+            barHeight: getBarHeight(month.revenue, topLabel, this.chartHeight),
+          },
+        }),
+        `[data-slot='bars']`,
+      );
+    });
+  }
+
+  /**
+   * Appends and records, so a re-render disposes exactly what it created rather
+   * than emptying a slot and hoping nothing else lived there.
+   */
+  appendChild(view, selector) {
+    this.appendView(view, selector);
+    this.childViews.push(view);
+  }
 }

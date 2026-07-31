@@ -7,7 +7,7 @@
       <select
         id="customer"
         name="customerId"
-        class="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 !pl-10 text-sm outline-2 placeholder:text-gray-500"
+        class="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
         aria-describedby="customer-error"
         data-slot="customer-options"
       >
@@ -31,7 +31,7 @@
           step="0.01"
           value="{{attrAmount}}"
           placeholder="{{amountPlaceholder}}"
-          class="peer block w-full rounded-md border border-gray-200 py-2 !pl-10 text-sm outline-2 placeholder:text-gray-500"
+          class="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
           aria-describedby="amount-error"
         />
         {{svgCurrencyDollar}}
@@ -93,7 +93,7 @@
     type="submit"
     class="flex h-10 items-center rounded-lg bg-blue-500 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:bg-blue-600"
     data-event-type="acmeApi"
-    data-acme-action="{{submitAction}}"
+    data-btn-type="{{submitAction}}"
   >
     {{submitLabel}}
   </button>

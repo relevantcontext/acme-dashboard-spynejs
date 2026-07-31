@@ -14,27 +14,31 @@ const BUTTON_BASE =
  * should nest a ViewStream rather than grow this component.
  *
  * @param {Object} props
- * @param {String} props.label
- * @param {String} [props.icon]        key from traits/utils/svg-icons.js
- * @param {String} [props.iconClass]
+ * @param {Object} props.data
+ * @param {String} props.data.label
+ * @param {String} [props.data.icon]        key from traits/utils/svg-icons.js
+ * @param {String} [props.data.iconClass]
  * @param {String} [props.className]   appended, matching the source's clsx merge
- * @param {String} [props.acmeAction]  routes a click through ChannelAcmeApi
+ * @param {String} [props.data.btnType]  keys into ACME_ENDPOINTS
  */
 export class UIButtonView extends ViewStream {
   constructor(props = {}) {
+    const { label = '', icon, iconClass = '', btnType } = props.data || {};
+
     props.tagName = 'button';
     props.class = props.className
       ? `${BUTTON_BASE} ${props.className}`
       : BUTTON_BASE;
     props.template = UIButtonTmpl;
     props.data = {
-      label: props.label || '',
-      svgIcon: props.icon ? withClass(props.icon, props.iconClass || '') : '',
+      ...props.data,
+      label,
+      svgIcon: icon ? withClass(icon, iconClass) : '',
     };
 
-    props.dataset = props.acmeAction
-      ? { eventType: 'acmeApi', acmeAction: props.acmeAction }
-      : {};
+    // eventType routes the click to ChannelAcmeApi; btnType selects the endpoint
+    // once it gets there.
+    props.dataset = btnType ? { eventType: 'acmeApi', btnType } : {};
 
     super(props);
   }

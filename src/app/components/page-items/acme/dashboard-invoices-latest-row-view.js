@@ -13,23 +13,33 @@ const ROW_BASE = 'flex flex-row items-center justify-between py-4';
  * next/image becomes a plain <img>; there is no image optimiser here.
  *
  * @param {Object} props
- * @param {String} props.name
- * @param {String} props.email
- * @param {String} props.amount     already currency-formatted
- * @param {String} props.imageUrl
- * @param {Boolean} [props.isFirst]
+ * @param {Object} props.data
+ * @param {String} props.data.name
+ * @param {String} props.data.email
+ * @param {String} props.data.amount     already currency-formatted
+ * @param {String} props.data.imageUrl
+ * @param {Boolean} [props.data.isFirst]
  */
 export class DashboardInvoicesLatestRowView extends ViewStream {
   constructor(props = {}) {
+    const {
+      name = '',
+      email = '',
+      amount = '',
+      imageUrl = '',
+      isFirst = false,
+    } = props.data || {};
+
     props.tagName = 'div';
-    props.class = props.isFirst ? ROW_BASE : `${ROW_BASE} border-t`;
+    props.class = isFirst ? ROW_BASE : `${ROW_BASE} border-t`;
     props.template = DashboardInvoicesLatestRowTmpl;
     props.data = {
-      name: props.name || '',
-      email: props.email || '',
-      amount: props.amount || '',
-      attrImageSrc: props.imageUrl || '',
-      attrImageAlt: `${props.name || ''}'s profile picture`,
+      ...props.data,
+      name,
+      email,
+      amount,
+      attrImageSrc: imageUrl,
+      attrImageAlt: `${name}'s profile picture`,
     };
 
     super(props);

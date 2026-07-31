@@ -2,18 +2,27 @@
 @use 'page-items/page-item';
 @use 'page-items/section-title';
 
+// StageView carries its own layout classes now (the dashboard shell is
+// `flex h-screen flex-col md:flex-row md:overflow-hidden`, straight from
+// dashboard/layout.tsx), so this rule only holds slot behaviour. The layout
+// declarations that used to live here — background, display, flex-direction,
+// flex-grow, padding — are gone: as an id selector they scored (1,0,0) against
+// Tailwind's (0,1,0) and silently pinned the shell to a column, so the sidenav
+// never moved beside the page at md.
 #stage-view {
-  background: var(--bg-base);
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  padding-bottom: 4rem;
 
   .slot-ui{
     &.hide{
       display: none;
     }
 
+  }
+
+  // Shell-less routes (home, login) drop the dashboard page gutter — those
+  // templates bring their own padding, and the landing page needs the width
+  // back for its md:w-2/5 copy column.
+  .slot-page.is-full-bleed{
+    padding: 0;
   }
 
 }
@@ -83,17 +92,6 @@ nav.breadcrumbs {
   .button-examples {
     line-height: 2.65;
   }
-}
-
-#stage-view {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-
-  min-block-size: 0;
-
-  // header is fixed so pushes everything down
-  padding-top: 1.5rem;
 }
 
 .page-container {

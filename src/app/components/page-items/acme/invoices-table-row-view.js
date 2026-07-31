@@ -15,24 +15,34 @@ const ROW_CLASS =
  * InvoicesStatusView, [data-slot="row-actions"] for the update/delete buttons.
  *
  * @param {Object} props
- * @param {String} props.name
- * @param {String} props.email
- * @param {String} props.amount     formatted
- * @param {String} props.date       formatted
- * @param {String} props.imageUrl
+ * @param {Object} props.data
+ * @param {String} props.data.name
+ * @param {String} props.data.email
+ * @param {String} props.data.amount     formatted
+ * @param {String} props.data.date       formatted
+ * @param {String} props.data.imageUrl
  */
 export class InvoicesTableRowView extends ViewStream {
   constructor(props = {}) {
+    const {
+      name = '',
+      email = '',
+      amount = '',
+      date = '',
+      imageUrl = '',
+    } = props.data || {};
+
     props.tagName = 'tr';
     props.class = ROW_CLASS;
     props.template = InvoicesTableRowTmpl;
     props.data = {
-      name: props.name || '',
-      email: props.email || '',
-      amount: props.amount || '',
-      date: props.date || '',
-      attrImageSrc: props.imageUrl || '',
-      attrImageAlt: `${props.name || ''}'s profile picture`,
+      ...props.data,
+      name,
+      email,
+      amount,
+      date,
+      attrImageSrc: imageUrl,
+      attrImageAlt: `${name}'s profile picture`,
     };
 
     super(props);

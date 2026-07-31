@@ -69,6 +69,49 @@ export function buildRouter() {
   // here the data is the surface, so the guard sits on the endpoints.
   router.use(requireAuth);
 
+  // Every read the SpyneJS client needs, in one response.
+  //
+  // The Next.js app fetches per page, because each page is a server component
+  // that re-runs its own queries on navigation. The SpyneJS client is a single
+  // long-lived page: it loads once on authentication, caches into
+  // SpyneAppProperties, and re-requests only when a mutation invalidates it.
+  // That makes one round trip the honest shape rather than six.
+  //
+  // The individual endpoints below are all still here and still correct — this
+  // composes them, it does not replace them.
+  router.get(
+    '/bootstrap',
+    h(async (_req, res) => {
+      const [
+        cards,
+        revenue,
+        latestInvoices,
+        invoices,
+        totalPages,
+        customers,
+        customerOptions,
+      ] = await Promise.all([
+        q.fetchCardData(),
+        q.fetchRevenue(),
+        q.fetchLatestInvoices(),
+        q.fetchFilteredInvoices('', 1),
+        q.fetchInvoicesPages(''),
+        q.fetchFilteredCustomers(''),
+        q.fetchCustomers(),
+      ]);
+
+      res.json({
+        cards,
+        revenue,
+        latestInvoices,
+        invoices,
+        totalPages,
+        customers,
+        customerOptions,
+      });
+    }),
+  );
+
   router.get(
     '/revenue',
     h(async (_req, res) => res.json(await q.fetchRevenue())),

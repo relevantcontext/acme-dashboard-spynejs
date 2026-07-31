@@ -18,14 +18,15 @@ const BASE = 'flex h-10 w-10 items-center justify-center text-sm border';
  *     props.class.
  *
  * @param {Object} props
- * @param {String|Number} props.page
- * @param {String} [props.href]
- * @param {Boolean} [props.isActive]
- * @param {'first'|'last'|'middle'|'single'} [props.position]
+ * @param {Object} props.data
+ * @param {String|Number} props.data.page
+ * @param {String} [props.data.href]
+ * @param {Boolean} [props.data.isActive]
+ * @param {'first'|'last'|'middle'|'single'} [props.data.position]
  */
 export class InvoicesPaginationNumberView extends ViewStream {
   constructor(props = {}) {
-    const { position, isActive } = props;
+    const { page, href = '', position, isActive } = props.data || {};
     const isMiddle = position === 'middle';
 
     const classes = [BASE];
@@ -37,10 +38,10 @@ export class InvoicesPaginationNumberView extends ViewStream {
 
     // A link only when it navigates; a div when active or the ellipsis.
     props.tagName = isActive || isMiddle ? 'div' : 'a';
-    if (props.tagName === 'a') props.href = props.href || '';
+    if (props.tagName === 'a') props.href = href;
     props.class = classes.join(' ');
     props.template = InvoicesPaginationNumberTmpl;
-    props.data = { page: String(props.page ?? '') };
+    props.data = { ...props.data, page: String(page ?? '') };
 
     super(props);
   }

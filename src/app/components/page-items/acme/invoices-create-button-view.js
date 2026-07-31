@@ -18,10 +18,13 @@ import InvoicesCreateButtonTmpl from './templates/invoices-create-button-view.tm
  */
 export class InvoicesCreateButtonView extends ViewStream {
   constructor(props = {}) {
+    const { label = 'Create Invoice', href = '/dashboard/invoices/create' } =
+      props.data || {};
+
     props.tagName = 'a';
     props.class =
       'flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600';
-    props.href = props.href || '/dashboard/invoices/create';
+    props.href = href;
     props.dataset = {
       channel: 'ROUTE',
       pageId: 'dashboard',
@@ -30,7 +33,8 @@ export class InvoicesCreateButtonView extends ViewStream {
     };
     props.template = InvoicesCreateButtonTmpl;
     props.data = {
-      label: 'Create Invoice',
+      ...props.data,
+      label,
       svgPlus: withClass('plus', 'h-5 md:ml-4'),
     };
 

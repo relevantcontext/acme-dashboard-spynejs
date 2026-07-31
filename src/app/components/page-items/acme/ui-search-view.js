@@ -10,31 +10,46 @@ import UISearchTmpl from './templates/ui-search-view.tmpl.html';
  * component re-renders with new data.
  *
  * Here the keystroke is broadcast to CHANNEL_UI by broadcastEvents — never by a
- * manual addEventListener. ChannelAcmeApi filters on
- * `data-event-type="acmeApi"` and dispatches on `data-acme-action`, which is why
- * both attributes are on the input rather than on this root element: CHANNEL_UI
- * reports the element the event originated from.
+ * manual addEventListener. The attributes are on the input rather than on this
+ * root element because CHANNEL_UI reports the element the event originated from.
  *
- * Debouncing is deliberately NOT done here. It belongs alongside the request,
- * in the channel that issues it, so every caller of FetchInvoices gets the same
- * behaviour rather than each view re-implementing it.
+ * ── Why this does NOT talk to the API ───────────────────────────────────────
+ *
+ * eventType is `acmeSearch`, not `acmeApi`, so ChannelAcmeApi never sees it.
+ * Every invoice and customer is already in SpyneAppProperties from the
+ * /api/bootstrap dump, so searching filters what is in hand — no request, no
+ * round trip, and nothing to debounce. The table listens for this event and
+ * filters itself.
+ *
+ * That is the sharpest divergence from the Next.js side, where each keystroke
+ * pushes a new search param and re-runs a server component against SQL.
  *
  * @param {Object} props
- * @param {String} props.placeholder
- * @param {String} [props.query]        current search term, for round-tripping
- * @param {String} [props.acmeAction]   defaults to the invoices search
+ * @param {Object} props.data
+ * @param {String} props.data.placeholder
+ * @param {String} [props.data.query]      current search term, for round-tripping
+ * @param {String} [props.data.btnType]    names what is being filtered
  */
 export class UISearchView extends ViewStream {
   constructor(props = {}) {
+    const {
+      inputId = 'search',
+      labelText = 'Search',
+      placeholder = '',
+      query = '',
+      btnType = 'filter-invoices',
+    } = props.data || {};
+
     props.tagName = 'div';
     props.class = 'relative flex flex-1 flex-shrink-0';
     props.template = UISearchTmpl;
     props.data = {
-      inputId: props.inputId || 'search',
-      labelText: 'Search',
-      attrPlaceholder: props.placeholder || '',
-      attrValue: props.query || '',
-      acmeAction: props.acmeAction || 'FetchInvoices',
+      ...props.data,
+      inputId,
+      labelText,
+      attrPlaceholder: placeholder,
+      attrValue: query,
+      btnType,
       svgMagnifyingGlass: withClass(
         'magnifyingGlass',
         'absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900',

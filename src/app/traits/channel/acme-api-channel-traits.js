@@ -1,4 +1,7 @@
 import { SpyneTrait, ChannelPayloadFilter } from 'spyne';
+import { AcmeAuthStateTraits } from 'traits/app/acme-auth-state-traits.js';
+import { AcmeDataStateTraits } from 'traits/app/acme-data-state-traits.js';
+import { AcmeEndpointsTraits } from 'traits/channel/acme-endpoints-traits.js';
 
 /**
  * Logic for ChannelAcmeApi, the intermediary between the Acme ChannelFetch
@@ -36,25 +39,118 @@ export class AcmeApiChannelTraits extends SpyneTrait {
    * subscribe to a fetch channel directly.
    */
   static acmeApi$ListenToFetchChannels() {
-    const map = [
-      ['CHANNEL_ACME_SESSION', 'CHANNEL_ACME_API_SESSION_EVENT'],
-      ['CHANNEL_ACME_CARDS', 'CHANNEL_ACME_API_CARDS_EVENT'],
-      ['CHANNEL_ACME_INVOICES', 'CHANNEL_ACME_API_INVOICES_EVENT'],
-      ['CHANNEL_ACME_CUSTOMERS', 'CHANNEL_ACME_API_CUSTOMERS_EVENT'],
-      ['CHANNEL_ACME_MUTATION', 'CHANNEL_ACME_API_MUTATION_EVENT'],
-    ];
+    // One subscription for every read and write. What came back is decided by
+    // the `dataKey` the request's mapFn stamped on, not by which channel spoke.
+    this.getChannel('CHANNEL_ACME_ENDPOINTS').subscribe(
+      this.acmeApi$OnFetchReturned.bind(this),
+    );
 
-    map.forEach(([channelName, action]) => {
-      this.getChannel(channelName).subscribe((e) =>
-        this.acmeApi$OnFetchReturned(e, action),
-      );
-    });
+    // Session is routed separately and subscribed FIRST. Its response is the
+    // app's initial auth state, and it must be this channel's first emission —
+    // ChannelApp merges CHANNEL_ACME_API alongside CHANNEL_ROUTE and
+    // CHANNEL_FETCH_MODEL, and the merge resolves on the first payload from
+    // each. Nothing else can emit before it: every other fetch channel is
+    // paused, so only the unpaused session request is in flight at boot.
+    this.getChannel('CHANNEL_ACME_SESSION').subscribe(
+      this.acmeApi$OnSessionReturned.bind(this),
+    );
 
     // Auth is routed separately: a login outcome is two distinct actions rather
     // than one payload a view has to interrogate.
     this.getChannel('CHANNEL_ACME_AUTH').subscribe(
       this.acmeApi$OnAuthReturned.bind(this),
     );
+  }
+
+  // ── Auth state ────────────────────────────────────────────────────────────
+
+  /**
+   * Every payload this channel publishes carries `isAuthenticated`, so a view
+   * never has to correlate a data action with a separate auth action to know
+   * whether it is allowed to render what it just received.
+   */
+  static acmeApi$Publish(action, payload = {}) {
+    this.sendChannelPayload(action, {
+      ...payload,
+      isAuthenticated: AcmeAuthStateTraits.acmeAuthState$IsAuthenticated(),
+    });
+  }
+
+  /**
+   * Records the server's view of the session and emits the right lifecycle
+   * action: INIT_AUTH the first time, AUTH_CHANGED whenever the identity
+   * actually changes afterwards.
+   *
+   * Emitting nothing when an authenticated user's session is merely re-confirmed
+   * is deliberate — AUTH_CHANGED should mean "this changed", not "we asked
+   * again", or every refetch would churn every listener.
+   */
+  static acmeApi$SetAuthState(user) {
+    const { changed, wasInitialized } =
+      AcmeAuthStateTraits.acmeAuthState$Set(user);
+
+    if (!wasInitialized) {
+      this.acmeApi$Publish('CHANNEL_ACME_API_INIT_AUTH_EVENT', { user });
+    } else if (changed) {
+      this.acmeApi$Publish('CHANNEL_ACME_API_AUTH_CHANGED_EVENT', { user });
+    } else {
+      // The session was merely re-confirmed. Nothing changed, so nothing is
+      // published and the cached data stays valid.
+      return;
+    }
+
+    this.acmeApi$SyncDataToAuthState();
+  }
+
+  /**
+   * Auth state just resolved or changed, so the data follows it.
+   *
+   * Authenticated means the dump is requested — this is the only place a read
+   * originates, which is what makes "the user is logged in" the single trigger
+   * for loading rather than something each page has to remember to do.
+   *
+   * Unauthenticated means the cache is dropped. It was fetched for an identity
+   * that no longer holds it.
+   *
+   * Requested AFTER the lifecycle action is published, so INIT_AUTH remains this
+   * channel's first emission — ChannelApp's merge resolves on it, and the dump's
+   * DATA_LOADED necessarily follows a round trip later.
+   */
+  static acmeApi$SyncDataToAuthState() {
+    if (AcmeAuthStateTraits.acmeAuthState$IsAuthenticated()) {
+      this.acmeApi$FetchBootstrap();
+      return;
+    }
+
+    AcmeDataStateTraits.acmeData$Clear();
+  }
+
+  /**
+   * GET /api/auth/session returns { user } or { user: null }, and needs no
+   * session itself.
+   *
+   * A failed request still initialises the state as unauthenticated. Without
+   * that, a network error or a downed API would leave INIT_AUTH unemitted, and
+   * ChannelApp's merge — which waits on this channel — would never resolve, so
+   * the whole app would fail to boot rather than simply showing a logged-out UI.
+   */
+  static acmeApi$OnSessionReturned(e) {
+    const payload = e?.payload ?? {};
+    const failed = payload.isChannelFetchError === true;
+    const user = failed ? null : payload.user;
+
+    // Lifecycle first, so INIT_AUTH remains this channel's first emission at
+    // boot — ChannelApp's merge resolves on it.
+    this.acmeApi$SetAuthState(user ?? null);
+
+    // Then the raw signal: SESSION_EVENT fires on every session response,
+    // including a re-check that changed nothing. INIT_AUTH and AUTH_CHANGED
+    // describe the lifecycle; this one just says "the server was asked".
+    this.acmeApi$Publish('CHANNEL_ACME_API_SESSION_EVENT', {
+      ...payload,
+      user: user ?? null,
+      didRequestFail: failed,
+    });
   }
 
   /**
@@ -78,7 +174,7 @@ export class AcmeApiChannelTraits extends SpyneTrait {
       // apart from a failed logout — both travel this one channel.
       const isLoginAttempt = /\/auth\/login/.test(payload.url || '');
 
-      this.sendChannelPayload(
+      this.acmeApi$Publish(
         isLoginAttempt
           ? 'CHANNEL_ACME_API_LOGIN_FAILED_EVENT'
           : 'CHANNEL_ACME_API_AUTH_EVENT',
@@ -89,12 +185,18 @@ export class AcmeApiChannelTraits extends SpyneTrait {
 
     // A success payload is just the parsed body, with no url to inspect. Login
     // returns { user }; logout returns { message: 'Signed out.' }.
+    //
+    // State is updated BEFORE the specific action is published, so that action
+    // already carries the correct isAuthenticated flag. AUTH_CHANGED follows it,
+    // emitted by acmeApi$SetAuthState.
     if (payload.user) {
-      this.sendChannelPayload('CHANNEL_ACME_API_LOGIN_SUCCESS_EVENT', payload);
+      this.acmeApi$SetAuthState(payload.user);
+      this.acmeApi$Publish('CHANNEL_ACME_API_LOGIN_SUCCESS_EVENT', payload);
       return;
     }
 
-    this.sendChannelPayload('CHANNEL_ACME_API_LOGOUT_EVENT', payload);
+    this.acmeApi$SetAuthState(null);
+    this.acmeApi$Publish('CHANNEL_ACME_API_LOGOUT_EVENT', payload);
   }
 
   /**
@@ -120,11 +222,17 @@ export class AcmeApiChannelTraits extends SpyneTrait {
    *
    * The convention for markup is a pair of data attributes:
    *
-   *   data-event-type="acmeApi"          routes the event here
-   *   data-acme-action="fetchInvoices"   selects the method below
+   *   data-event-type="acmeApi"           routes the event here
+   *   data-btn-type="delete-invoice"      keys into ACME_ENDPOINTS
    *
-   * Anything else on the element (data-query, data-page, data-id) is read off
-   * the payload by the individual request methods.
+   * eventType is the catch-all: it is what this channel filters on, so every
+   * element that talks to the API carries it. btnType then selects the endpoint
+   * inside the subscriber.
+   *
+   * The whole dataset of the element that raised the event arrives on the
+   * payload — `view-stream-broadcaster.js` does
+   * `data.payload = convertDomStringMapToObj(q.dataset)` — so data-id reaches
+   * the request without anything having to thread it through.
    */
   static acmeApi$ListenToUiEvents() {
     const acmeUiFilter = new ChannelPayloadFilter({
@@ -155,17 +263,36 @@ export class AcmeApiChannelTraits extends SpyneTrait {
   // ── Inbound: UI -> request ────────────────────────────────────────────────
 
   static acmeApi$OnUiEvent(e) {
-    const { acmeAction } = e.payload;
-    const method = `acmeApi$${acmeAction}`;
+    const payload = e?.payload ?? {};
+    const { btnType } = payload;
 
-    if (typeof this[method] !== 'function') {
-      console.warn(
-        `Spyne Warning: ChannelAcmeApi received an unmapped acmeAction, "${acmeAction}"`,
-      );
+    // Login is not an endpoint — it travels CHANNEL_ACME_AUTH, which stays
+    // separate so a credential rejection is an auth outcome rather than a failed
+    // data request.
+    if (btnType === 'login') {
+      this.acmeApi$Login(payload);
       return;
     }
 
-    this[method](e.payload, e);
+    this.acmeApi$Request(btnType, payload);
+  }
+
+  /**
+   * The one way a request leaves this channel.
+   *
+   * ACME_ENDPOINTS turns the btnType plus the UI payload into fetch props,
+   * including the mapFn that will stamp the response. Everything downstream is
+   * generic.
+   */
+  static acmeApi$Request(btnType, payload = {}) {
+    const fetchProps = AcmeEndpointsTraits.acmeEndpoints$Resolve(
+      btnType,
+      payload,
+    );
+
+    if (fetchProps === null) return;
+
+    this.acmeApi$SendToChannel('CHANNEL_ACME_ENDPOINTS', fetchProps);
   }
 
   // ── Outbound: request -> ChannelFetch ─────────────────────────────────────
@@ -209,25 +336,16 @@ export class AcmeApiChannelTraits extends SpyneTrait {
     });
   }
 
-  static acmeApi$FetchCards() {
-    this.acmeApi$SendToChannel('CHANNEL_ACME_CARDS', {
-      url: '/api/cards',
-    });
-  }
-
-  static acmeApi$FetchInvoices(payload = {}) {
-    const { query = '', page = 1 } = payload;
-    const url = `/api/invoices?query=${encodeURIComponent(query)}&page=${page}`;
-
-    this.acmeApi$SendToChannel('CHANNEL_ACME_INVOICES', { url });
-  }
-
-  static acmeApi$FetchCustomers(payload = {}) {
-    const { query = '' } = payload;
-
-    this.acmeApi$SendToChannel('CHANNEL_ACME_CUSTOMERS', {
-      url: `/api/customers?query=${encodeURIComponent(query)}`,
-    });
+  /**
+   * The only data read in the app. Everything a page renders comes from here
+   * and is served out of SpyneAppProperties afterwards.
+   *
+   * There is deliberately no FetchInvoices / FetchCustomers / FetchCards: search
+   * and pagination filter the cached dump instead of returning to the server, so
+   * a per-page read would have no caller.
+   */
+  static acmeApi$FetchBootstrap() {
+    this.acmeApi$Request('bootstrap');
   }
 
   // ── Auth ──────────────────────────────────────────────────────────────────
@@ -248,42 +366,9 @@ export class AcmeApiChannelTraits extends SpyneTrait {
     });
   }
 
-  // ── Mutations ─────────────────────────────────────────────────────────────
-
-  static acmeApi$CreateInvoice(payload = {}) {
-    const { customerId, amount, status } = payload;
-
-    this.acmeApi$SendToChannel(
-      'CHANNEL_ACME_MUTATION',
-      this.acmeApi$JsonRequest('/api/invoices', 'POST', {
-        customerId,
-        amount,
-        status,
-      }),
-    );
-  }
-
-  static acmeApi$UpdateInvoice(payload = {}) {
-    const { id, customerId, amount, status } = payload;
-
-    this.acmeApi$SendToChannel(
-      'CHANNEL_ACME_MUTATION',
-      this.acmeApi$JsonRequest(`/api/invoices/${id}`, 'PUT', {
-        customerId,
-        amount,
-        status,
-      }),
-    );
-  }
-
-  static acmeApi$DeleteInvoice(payload = {}) {
-    const { id } = payload;
-
-    this.acmeApi$SendToChannel('CHANNEL_ACME_MUTATION', {
-      url: `/api/invoices/${id}`,
-      method: 'DELETE',
-    });
-  }
+  // Mutations have no methods of their own — 'create-invoice',
+  // 'update-invoice' and 'delete-invoice' are entries in ACME_ENDPOINTS, reached
+  // by btnType through acmeApi$Request like every other request.
 
   // ── Inbound: ChannelFetch -> semantic action ──────────────────────────────
 
@@ -292,21 +377,72 @@ export class AcmeApiChannelTraits extends SpyneTrait {
    * a 400 validation body is told apart from real response data.
    *
    * Errors are republished on a single CHANNEL_ACME_API_ERROR_EVENT carrying
-   * the originating action, so a view can listen once for all failures rather
+   * the originating url, so a view can listen once for all failures rather
    * than pairing an error listener to every read.
+   *
+   * On success there is no `action` argument to route by — one channel serves
+   * every endpoint. The request's mapFn has already conformed the body to
+   * `{ dataKey, data }`, and dataKey is what decides what this is.
    */
-  static acmeApi$OnFetchReturned(e, action) {
+  static acmeApi$OnFetchReturned(e) {
     const payload = e?.payload ?? {};
 
     if (payload.isChannelFetchError === true) {
-      this.sendChannelPayload('CHANNEL_ACME_API_ERROR_EVENT', {
+      const isUnauthenticated = payload.status === 401;
+
+      // A 401 on a data request means the server no longer accepts the session —
+      // expired, revoked, or cleared in another tab. That is an auth change, not
+      // just a failed request, so the state is updated first: AUTH_CHANGED fires
+      // and the stage's redirect rule sends the user to login. Setting it before
+      // publishing also means the error payload below reports the correct
+      // isAuthenticated.
+      //
+      // Only reached for data channels. A 401 from /api/auth/login is a rejected
+      // credential and routes through acmeApi$OnAuthReturned instead.
+      if (isUnauthenticated) {
+        this.acmeApi$SetAuthState(null);
+      }
+
+      // Unlike a success payload, an error IS self-identifying: ChannelFetch
+      // builds it from the real request metadata, so `url` names the endpoint
+      // that failed.
+      this.acmeApi$Publish('CHANNEL_ACME_API_ERROR_EVENT', {
         ...payload,
-        sourceAction: action,
-        isUnauthenticated: payload.status === 401,
+        isUnauthenticated,
       });
       return;
     }
 
-    this.sendChannelPayload(action, payload);
+    const { dataKey, data } = payload;
+
+    if (dataKey === 'bootstrap') {
+      const { wasLoaded } = AcmeDataStateTraits.acmeData$Set(data);
+
+      // The store is written BEFORE the event, so a listener can read
+      // acmeData$Get() synchronously in its handler rather than having to take
+      // the payload apart.
+      this.acmeApi$Publish(
+        wasLoaded
+          ? 'CHANNEL_ACME_API_DATA_UPDATED_EVENT'
+          : 'CHANNEL_ACME_API_DATA_LOADED_EVENT',
+        { data },
+      );
+      return;
+    }
+
+    if (dataKey === 'mutation') {
+      // The write succeeded, so the cached dump is now stale. Re-reading it is
+      // what produces DATA_UPDATED and re-renders whatever was showing the old
+      // values — the server stays the authority on what the data is, rather
+      // than the client patching its own cache and hoping it matches.
+      this.acmeApi$Publish('CHANNEL_ACME_API_MUTATION_EVENT', data);
+      this.acmeApi$Request('bootstrap');
+      return;
+    }
+
+    console.warn(
+      `Spyne Warning: CHANNEL_ACME_ENDPOINTS returned an untagged payload. Its request was issued without a mapFn from ACME_ENDPOINTS.`,
+      payload,
+    );
   }
 }

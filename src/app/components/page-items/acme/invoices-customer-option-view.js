@@ -9,17 +9,20 @@ import InvoicesCustomerOptionTmpl from './templates/invoices-customer-option-vie
  * (its data-slot="customer-options") rather than through a wrapper element.
  *
  * @param {Object} props
- * @param {String} props.value   customer id
- * @param {String} props.name
- * @param {Boolean} [props.selected]
+ * @param {Object} props.data
+ * @param {String} props.data.value   customer id
+ * @param {String} props.data.name
+ * @param {Boolean} [props.data.selected]
  */
 export class InvoicesCustomerOptionView extends ViewStream {
   constructor(props = {}) {
+    const { value = '', name = '', selected = false } = props.data || {};
+
     props.tagName = 'option';
-    props.value = props.value || '';
-    if (props.selected) props.selected = 'selected';
+    props.value = value;
+    if (selected) props.selected = 'selected';
     props.template = InvoicesCustomerOptionTmpl;
-    props.data = { name: props.name || '' };
+    props.data = { ...props.data, name };
 
     super(props);
   }

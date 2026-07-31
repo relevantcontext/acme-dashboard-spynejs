@@ -13,13 +13,14 @@ const BASE = 'flex h-10 w-10 items-center justify-center rounded-md border';
  * margin class.
  *
  * @param {Object} props
- * @param {'left'|'right'} props.direction
- * @param {String} [props.href]
- * @param {Boolean} [props.isDisabled]
+ * @param {Object} props.data
+ * @param {'left'|'right'} props.data.direction
+ * @param {String} [props.data.href]
+ * @param {Boolean} [props.data.isDisabled]
  */
 export class InvoicesPaginationArrowView extends ViewStream {
   constructor(props = {}) {
-    const { direction, isDisabled } = props;
+    const { direction, href = '', isDisabled } = props.data || {};
 
     const classes = [BASE];
     if (isDisabled) classes.push('pointer-events-none text-gray-300');
@@ -27,10 +28,11 @@ export class InvoicesPaginationArrowView extends ViewStream {
     classes.push(direction === 'left' ? 'mr-2 md:mr-4' : 'ml-2 md:ml-4');
 
     props.tagName = isDisabled ? 'div' : 'a';
-    if (props.tagName === 'a') props.href = props.href || '';
+    if (props.tagName === 'a') props.href = href;
     props.class = classes.join(' ');
     props.template = InvoicesPaginationArrowTmpl;
     props.data = {
+      ...props.data,
       svgArrow: withClass(direction === 'left' ? 'arrowLeft' : 'arrowRight', 'w-4'),
     };
 

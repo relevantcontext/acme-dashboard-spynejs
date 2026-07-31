@@ -33,6 +33,17 @@ export class ChannelAcmeApi extends Channel {
       // Consumed by AcmeApiRequester, the null-appended ViewStream that
       // performs the actual fetch. Views do not listen for this.
       'CHANNEL_ACME_API_REQUEST_EVENT',
+      // Auth lifecycle. INIT_AUTH is always this channel's FIRST emission — it
+      // resolves from the unpaused session request at boot, and ChannelApp
+      // merges this channel expecting exactly that. AUTH_CHANGED follows only
+      // when the identity actually changes, not on every re-check.
+      'CHANNEL_ACME_API_INIT_AUTH_EVENT',
+      'CHANNEL_ACME_API_AUTH_CHANGED_EVENT',
+
+      // Fires on every /api/auth/session response, including a re-check that
+      // changed nothing, and carries didRequestFail when the request itself
+      // failed. The two actions above describe the lifecycle; this one just
+      // reports that the server was asked.
       'CHANNEL_ACME_API_SESSION_EVENT',
 
       // Login outcome, split so a view can listen for one or the other without
@@ -46,9 +57,20 @@ export class ChannelAcmeApi extends Channel {
 
       // Any other auth outcome, including a failed sign out.
       'CHANNEL_ACME_API_AUTH_EVENT',
-      'CHANNEL_ACME_API_CARDS_EVENT',
-      'CHANNEL_ACME_API_INVOICES_EVENT',
-      'CHANNEL_ACME_API_CUSTOMERS_EVENT',
+
+      // The data dump landed in SpyneAppProperties. LOADED is the first one
+      // after authentication; UPDATED is every refresh after a mutation. They
+      // are split so a view can render on first load and re-render on change
+      // without inspecting a flag — the same split as INIT_AUTH / AUTH_CHANGED.
+      //
+      // A view that mounts after the dump has landed does not need either of
+      // these: it reads AcmeDataStateTraits.acmeData$Get() in onRendered. These
+      // exist for views already on screen when the data changes underneath them.
+      'CHANNEL_ACME_API_DATA_LOADED_EVENT',
+      'CHANNEL_ACME_API_DATA_UPDATED_EVENT',
+
+      // A create / update / delete returned. Carries the API's own message, for
+      // form-level feedback. DATA_UPDATED follows once the refreshed dump lands.
       'CHANNEL_ACME_API_MUTATION_EVENT',
       'CHANNEL_ACME_API_ERROR_EVENT',
     ];

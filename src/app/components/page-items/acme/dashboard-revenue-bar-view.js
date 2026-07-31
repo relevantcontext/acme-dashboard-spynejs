@@ -9,17 +9,21 @@ import DashboardRevenueBarTmpl from './templates/dashboard-revenue-bar-view.tmpl
  * so the caller passes the resolved pixel height.
  *
  * @param {Object} props
- * @param {String} props.month
- * @param {Number} props.barHeight  already resolved to pixels
+ * @param {Object} props.data
+ * @param {String} props.data.month
+ * @param {Number} props.data.barHeight  already resolved to pixels
  */
 export class DashboardRevenueBarView extends ViewStream {
   constructor(props = {}) {
+    const { month = '', barHeight = 0 } = props.data || {};
+
     props.tagName = 'div';
     props.class = 'flex flex-col items-center gap-2';
     props.template = DashboardRevenueBarTmpl;
     props.data = {
-      month: props.month || '',
-      barHeight: String(props.barHeight || 0),
+      ...props.data,
+      month,
+      barHeight: String(barHeight),
     };
 
     super(props);

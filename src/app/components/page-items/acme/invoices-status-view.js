@@ -19,23 +19,26 @@ const PILL_BY_STATUS = {
  * branch. Nothing in the template has to know what a status is.
  *
  * @param {Object} props
- * @param {'pending'|'paid'} props.status
+ * @param {Object} props.data
+ * @param {'pending'|'paid'} props.data.status
  */
 export class InvoicesStatusView extends ViewStream {
   constructor(props = {}) {
-    const status = props.status === 'paid' ? 'paid' : 'pending';
+    const status = props.data?.status === 'paid' ? 'paid' : 'pending';
 
     props.tagName = 'span';
     props.class = `${PILL_BASE} ${PILL_BY_STATUS[status]}`;
     props.template = InvoicesStatusTmpl;
-    props.data =
-      status === 'paid'
+    props.data = {
+      ...props.data,
+      ...(status === 'paid'
         ? { isPaid: { svgCheck: withClass('check', 'ml-1 w-4 text-white') } }
         : {
             isPending: {
               svgClock: withClass('clock', 'ml-1 w-4 text-gray-500'),
             },
-          };
+          }),
+    };
 
     super(props);
   }

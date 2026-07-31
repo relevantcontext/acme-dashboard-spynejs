@@ -5,7 +5,9 @@ export class StageContainer extends ViewStream {
   constructor(props = {}) {
     props.id = 'stage-view';
     props.traits = [StageContainerTraits];
-    props.channels = ['CHANNEL_APP', 'CHANNEL_ROUTE'];
+    // CHANNEL_ACME_API is here for AUTH_CHANGED: signing out fires no route
+    // event, so the stage has to re-evaluate the redirect rule itself.
+    props.channels = ['CHANNEL_APP', 'CHANNEL_ROUTE', 'CHANNEL_ACME_API'];
 
     // Layout ported from the Next.js app's dashboard/layout.tsx:
     //
@@ -26,6 +28,7 @@ export class StageContainer extends ViewStream {
     return [
       ['CHANNEL_APP_INIT_EVENT', 'stage$OnAppInitEvent'],
       ['CHANNEL_APP_PAGE_DATA_EVENT', 'stage$OnRouteEvent'],
+      ['CHANNEL_ACME_API_AUTH_CHANGED_EVENT', 'stage$OnAuthChanged'],
     ];
   }
 

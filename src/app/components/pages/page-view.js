@@ -44,6 +44,7 @@ export class PageView extends ViewStream {
   }
 
   onRendered() {
-    this.pageItemCore$onRendered();
+    const onDelay = ()=> this.pageItemCore$onRendered();
+    window.setTimeout(onDelay, 40);
   }
 }

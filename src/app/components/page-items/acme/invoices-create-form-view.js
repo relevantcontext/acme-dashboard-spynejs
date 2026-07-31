@@ -23,13 +23,16 @@ const DOLLAR_ICON =
  *   [data-slot="form-message"]      the form-level error message
  *
  * The Cancel link and submit button are inlined — intrinsic, always present.
- * The submit carries `data-acme-action="CreateInvoice"` for wiring.
+ * The submit carries `data-btn-type="create-invoice"`. Unlike delete, the
+ * request needs the form's field values, which a dataset cannot carry — the
+ * fields are collected from the submit event before the payload is dispatched.
  */
 export class InvoicesCreateFormView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'form';
     props.template = InvoicesCreateFormTmpl;
     props.data = {
+      ...props.data,
       customerLabel: 'Choose customer',
       customerPlaceholder: 'Select a customer',
       amountLabel: 'Choose an amount',
@@ -44,7 +47,7 @@ export class InvoicesCreateFormView extends ViewStream {
       cancelLabel: 'Cancel',
       attrCancelHref: '/dashboard/invoices',
       submitLabel: 'Create Invoice',
-      submitAction: 'CreateInvoice',
+      submitAction: 'create-invoice',
       svgUserCircle: withClass('userCircle', USER_ICON),
       svgCurrencyDollar: withClass('currencyDollar', DOLLAR_ICON),
       svgClock: withClass('clock', 'h-4 w-4'),

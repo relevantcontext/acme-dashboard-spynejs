@@ -15,10 +15,12 @@ import CustomersTableTmpl from './templates/customers-table-view.tmpl.html';
  */
 export class CustomersTableView extends ViewStream {
   constructor(props = {}) {
+    const { heading = 'Customers' } = props.data || {};
+
     props.tagName = 'div';
     props.class = 'w-full';
     props.template = CustomersTableTmpl;
-    props.data = { heading: props.heading || 'Customers' };
+    props.data = { ...props.data, heading };
 
     super(props);
   }

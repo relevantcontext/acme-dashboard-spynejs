@@ -13,24 +13,34 @@ const ICON_BY_TYPE = {
 /**
  * Converted from the Card export in app/ui/dashboard/cards.tsx.
  *
- * The CardWrapper export is not converted — it is a container that fetches and
- * renders four Cards, which is composition rather than markup.
+ * Content arrives as props.data — one entry from the container's
+ * props.data.cards, passed straight through. Only the icon is derived here:
+ * `type` selects it, so the model never names an icon.
+ *
+ * `value` is the one dynamic field. `title` and `type` are static content and
+ * come from app.model.json.
+ *
+ * The CardWrapper export is not converted — DashboardStatsContainer owns
+ * composing the four, which is structure rather than markup.
  *
  * @param {Object} props
- * @param {String} props.title
- * @param {String|Number} props.value
- * @param {'invoices'|'customers'|'pending'|'collected'} props.type
+ * @param {Object} props.data
+ * @param {String} props.data.title
+ * @param {String|Number} [props.data.value]
+ * @param {'invoices'|'customers'|'pending'|'collected'} props.data.type
  */
 export class DashboardStatCardView extends ViewStream {
   constructor(props = {}) {
-    const iconName = ICON_BY_TYPE[props.type];
+    const { title = '', value, type } = props.data || {};
+    const iconName = ICON_BY_TYPE[type];
 
     props.tagName = 'div';
     props.class = 'rounded-xl bg-gray-50 p-2 shadow-sm';
     props.template = DashboardStatCardTmpl;
     props.data = {
-      title: props.title || '',
-      value: props.value === undefined ? '' : String(props.value),
+      ...props.data,
+      title,
+      value: value === undefined || value === null ? '' : String(value),
       svgIcon: iconName ? withClass(iconName, 'h-5 w-5 text-gray-700') : '',
     };
 
