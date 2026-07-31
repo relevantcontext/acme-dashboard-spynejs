@@ -3,7 +3,7 @@ import { SpyneTrait } from 'spyne';
 /**
  * The one lookup table for every Acme request.
  *
- * There is a single ChannelFetch — CHANNEL_ACME_ENDPOINTS — behind all reads and
+ * There is a single ChannelFetch — CHANNEL_FETCH_ACME_API — behind all reads and
  * writes. This table is what tells one request apart from another: the key is
  * the `data-btn-type` on the element that raised the UI event, and the entry
  * supplies both halves of the round trip.
@@ -106,7 +106,7 @@ export class AcmeEndpointsTraits extends SpyneTrait {
 
   /**
    * Turns a btnType plus the UI payload into the fetch configuration for
-   * CHANNEL_ACME_ENDPOINTS.
+   * CHANNEL_FETCH_ACME_API.
    *
    * @param {String} btnType  key into ACME_ENDPOINTS
    * @param {Object} payload  the CHANNEL_UI payload — the raising element's full

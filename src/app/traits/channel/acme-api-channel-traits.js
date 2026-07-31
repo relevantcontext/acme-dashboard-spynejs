@@ -41,7 +41,7 @@ export class AcmeApiChannelTraits extends SpyneTrait {
   static acmeApi$ListenToFetchChannels() {
     // One subscription for every read and write. What came back is decided by
     // the `dataKey` the request's mapFn stamped on, not by which channel spoke.
-    this.getChannel('CHANNEL_ACME_ENDPOINTS').subscribe(
+    this.getChannel('CHANNEL_FETCH_ACME_API').subscribe(
       this.acmeApi$OnFetchReturned.bind(this),
     );
 
@@ -51,13 +51,13 @@ export class AcmeApiChannelTraits extends SpyneTrait {
     // CHANNEL_FETCH_MODEL, and the merge resolves on the first payload from
     // each. Nothing else can emit before it: every other fetch channel is
     // paused, so only the unpaused session request is in flight at boot.
-    this.getChannel('CHANNEL_ACME_SESSION').subscribe(
+    this.getChannel('CHANNEL_FETCH_ACME_SESSION').subscribe(
       this.acmeApi$OnSessionReturned.bind(this),
     );
 
     // Auth is routed separately: a login outcome is two distinct actions rather
     // than one payload a view has to interrogate.
-    this.getChannel('CHANNEL_ACME_AUTH').subscribe(
+    this.getChannel('CHANNEL_FETCH_ACME_AUTH').subscribe(
       this.acmeApi$OnAuthReturned.bind(this),
     );
   }
@@ -279,7 +279,7 @@ export class AcmeApiChannelTraits extends SpyneTrait {
     const payload = e?.payload ?? {};
     const { btnType } = payload;
 
-    // Login is not an endpoint — it travels CHANNEL_ACME_AUTH, which stays
+    // Login is not an endpoint — it travels CHANNEL_FETCH_ACME_AUTH, which stays
     // separate so a credential rejection is an auth outcome rather than a failed
     // data request.
     if (btnType === 'login') {
@@ -305,7 +305,7 @@ export class AcmeApiChannelTraits extends SpyneTrait {
 
     if (fetchProps === null) return;
 
-    this.acmeApi$SendToChannel('CHANNEL_ACME_ENDPOINTS', fetchProps);
+    this.acmeApi$SendToChannel('CHANNEL_FETCH_ACME_API', fetchProps);
   }
 
   // ── Outbound: request -> ChannelFetch ─────────────────────────────────────
@@ -344,7 +344,7 @@ export class AcmeApiChannelTraits extends SpyneTrait {
   // ── Reads ─────────────────────────────────────────────────────────────────
 
   static acmeApi$FetchSession() {
-    this.acmeApi$SendToChannel('CHANNEL_ACME_SESSION', {
+    this.acmeApi$SendToChannel('CHANNEL_FETCH_ACME_SESSION', {
       url: '/api/auth/session',
     });
   }
@@ -367,13 +367,13 @@ export class AcmeApiChannelTraits extends SpyneTrait {
     const { email, password } = payload;
 
     this.acmeApi$SendToChannel(
-      'CHANNEL_ACME_AUTH',
+      'CHANNEL_FETCH_ACME_AUTH',
       this.acmeApi$JsonRequest('/api/auth/login', 'POST', { email, password }),
     );
   }
 
   static acmeApi$Logout() {
-    this.acmeApi$SendToChannel('CHANNEL_ACME_AUTH', {
+    this.acmeApi$SendToChannel('CHANNEL_FETCH_ACME_AUTH', {
       url: '/api/auth/logout',
       method: 'POST',
     });
@@ -454,7 +454,7 @@ export class AcmeApiChannelTraits extends SpyneTrait {
     }
 
     console.warn(
-      `Spyne Warning: CHANNEL_ACME_ENDPOINTS returned an untagged payload. Its request was issued without a mapFn from ACME_ENDPOINTS.`,
+      `Spyne Warning: CHANNEL_FETCH_ACME_API returned an untagged payload. Its request was issued without a mapFn from ACME_ENDPOINTS.`,
       payload,
     );
   }

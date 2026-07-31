@@ -22,15 +22,15 @@ import { SpyneTrait, ChannelFetch, SpyneApp } from 'spyne';
  *
  * There are three, and only three:
  *
- *   CHANNEL_ACME_SESSION    who the user is, unpaused
- *   CHANNEL_ACME_AUTH       login / logout
- *   CHANNEL_ACME_ENDPOINTS  every other read and write
+ *   CHANNEL_FETCH_ACME_SESSION    who the user is, unpaused
+ *   CHANNEL_FETCH_ACME_AUTH       login / logout
+ *   CHANNEL_FETCH_ACME_API  every other read and write
  *
  * Plus ChannelAcmeApi, which is a plain Channel rather than a fetch channel and
  * is registered from index.js. A channel per URL is what this replaced — the
  * endpoint is a property of a request, not a reason for another channel.
  *
- * All but CHANNEL_ACME_SESSION are paused. A paused ChannelFetch does not
+ * All but CHANNEL_FETCH_ACME_SESSION are paused. A paused ChannelFetch does not
  * request on registration; it waits for `{NAME}_REQUEST_EVENT`. That matters
  * here because every one of these endpoints requires a session, so firing on
  * registration would only produce a 401 before anyone has logged in — and a
@@ -59,16 +59,16 @@ export class AcmeDbConnectionsTraits extends SpyneTrait {
     // Unpaused. Reports { user } or { user: null } and needs no session itself,
     // so it doubles as the liveness probe for the whole path to Postgres.
     SpyneApp.registerChannel(
-      new ChannelFetch('CHANNEL_ACME_SESSION', {
+      new ChannelFetch('CHANNEL_FETCH_ACME_SESSION', {
         url: `${apiBase}/auth/session`,
       }),
     );
 
-    // A 401 arrives on CHANNEL_ACME_AUTH_ERROR_EVENT carrying
+    // A 401 arrives on CHANNEL_FETCH_ACME_AUTH_ERROR_EVENT carrying
     // `message: 'Invalid credentials.'` — the same string the Next.js login
     // form shows, so both apps display identical copy.
     SpyneApp.registerChannel(
-      new ChannelFetch('CHANNEL_ACME_AUTH', {
+      new ChannelFetch('CHANNEL_FETCH_ACME_AUTH', {
         url: `${apiBase}/auth/login`,
         method: 'POST',
         pause: true,
@@ -89,7 +89,7 @@ export class AcmeDbConnectionsTraits extends SpyneTrait {
     // the Next.js server action returns, so the two forms render identical
     // validation text.
     SpyneApp.registerChannel(
-      new ChannelFetch('CHANNEL_ACME_ENDPOINTS', {
+      new ChannelFetch('CHANNEL_FETCH_ACME_API', {
         url: `${apiBase}/bootstrap`,
         pause: true,
       }),
