@@ -1,6 +1,5 @@
 import { ViewStream } from 'spyne';
 import { DashboardStatCardView } from 'components/page-items/acme/dashboard-stat-card-view.js';
-import { AcmeDataStateTraits } from 'traits/app/acme-data-state-traits.js';
 
 // Card type -> the field it reads out of the cards payload. The shape comes
 // straight from fetchCardData in queries.js, which is the verbatim port of the
@@ -63,6 +62,9 @@ export class DashboardStatsContainer extends ViewStream {
     // The appended card instances, so a re-render can dispose exactly what it
     // created rather than emptying the root and hoping nothing else lived there.
     this.cardViews = [];
+
+    // Last data seen on CHANNEL_ACME_DATA. Null until the dump lands.
+    this.acmeData = null;
   }
 
   addActionListeners() {
@@ -71,6 +73,10 @@ export class DashboardStatsContainer extends ViewStream {
     return [
       ['CHANNEL_ACME_DATA_LOADED_EVENT', 'onDataChanged'],
       ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'onDataChanged'],
+      // ERROR too: every payload carries complete state, so an error replayed to
+      // a late-mounting view still holds whatever data has loaded. Listening for
+      // it is what stops a failed mutation from blanking the page.
+      ['CHANNEL_ACME_DATA_ERROR_EVENT', 'onDataChanged'],
     ];
   }
 
@@ -82,7 +88,13 @@ export class DashboardStatsContainer extends ViewStream {
     this.renderCards();
   }
 
-  onDataChanged() {
+  /**
+   * Caches the payload's data and re-renders. The cache exists because a
+   * replayed payload can arrive before this view has an element — the channel
+   * replays on subscribe — in which case onRendered renders it a moment later.
+   */
+  onDataChanged(e) {
+    this.acmeData = e?.payload?.data ?? null;
     this.renderCards();
   }
 
@@ -91,7 +103,9 @@ export class DashboardStatsContainer extends ViewStream {
    * card as that card's own props.data, unchanged.
    */
   renderCards() {
-    const cards = AcmeDataStateTraits.acmeData$GetSlice('cards');
+    if (!this.props.el) return;
+
+    const cards = this.acmeData?.cards;
 
     this.cardViews.forEach((view) => view.disposeViewStream());
     this.cardViews = [];

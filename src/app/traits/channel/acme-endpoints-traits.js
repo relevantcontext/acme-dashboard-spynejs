@@ -34,9 +34,9 @@ import { SpyneTrait } from 'spyne';
  * ── Reads ────────────────────────────────────────────────────────────────────
  *
  * There is exactly one read: `bootstrap`. Everything the client renders arrives
- * in that single response and is cached in SpyneAppProperties by
- * AcmeDataStateTraits. Searching and pagination filter the cached data rather
- * than returning to the server, so no per-page read exists here by design.
+ * in that single response and is held by ChannelAcmeData, which republishes it
+ * with every emission. Searching and pagination filter that data rather than
+ * returning to the server, so no per-page read exists here by design.
  *
  * A successful mutation invalidates the cache, and the channel re-requests
  * `bootstrap` rather than patching individual slices — the server stays the one

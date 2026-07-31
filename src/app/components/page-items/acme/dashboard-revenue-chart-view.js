@@ -2,7 +2,6 @@ import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
 import { DashboardRevenueBarView } from 'components/page-items/acme/dashboard-revenue-bar-view.js';
 import { DashboardRevenueYAxisView } from 'components/page-items/acme/dashboard-revenue-y-axis-view.js';
-import { AcmeDataStateTraits } from 'traits/app/acme-data-state-traits.js';
 import { generateYAxis, getBarHeight } from 'traits/utils/acme-chart-utils.js';
 import DashboardRevenueChartTmpl from './templates/dashboard-revenue-chart-view.tmpl.html';
 
@@ -62,12 +61,17 @@ export class DashboardRevenueChartView extends ViewStream {
 
     this.chartHeight = chartHeight;
     this.childViews = [];
+    this.acmeData = null;
   }
 
   addActionListeners() {
     return [
       ['CHANNEL_ACME_DATA_LOADED_EVENT', 'onDataChanged'],
       ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'onDataChanged'],
+      // ERROR too: every payload carries complete state, so an error replayed to
+      // a late-mounting view still holds whatever data has loaded. Listening for
+      // it is what stops a failed mutation from blanking the page.
+      ['CHANNEL_ACME_DATA_ERROR_EVENT', 'onDataChanged'],
     ];
   }
 
@@ -79,12 +83,20 @@ export class DashboardRevenueChartView extends ViewStream {
     this.renderChart();
   }
 
-  onDataChanged() {
+  /**
+   * Caches the payload's data and re-renders. The cache exists because a
+   * replayed payload can arrive before this view has an element — the channel
+   * replays on subscribe — in which case onRendered renders it a moment later.
+   */
+  onDataChanged(e) {
+    this.acmeData = e?.payload?.data ?? null;
     this.renderChart();
   }
 
   renderChart() {
-    const revenue = AcmeDataStateTraits.acmeData$GetSlice('revenue') || [];
+    if (!this.props.el) return;
+
+    const revenue = this.acmeData?.revenue || [];
 
     this.childViews.forEach((view) => view.disposeViewStream());
     this.childViews = [];

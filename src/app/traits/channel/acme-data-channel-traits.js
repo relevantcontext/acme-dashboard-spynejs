@@ -1,7 +1,21 @@
 import { SpyneTrait, ChannelPayloadFilter } from 'spyne';
 import { AcmeAuthStateTraits } from 'traits/app/acme-auth-state-traits.js';
-import { AcmeDataStateTraits } from 'traits/app/acme-data-state-traits.js';
 import { AcmeEndpointsTraits } from 'traits/channel/acme-endpoints-traits.js';
+
+/**
+ * The shape every payload carries, whether or not anything has loaded. A view
+ * can destructure it without guarding, and `status.isLoaded` says whether the
+ * values mean anything yet.
+ */
+const EMPTY_DATA = {
+  cards: null,
+  revenue: [],
+  latestInvoices: [],
+  invoices: [],
+  totalPages: 0,
+  customers: [],
+  customerOptions: [],
+};
 
 /**
  * Logic for ChannelAcmeData — every read and write of business data.
@@ -101,11 +115,7 @@ export class AcmeDataChannelTraits extends SpyneTrait {
       return;
     }
 
-    // Signed out. The cache was fetched for an identity that no longer holds it,
-    // so it is dropped — but nothing is emitted. Nothing should ever render
-    // logged-out data, so there is no consumer for that payload, and emitting
-    // would race the redirect that is already under way.
-    AcmeDataStateTraits.acmeData$Clear();
+    this.acmeData$ClearData();
   }
 
   // ── Inbound: UI -> request ────────────────────────────────────────────────
@@ -146,11 +156,65 @@ export class AcmeDataChannelTraits extends SpyneTrait {
     });
   }
 
+  // ── State ─────────────────────────────────────────────────────────────────
+  //
+  // The data lives on the channel. There is no SpyneAppProperties slot for it:
+  // a second copy is a second thing that can be stale, and nothing needs to read
+  // it synchronously before subscribing — a page mounting late receives the
+  // replayed payload on subscribe.
+
+  static acmeData$GetData() {
+    return this.props.acmeData || { ...EMPTY_DATA };
+  }
+
+  static acmeData$SetData(data = {}) {
+    const wasLoaded = this.props.acmeIsLoaded === true;
+
+    this.props.acmeData = { ...EMPTY_DATA, ...data };
+    this.props.acmeIsLoaded = true;
+
+    return { wasLoaded };
+  }
+
+  /**
+   * Signed out. The data was fetched for an identity that no longer holds it.
+   *
+   * Nothing is emitted: no view should ever render logged-out data, so there is
+   * no consumer for that payload, and emitting would race the redirect that is
+   * already under way.
+   */
+  static acmeData$ClearData() {
+    this.props.acmeData = { ...EMPTY_DATA };
+    this.props.acmeIsLoaded = false;
+  }
+
   // ── Outbound: response -> semantic action ─────────────────────────────────
 
-  static acmeData$Publish(action, payload = {}) {
+  /**
+   * Every emission carries COMPLETE state — the whole data object plus a status
+   * object — regardless of which action it is.
+   *
+   * This is what makes "the channel is the source of truth" true rather than
+   * aspirational. sendCachedPayload is a ReplaySubject(1): ONE buffer for the
+   * channel, not one per action. A late subscriber therefore receives whatever
+   * was published last, whatever its action. If an error payload carried only an
+   * error, a page mounting after a failed mutation would have no data even
+   * though the channel has data. Carrying everything every time means a replayed
+   * error still lets a page render its content AND surface the failure, rather
+   * than choosing.
+   *
+   * The corollary: no action may ever emit a partial payload. Adding one
+   * silently stops this channel being a source of truth.
+   */
+  static acmeData$Publish(action, status = {}) {
     this.sendChannelPayload(action, {
-      ...payload,
+      data: this.acmeData$GetData(),
+      status: {
+        isLoaded: this.props.acmeIsLoaded === true,
+        error: null,
+        message: null,
+        ...status,
+      },
       isAuthenticated: AcmeAuthStateTraits.acmeAuthState$IsAuthenticated(),
     });
   }
@@ -169,9 +233,16 @@ export class AcmeDataChannelTraits extends SpyneTrait {
       // still reported here so a view can surface the failure; which of the two
       // subscribers runs first does not matter, because neither reads what the
       // other writes.
+      // The error goes in `status`, never in place of the data. Whatever has
+      // loaded is still carried, so a page replaying this payload renders its
+      // content and shows the failure rather than choosing between them.
       this.acmeData$Publish('CHANNEL_ACME_DATA_ERROR_EVENT', {
-        ...payload,
-        isUnauthenticated: payload.status === 401,
+        error: {
+          message: payload.message || 'Something went wrong.',
+          url: payload.url,
+          status: payload.status,
+          isUnauthenticated: payload.status === 401,
+        },
       });
       return;
     }
@@ -179,25 +250,29 @@ export class AcmeDataChannelTraits extends SpyneTrait {
     const { dataKey, data } = payload;
 
     if (dataKey === 'bootstrap') {
-      const { wasLoaded } = AcmeDataStateTraits.acmeData$Set(data);
+      // Stored BEFORE publishing, so the emission carries the new data rather
+      // than the previous state.
+      const { wasLoaded } = this.acmeData$SetData(data);
 
-      // Written BEFORE the event, so a listener can read the store
-      // synchronously in its handler rather than taking the payload apart.
       this.acmeData$Publish(
         wasLoaded
           ? 'CHANNEL_ACME_DATA_UPDATED_EVENT'
           : 'CHANNEL_ACME_DATA_LOADED_EVENT',
-        { data },
       );
       return;
     }
 
     if (dataKey === 'mutation') {
-      // The write succeeded, so the cached dump is stale. Re-reading it is what
+      // The write succeeded, so the held data is stale. Re-reading is what
       // produces DATA_UPDATED and re-renders whatever was showing the old
       // values — the server stays the authority, rather than the client patching
-      // its own cache and hoping it matches.
-      this.acmeData$Publish('CHANNEL_ACME_DATA_MUTATION_EVENT', data);
+      // its own copy and hoping it matches.
+      //
+      // This payload still carries the pre-mutation data, which is correct: it
+      // is what is on screen until the refreshed dump lands.
+      this.acmeData$Publish('CHANNEL_ACME_DATA_MUTATION_EVENT', {
+        message: data?.message ?? null,
+      });
       this.acmeData$FetchBootstrap();
       return;
     }
