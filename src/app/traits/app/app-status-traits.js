@@ -7,7 +7,7 @@ export class AppStatusTraits extends SpyneTrait {
   }
 
   static appStatus$GetChannels() {
-    // CHANNEL_ACME_API is merged so the app does not initialise until the
+    // CHANNEL_ACME_AUTH is merged so the app does not initialise until the
     // initial auth state is known — its first emission is INIT_AUTH, resolved
     // from the unpaused session request. A failed session request still emits
     // INIT_AUTH as unauthenticated, so a downed API delays boot rather than
@@ -15,7 +15,7 @@ export class AppStatusTraits extends SpyneTrait {
     this.mergeChannels([
       'CHANNEL_ROUTE',
       'CHANNEL_FETCH_MODEL',
-      'CHANNEL_ACME_API',
+      'CHANNEL_ACME_AUTH',
     ]).subscribe(this.appStatus$OnDataReturned.bind(this));
 
     const routePayloadFilter = new ChannelPayloadFilter({

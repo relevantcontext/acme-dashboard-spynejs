@@ -11,7 +11,7 @@ import { SpyneTrait, ChannelFetch, SpyneApp } from 'spyne';
  *
  * The data path is:
  *
- *   ViewStream -> CHANNEL_UI -> ChannelAcmeApi -> these ChannelFetch instances
+ *   ViewStream -> CHANNEL_UI -> ChannelAcmeAuth / ChannelAcmeData -> these
  *              -> /api (dev-server proxy) -> Node tier -> Postgres
  *
  * A browser cannot speak the Postgres wire protocol, and shipping the
@@ -26,8 +26,9 @@ import { SpyneTrait, ChannelFetch, SpyneApp } from 'spyne';
  *   CHANNEL_FETCH_ACME_AUTH       login / logout
  *   CHANNEL_FETCH_ACME_API  every other read and write
  *
- * Plus ChannelAcmeApi, which is a plain Channel rather than a fetch channel and
- * is registered from index.js. A channel per URL is what this replaced — the
+ * Plus ChannelAcmeAuth and ChannelAcmeData, plain Channels rather than fetch
+ * channels, registered from index.js. Those two are what views subscribe to;
+ * these three are transport. A channel per URL is what this replaced — the
  * endpoint is a property of a request, not a reason for another channel.
  *
  * All but CHANNEL_FETCH_ACME_SESSION are paused. A paused ChannelFetch does not

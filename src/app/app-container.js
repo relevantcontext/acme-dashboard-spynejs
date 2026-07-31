@@ -11,13 +11,13 @@ export class AppContainer extends ViewStream {
     // which is why the flex row lives here: they have to be siblings for
     // md:flex-row to place them side by side.
     props.class = 'flex h-screen flex-col md:flex-row md:overflow-hidden';
-    // CHANNEL_ACME_API is here for sign-out. Replacing the document is an
+    // CHANNEL_ACME_AUTH is here for sign-out. Replacing the document is an
     // app-level act, not a page-level one, so it belongs to the view that owns
     // the app root rather than to the stage or the sidenav.
     props.channels = [
       'CHANNEL_LOCAL_STORAGE',
       'CHANNEL_APP',
-      'CHANNEL_ACME_API',
+      'CHANNEL_ACME_AUTH',
     ];
     props.traits = [AppContainerTraits];
     props.dataset = {};
@@ -32,7 +32,7 @@ export class AppContainer extends ViewStream {
         'app$OnLocalStorageEvent',
       ],
       ['CHANNEL_APP_SETTING_EVENT', 'app$OnSettingsEvent'],
-      ['CHANNEL_ACME_API_SIGNOUT_COMPLETED_EVENT', 'app$OnSignOutCompleted'],
+      ['CHANNEL_ACME_AUTH_SIGNOUT_COMPLETED_EVENT', 'app$OnSignOutCompleted'],
     ];
   }
 

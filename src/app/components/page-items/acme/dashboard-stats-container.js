@@ -52,7 +52,7 @@ export class DashboardStatsContainer extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class = 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4';
-    props.channels = ['CHANNEL_ACME_API'];
+    props.channels = ['CHANNEL_ACME_DATA'];
     props.data = {
       ...props.data,
       cards: props.data?.cards || [],
@@ -69,8 +69,8 @@ export class DashboardStatsContainer extends ViewStream {
     // One listener per action name — a duplicate registration for the same
     // action clobbers the first.
     return [
-      ['CHANNEL_ACME_API_DATA_LOADED_EVENT', 'onDataChanged'],
-      ['CHANNEL_ACME_API_DATA_UPDATED_EVENT', 'onDataChanged'],
+      ['CHANNEL_ACME_DATA_LOADED_EVENT', 'onDataChanged'],
+      ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'onDataChanged'],
     ];
   }
 

@@ -11,11 +11,12 @@ import { SpyneApp, ChannelFetch, SpyneAppProperties } from 'spyne';
 import { ChannelMenuDrawer } from 'channels/channel-menu-drawer';
 import { ChannelApp } from 'channels/channel-app.js';
 import { ChannelLocalStorage } from 'channels/channel-local-storage.js';
-import { ChannelAcmeApi } from 'channels/channel-acme-api.js';
+import { ChannelAcmeAuth } from 'channels/channel-acme-auth.js';
+import { ChannelAcmeData } from 'channels/channel-acme-data.js';
 //plugins
 
 // views
-import { AcmeApiRequester } from 'components/acme-api-requester.js';
+import { AcmeRequester } from 'components/acme-requester.js';
 
 // traits
 import { AcmeDbConnectionsTraits } from 'traits/channel/acme-db-connections-traits.js';
@@ -108,13 +109,16 @@ SpyneApp.registerChannel(new ChannelLocalStorage());
 // traits/channel/acme-db-connections-traits.js.
 AcmeDbConnectionsTraits.acmeDbConnections$RegisterChannels();
 
-// The intermediary between those fetch channels and UI events.
-SpyneApp.registerChannel(new ChannelAcmeApi());
+// The two semantic channels between those fetch channels and the app. Auth is
+// registered first: it is the only writer of auth state, and ChannelAcmeData
+// subscribes to it to know when to load.
+SpyneApp.registerChannel(new ChannelAcmeAuth());
+SpyneApp.registerChannel(new ChannelAcmeData());
 
 // A ChannelFetch request can only be sent from a ViewStream, so this null-
-// appended view listens to CHANNEL_ACME_API and performs them. It renders
-// nothing and exists solely to hold that boundary.
-new AcmeApiRequester().appendToNull();
+// appended view listens to both channels and performs them. It renders nothing
+// and exists solely to hold that boundary.
+new AcmeRequester().appendToNull();
 
 
 const registerCmsChannels = () => {

@@ -5,7 +5,7 @@ const AUTH_STATE_PROP = 'acmeAuthState';
 /**
  * The app's single source of truth for auth state.
  *
- * ChannelAcmeApi writes here whenever the server tells it something about the
+ * ChannelAcmeAuth writes here whenever the server tells it something about the
  * session — the initial /api/auth/session response, a login, a sign out. Views
  * read it with the statics below.
  *
@@ -18,7 +18,7 @@ const AUTH_STATE_PROP = 'acmeAuthState';
  *
  * Views that render after app init can read this instead of subscribing: by the
  * time any page exists, INIT_AUTH has already resolved. Views that need to react
- * to a later change still listen for CHANNEL_ACME_API_AUTH_CHANGED_EVENT.
+ * to a later change still listen for CHANNEL_ACME_AUTH_CHANGED_EVENT.
  */
 export class AcmeAuthStateTraits extends SpyneTrait {
   constructor(context) {

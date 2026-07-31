@@ -32,7 +32,7 @@ export class DashboardInvoicesLatestView extends ViewStream {
     props.tagName = 'div';
     props.class = 'flex w-full flex-col md:col-span-4';
     props.template = DashboardInvoicesLatestTmpl;
-    props.channels = ['CHANNEL_ACME_API'];
+    props.channels = ['CHANNEL_ACME_DATA'];
     props.data = {
       ...props.data,
       heading,
@@ -47,8 +47,8 @@ export class DashboardInvoicesLatestView extends ViewStream {
 
   addActionListeners() {
     return [
-      ['CHANNEL_ACME_API_DATA_LOADED_EVENT', 'onDataChanged'],
-      ['CHANNEL_ACME_API_DATA_UPDATED_EVENT', 'onDataChanged'],
+      ['CHANNEL_ACME_DATA_LOADED_EVENT', 'onDataChanged'],
+      ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'onDataChanged'],
     ];
   }
 

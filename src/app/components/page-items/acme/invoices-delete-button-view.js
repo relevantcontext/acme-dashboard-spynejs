@@ -7,7 +7,7 @@ import InvoicesDeleteButtonTmpl from './templates/invoices-delete-button-view.tm
  *
  * The source wraps a submit button in a <form> whose action is the
  * `deleteInvoice` server action bound to the id. There is no server action to
- * bind to here, so the button broadcasts to CHANNEL_UI and ChannelAcmeApi
+ * bind to here, so the button broadcasts to CHANNEL_UI and ChannelAcmeData
  * issues the DELETE — which also means no form element is needed.
  *
  * `data-btn-type` selects the ACME_ENDPOINTS entry; `data-id` rides along on the
@@ -28,7 +28,7 @@ export class InvoicesDeleteButtonView extends ViewStream {
     props.type = 'button';
     props.class = 'rounded-md border p-2 hover:bg-gray-100';
     props.dataset = {
-      eventType: 'acmeApi',
+      eventType: 'acmeData',
       btnType: 'delete-invoice',
       id,
     };

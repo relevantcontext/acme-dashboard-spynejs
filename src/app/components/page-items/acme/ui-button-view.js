@@ -36,9 +36,9 @@ export class UIButtonView extends ViewStream {
       svgIcon: icon ? withClass(icon, iconClass) : '',
     };
 
-    // eventType routes the click to ChannelAcmeApi; btnType selects the endpoint
-    // once it gets there.
-    props.dataset = btnType ? { eventType: 'acmeApi', btnType } : {};
+    // eventType routes the click to ChannelAcmeData; btnType selects the
+    // endpoint once it gets there.
+    props.dataset = btnType ? { eventType: 'acmeData', btnType } : {};
 
     super(props);
   }

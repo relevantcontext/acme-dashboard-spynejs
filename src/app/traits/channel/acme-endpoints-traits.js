@@ -118,7 +118,7 @@ export class AcmeEndpointsTraits extends SpyneTrait {
 
     if (endpoint === undefined) {
       console.warn(
-        `Spyne Warning: ChannelAcmeApi received an unmapped btnType, "${btnType}"`,
+        `Spyne Warning: ChannelAcmeData received an unmapped btnType, "${btnType}"`,
       );
       return null;
     }

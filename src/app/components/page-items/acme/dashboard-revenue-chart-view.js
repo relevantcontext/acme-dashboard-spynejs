@@ -49,7 +49,7 @@ export class DashboardRevenueChartView extends ViewStream {
     props.tagName = 'div';
     props.class = 'w-full md:col-span-4';
     props.template = DashboardRevenueChartTmpl;
-    props.channels = ['CHANNEL_ACME_API'];
+    props.channels = ['CHANNEL_ACME_DATA'];
     props.data = {
       ...props.data,
       heading,
@@ -66,8 +66,8 @@ export class DashboardRevenueChartView extends ViewStream {
 
   addActionListeners() {
     return [
-      ['CHANNEL_ACME_API_DATA_LOADED_EVENT', 'onDataChanged'],
-      ['CHANNEL_ACME_API_DATA_UPDATED_EVENT', 'onDataChanged'],
+      ['CHANNEL_ACME_DATA_LOADED_EVENT', 'onDataChanged'],
+      ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'onDataChanged'],
     ];
   }
 

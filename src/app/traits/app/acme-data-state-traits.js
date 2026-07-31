@@ -17,7 +17,7 @@ const EMPTY_STATE = {
  * The app's single source of truth for Acme data, the sibling of
  * AcmeAuthStateTraits.
  *
- * ChannelAcmeApi writes here when /api/bootstrap returns — once on
+ * ChannelAcmeData writes here when /api/bootstrap returns — once on
  * authentication, and again after any mutation invalidates it. Views read it
  * with the statics below.
  *
@@ -29,7 +29,7 @@ const EMPTY_STATE = {
  * a page render fully on first paint.
  *
  * Events remain for the other direction: a view already on screen when the data
- * changes listens for CHANNEL_ACME_API_DATA_LOADED_EVENT /
+ * changes listens for CHANNEL_ACME_DATA_LOADED_EVENT /
  * ..._DATA_UPDATED_EVENT and re-renders itself.
  *
  * Deliberately NOT read off the ChannelFetch's cached payload. That cache holds

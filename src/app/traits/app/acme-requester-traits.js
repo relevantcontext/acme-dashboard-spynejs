@@ -1,23 +1,24 @@
 import { SpyneTrait } from 'spyne';
 
 /**
- * Logic for AcmeApiRequester.
+ * Logic for AcmeRequester.
  *
  * A ChannelFetch request can only be triggered by a ViewStream —
  * `sendInfoToChannel` is a ViewStream method and Channel has no equivalent, so
  * a channel cannot ask another channel to fetch. This trait is the ViewStream
- * side of that boundary: ChannelAcmeApi decides *what* to request, and this
+ * side of that boundary: the Acme channels decide *what* to request, and this
  * turns the instruction into the actual sendInfoToChannel call.
  */
-export class AcmeApiRequesterTraits extends SpyneTrait {
+export class AcmeRequesterTraits extends SpyneTrait {
   constructor(context) {
     let traitPrefix = 'acmeRequester$';
     super(context, traitPrefix);
   }
 
   /**
-   * Receives CHANNEL_ACME_API_REQUEST_EVENT and forwards it to the named
-   * ChannelFetch.
+   * Receives a request instruction from either Acme channel and forwards it to
+   * the named ChannelFetch. Both publish the same shape, so one handler serves
+   * both.
    *
    * `channelName` selects the target; everything else on the payload is the
    * fetch configuration. ChannelFetch reads only these keys:
@@ -32,7 +33,7 @@ export class AcmeApiRequesterTraits extends SpyneTrait {
 
     if (!channelName) {
       console.warn(
-        'Spyne Warning: AcmeApiRequester received a request with no channelName',
+        'Spyne Warning: AcmeRequester received a request with no channelName',
       );
       return;
     }

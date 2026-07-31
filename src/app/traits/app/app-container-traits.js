@@ -44,7 +44,7 @@ export class AppContainerTraits extends SpyneTrait {
    * return to.
    *
    * Safe to call only because the POST to /api/auth/logout has already resolved
-   * — ChannelAcmeApi publishes the action from the response handler. Navigating
+   * — ChannelAcmeAuth publishes the action from the response handler. Navigating
    * before the cookie is cleared would boot straight back into a live session.
    *
    * Deliberately NOT used for a 401. That looks like the same event, but a

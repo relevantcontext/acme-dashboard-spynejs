@@ -15,7 +15,7 @@ import UISearchTmpl from './templates/ui-search-view.tmpl.html';
  *
  * ── Why this does NOT talk to the API ───────────────────────────────────────
  *
- * eventType is `acmeSearch`, not `acmeApi`, so ChannelAcmeApi never sees it.
+ * eventType is `acmeSearch`, not `acmeData`, so ChannelAcmeData never sees it.
  * Every invoice and customer is already in SpyneAppProperties from the
  * /api/bootstrap dump, so searching filters what is in hand — no request, no
  * round trip, and nothing to debounce. The table listens for this event and
