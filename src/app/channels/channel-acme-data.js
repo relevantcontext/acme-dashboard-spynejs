@@ -14,12 +14,12 @@ import { AcmeDataChannelTraits } from 'traits/channel/acme-data-channel-traits.j
  * requests /api/bootstrap, and emits DATA_LOADED once that returns. A page can
  * therefore treat any emission as "there is data" rather than having to check.
  *
- * ── sendCachedPayload ───────────────────────────────────────────────────────
+ * ── Replay ──────────────────────────────────────────────────────────────────
  *
- * True, so a page mounting after the dump landed still receives it on subscribe
- * rather than rendering empty forever. Note this is a ReplaySubject(1): ONE
- * buffer for the channel, not one per action, so a late subscriber gets whatever
- * was published last whatever its action.
+ * This is a current-value channel, not an ephemeral-event one: a page mounting
+ * after the dump has landed needs the data, so it replays. [choose-replay-semantics]
+ *
+ * The consequence every action must respect is in acmeData$Publish.
  *
  * All behaviour lives in AcmeDataChannelTraits — this class is structure and
  * event flow only.
@@ -30,7 +30,7 @@ import { AcmeDataChannelTraits } from 'traits/channel/acme-data-channel-traits.j
 export class ChannelAcmeData extends Channel {
   constructor(name, props = {}) {
     name = 'CHANNEL_ACME_DATA';
-    props.sendCachedPayload = true;
+    props.replay = true;
     props.traits = [AcmeDataChannelTraits];
     super(name, props);
   }

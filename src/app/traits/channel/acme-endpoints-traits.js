@@ -14,7 +14,7 @@ import { SpyneTrait } from 'spyne';
  * success payload from the channel's *constructor* props:
  *
  *   createChannelPayloadItem(payload, action) {
- *     const { name, sendCachedPayload, url } = this.props   // <- constructor url
+ *     const { name, url } = this.props   // <- constructor url, not the request's
  *
  * Per-request `url` overrides are merged for the fetch itself but never written
  * back to `this.props`, so once one channel serves every endpoint, every success

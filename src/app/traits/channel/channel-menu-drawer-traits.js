@@ -13,9 +13,7 @@ export class ChannelMenuDrawerTraits extends SpyneTrait {
     });
 
     const menuDrawerBtnFilter = new ChannelPayloadFilter({
-      propFilters: {
-        eventType: 'menuDrawer',
-      },
+      eventType: 'menuDrawer',
     });
 
     const appInitFilter = new ChannelPayloadFilter({

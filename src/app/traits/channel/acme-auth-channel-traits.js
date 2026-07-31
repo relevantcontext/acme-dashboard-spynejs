@@ -61,11 +61,7 @@ export class AcmeAuthChannelTraits extends SpyneTrait {
     );
 
     // Only error payloads carry `status`, so this passes 401s and nothing else.
-    const unauthorizedFilter = new ChannelPayloadFilter({
-      propFilters: {
-        status: 401,
-      },
-    });
+    const unauthorizedFilter = new ChannelPayloadFilter({ status: 401 });
 
     this.getChannel('CHANNEL_FETCH_ACME_API', unauthorizedFilter).subscribe(
       this.acmeAuth$OnUnauthorized.bind(this),
@@ -79,11 +75,7 @@ export class AcmeAuthChannelTraits extends SpyneTrait {
    * collect, so the click is the whole request.
    */
   static acmeAuth$ListenToUiEvents() {
-    const signOutFilter = new ChannelPayloadFilter({
-      propFilters: {
-        eventType: 'signOut',
-      },
-    });
+    const signOutFilter = new ChannelPayloadFilter({ eventType: 'signOut' });
 
     this.getChannel('CHANNEL_UI', signOutFilter).subscribe(
       this.acmeAuth$SignOut.bind(this),

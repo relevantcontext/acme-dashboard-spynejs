@@ -48,7 +48,7 @@ export class UIContainerTraits extends SpyneTrait {
    */
   static uiContainer$SetVisibility(pageId) {
     const hasShell = pageId === UIContainerTraits.SHELL_PAGE_ID;
-    this.props.el$().toggle('hide', !hasShell);
+    this.props.el$().toggleClass('hide', !hasShell);
   }
 
   /**

@@ -37,9 +37,7 @@ export class DashboardRevenueTraits extends SpyneTrait {
     const { yAxisLabels, topLabel } = generateYAxis(revenue);
 
     this.appendView(
-      new DashboardRevenueYAxisView({
-        data: yAxisLabels.map((label) => ({ label })),
-      }),
+      new DashboardRevenueYAxisView({ data: yAxisLabels }),
       `[data-slot='y-axis']`,
     );
 

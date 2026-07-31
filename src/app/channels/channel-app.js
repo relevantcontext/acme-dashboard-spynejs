@@ -6,7 +6,7 @@ import { AppRedirectTraits } from 'traits/app/app-redirect-traits.js';
 export class ChannelApp extends Channel {
   constructor(name, props = {}) {
     name = 'CHANNEL_APP';
-    props.sendCachedPayload = true;
+    props.replay = true;
     props.traits = [AppStatusTraits, AppSettingsTraits, AppRedirectTraits];
     super(name, props);
   }

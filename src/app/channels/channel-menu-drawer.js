@@ -4,7 +4,7 @@ import { ChannelMenuDrawerTraits } from 'traits/channel/channel-menu-drawer-trai
 export class ChannelMenuDrawer extends Channel {
   constructor(name, props = {}) {
     name = 'CHANNEL_MENU_DRAWER';
-    props.sendCachedPayload = true;
+    props.replay = true;
     props.traits = [ChannelMenuDrawerTraits];
     super(name, props);
     this.props.showMenu = false;

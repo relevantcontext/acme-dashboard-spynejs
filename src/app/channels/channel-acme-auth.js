@@ -24,7 +24,7 @@ import { AcmeAuthChannelTraits } from 'traits/channel/acme-auth-channel-traits.j
 export class ChannelAcmeAuth extends Channel {
   constructor(name, props = {}) {
     name = 'CHANNEL_ACME_AUTH';
-    props.sendCachedPayload = true;
+    props.replay = true;
     props.traits = [AcmeAuthChannelTraits];
     super(name, props);
   }

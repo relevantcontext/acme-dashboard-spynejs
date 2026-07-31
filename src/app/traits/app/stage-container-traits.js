@@ -57,7 +57,7 @@ export class StageContainerTraits extends SpyneTrait {
    * it.
    */
   static stage$ShowShell(hasShell) {
-    this.props.el$().toggle('is-full-bleed', !hasShell);
+    this.props.el$().toggleClass('is-full-bleed', !hasShell);
   }
 
   static stage$OnAppInitEvent(e) {

@@ -16,12 +16,12 @@ import DashboardRevenueYAxisTmpl from './templates/dashboard-revenue-y-axis-view
  * the <p>s become direct children of the axis column, which is the flex-column
  * that spaces them with justify-between.
  *
- * props.data is a bare array, which the template's `{{#}}...{{/}}` iterates —
- * the same shape UINavLinkView uses. Objects rather than raw strings because a
- * section body interpolates named tokens.
+ * props.data is a bare array of strings, iterated by the template's
+ * `{{#}}...{{/}}` section. `{{.}}` is the canonical token for the item itself —
+ * no object wrapping is needed to interpolate a scalar. [recognize-never-emit]
  *
  * @param {Object} props
- * @param {Array<{label: String}>} props.data
+ * @param {Array<String>} props.data
  */
 export class DashboardRevenueYAxisView extends ViewStream {
   constructor(props = {}) {

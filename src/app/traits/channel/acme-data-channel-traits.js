@@ -96,11 +96,7 @@ export class AcmeDataChannelTraits extends SpyneTrait {
    * the request without anything having to thread it through.
    */
   static acmeData$ListenToUiEvents() {
-    const acmeUiFilter = new ChannelPayloadFilter({
-      propFilters: {
-        eventType: 'acmeData',
-      },
-    });
+    const acmeUiFilter = new ChannelPayloadFilter({ eventType: 'acmeData' });
 
     this.getChannel('CHANNEL_UI', acmeUiFilter).subscribe(
       this.acmeData$OnUiEvent.bind(this),
@@ -195,13 +191,13 @@ export class AcmeDataChannelTraits extends SpyneTrait {
    * object — regardless of which action it is.
    *
    * This is what makes "the channel is the source of truth" true rather than
-   * aspirational. sendCachedPayload is a ReplaySubject(1): ONE buffer for the
-   * channel, not one per action. A late subscriber therefore receives whatever
-   * was published last, whatever its action. If an error payload carried only an
-   * error, a page mounting after a failed mutation would have no data even
-   * though the channel has data. Carrying everything every time means a replayed
-   * error still lets a page render its content AND surface the failure, rather
-   * than choosing.
+   * aspirational. A replay channel caches ONE payload, not one per action, so a
+   * late subscriber receives whichever action was published last. If an error
+   * payload carried only an error, a page mounting after a failed mutation would
+   * have no data even though the channel has data. Carrying everything every
+   * time means a replayed error still lets a page render its content AND surface
+   * the failure, rather than choosing. [choose-replay-semantics]
+   * [active-child-on-custom-channel]
    *
    * The corollary: no action may ever emit a partial payload. Adding one
    * silently stops this channel being a source of truth.
