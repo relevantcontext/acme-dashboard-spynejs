@@ -100,7 +100,7 @@ SpyneApp.init(config);
 SpyneAppProperties.setProp('pageItemTemplateLookup', pageItemTemplateLookup);
 SpyneApp.registerChannel(new ChannelApp());
 SpyneApp.registerChannel(new ChannelLocalStorage());
-SpyneApp.registerChannel(new ChannelMenuDrawer());
+//SpyneApp.registerChannel(new ChannelMenuDrawer());
 
 // Acme SQL connection. The ChannelFetch instances are registered from a trait
 // rather than inline, so every channel the app owns is still discoverable here

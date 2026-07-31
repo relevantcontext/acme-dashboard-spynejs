@@ -1,14 +1,4 @@
 import { SpyneTrait, ChannelPayloadFilter, safeClone } from 'spyne';
-import {
-  compose,
-  find,
-  isNil,
-  toPairs,
-  pick,
-  reject,
-  reduce,
-  propEq,
-} from 'ramda';
 
 export class AppStatusTraits extends SpyneTrait {
   constructor(context) {
@@ -48,7 +38,7 @@ export class AppStatusTraits extends SpyneTrait {
     // once, when this merge resolves, and never refreshed — so it would report
     // the boot-time value forever and be wrong the moment anyone logs in or out.
     // Auth state has one source of truth: AcmeAuthStateTraits.
-    this.props.initData = { navLinks, isDeepLink, routeData, footer, header };
+   // this.props.initData = { navLinks, isDeepLink, routeData, footer, header };
 
     try {
       this.appStatus$SendDataEvent(routeData, true);
@@ -103,58 +93,30 @@ export class AppStatusTraits extends SpyneTrait {
     this.sendChannelPayload(action, payload);
   }
 
+
   /**
-   * Resolves the current page-level data by progressively narrowing
-   * the application content tree using route identifiers.
+   * Progressively narrows the application content tree by route
+   * identifiers, in key order. Resolution stops at the first
+   * constraint that cannot be satisfied.
    *
-   * Resolution model:
-   *   pageId  → topicId → optionId
-   *
-   * Only route keys with meaningful values are used as constraints.
-   * If a constraint exists and cannot be satisfied, resolution stops.
-   *
-   * If no matching content is found, the original routeData is returned
-   * intentionally — allowing callers to detect "route-only" state
-   * (e.g. 404s, empty pages, or deferred content).
+   * Returns the matched content node, or null when any constraint
+   * fails — the caller decides the fallback (e.g. route-only state
+   * for 404s, empty pages, or deferred content).
    */
   static appStatus$GetCurrentPageData(
     routeData,
     data = this.props.data,
     keys = ['pageId', 'topicId', 'optionId'],
   ) {
-    /**
-     * Reducer that attempts to match the current route key/value
-     * against the current level of the content tree.
-     *
-     * - If content exists, we look for a matching child node.
-     * - If no match is found, resolution fails and returns null.
-     * - Once null, the reduction will continue to propagate failure.
-     */
-    const getDataReducer = (d, [k, v]) => {
-      if (!d || !d.content) return null;
-      return find(propEq(v, k), d.content) || null;
-    };
+    const constraints = keys
+      .map((key) => [key, routeData[key]])
+      .filter(([, value]) => value != null && value !== '');
 
-    /**
-     * Resolution pipeline:
-     *
-     * 1. Pick only relevant route keys (pageId, topicId, optionId)
-     * 2. Remove empty or undefined values (optional depth)
-     * 3. Convert to key/value pairs for reduction
-     * 4. Reduce through the content tree, narrowing at each level
-     */
-    const content = compose(
-      reduce(getDataReducer, data),
-      toPairs,
-      pick(keys),
-      reject(([, v]) => isNil(v) || v === ''),
-    )(routeData);
-
-    /**
-     * If resolution succeeds, return the matched content node.
-     * If resolution fails, return routeData intentionally —
-     * signaling a valid route with no resolved content.
-     */
-    return content ?? routeData;
+    let node = data;
+    for (const [key, value] of constraints) {
+      node = node?.content?.find((child) => child[key] === value) ?? null;
+      if (node === null) break;
+    }
+    return node;
   }
 }

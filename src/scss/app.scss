@@ -72,9 +72,10 @@ main#app {
 // ---------------------------------------------
 // Main app container
 // ---------------------------------------------
-#app {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 100%;
-}
+//
+// No layout declarations. AppContainer carries the dashboard shell's own
+// classes — `flex h-screen flex-col md:flex-row md:overflow-hidden`, straight
+// from dashboard/layout.tsx — and `#app` at (1,0,0) would outscore every one of
+// them at (0,1,0). `flex-direction: column` here is what would pin the shell to
+// a column and keep the sidenav from moving beside the page at md, which is the
+// same collision already removed from #stage-view and from main#app.

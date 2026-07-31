@@ -163,6 +163,35 @@ export class PageItemCoreTraits extends SpyneTrait {
     return bodyRegion;
   }
 
+  static pageItemCore$AddDashboardPageItems(elementsArr = this.props.data.pageItems,) {
+    const addElement = (obj) => {
+      const { props, container, viewClass, isPrototype } = obj;
+
+      /**
+       *
+       * TODO: add the ACME Data to the page item's props.data
+       *
+       * */
+
+      props.template = this.pageItemCore$GetTemplate(props, isPrototype);
+
+      const ViewClass = this.pageItemCore$GetViewClass(viewClass);
+
+      const appendElSelector =
+        this.pageItemCore$CheckToAddPageTraitContainer(container);
+
+      const view = new ViewClass(props);
+
+      this.appendView(view, appendElSelector);
+
+      if (props?.styles) {
+        PageItemCoreTraits.pageItemCore$AddStyles(view.props.el, props.styles);
+      }
+    };
+
+    elementsArr.forEach(addElement);
+  }
+
   static pageItemCore$AddPageItems(elementsArr = this.props.data.pageItems) {
     const addElement = (obj) => {
       const { props, container, viewClass, isPrototype } = obj;
@@ -197,8 +226,7 @@ export class PageItemCoreTraits extends SpyneTrait {
 
     if (content) {
       // no cards for this experience
-
-     /* this.appendView(
+      /* this.appendView(
         new CardsContainerView({ data: content, pageType }),
         this.pageItemCore$GetRegion('body'),
       );*/

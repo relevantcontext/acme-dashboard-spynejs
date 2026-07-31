@@ -195,8 +195,21 @@ export class AcmeApiChannelTraits extends SpyneTrait {
       return;
     }
 
-    this.acmeApi$SetAuthState(null);
-    this.acmeApi$Publish('CHANNEL_ACME_API_LOGOUT_EVENT', payload);
+    // Sign out deliberately does NOT update auth state, and deliberately does
+    // not redirect through CHANNEL_ROUTE.
+    //
+    // The server has already cleared the session cookie by the time this runs,
+    // and AppContainer responds to the action below by replacing the document.
+    // A fresh boot then establishes auth state, the data cache and every view
+    // from nothing — so there is no in-memory teardown to write, and no way for
+    // one slot to be missed. Calling acmeApi$SetAuthState(null) here would emit
+    // AUTH_CHANGED, which the stage would act on by routing to /login, giving a
+    // redirect and a repaint that the document replacement is about to discard.
+    //
+    // This mirrors the Next.js side, where sign-out is a server action —
+    // `await signOut({ redirectTo: '/' })` in sidenav.tsx — and therefore a real
+    // POST followed by a real navigation, not an in-app transition.
+    this.acmeApi$Publish('CHANNEL_ACME_API_SIGNOUT_COMPLETED_EVENT', payload);
   }
 
   /**

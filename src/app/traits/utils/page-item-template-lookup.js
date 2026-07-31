@@ -1,7 +1,7 @@
 // page-item-template-lookup.js (WEBPACK 5 + ESM SAFE)
 
 const ctx = import.meta.webpackContext('components/page-items/templates', {
-  recursive: false,
+  recursive: true,
   regExp: /\.html$/,
 });
 

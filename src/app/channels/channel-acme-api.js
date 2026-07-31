@@ -53,7 +53,11 @@ export class ChannelAcmeApi extends Channel {
       'CHANNEL_ACME_API_LOGIN_FAILED_EVENT',
 
       // Sign out succeeded — the session cookie has been cleared server-side.
-      'CHANNEL_ACME_API_LOGOUT_EVENT',
+      //
+      // AppContainer is the only listener, and it responds by replacing the
+      // document rather than routing. Nothing else should act on this: by the
+      // time a second listener ran, the page it belongs to is being discarded.
+      'CHANNEL_ACME_API_SIGNOUT_COMPLETED_EVENT',
 
       // Any other auth outcome, including a failed sign out.
       'CHANNEL_ACME_API_AUTH_EVENT',

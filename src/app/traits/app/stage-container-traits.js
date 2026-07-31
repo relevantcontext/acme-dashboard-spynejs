@@ -1,9 +1,9 @@
 import { SpyneTrait } from 'spyne';
 import { AcmeAuthStateTraits } from 'traits/app/acme-auth-state-traits.js';
-import { NavBreadcrumbView } from 'components/nav/nav-breadcrumb-view.js';
-import { UISideNavView } from 'components/page-items/acme/ui-sidenav-view.js';
 import { Page404View } from 'components/pages/page-404-view.js';
 import { PageView } from 'components/pages/page-view.js';
+import { PageGuestView} from 'components/pages/page-guest-view.js';
+import { PageAcmeView} from 'components/pages/page-acme-view.js';
 
 export class StageContainerTraits extends SpyneTrait {
   // Pages a guest may view. An authenticated user is redirected off them, and
@@ -56,6 +56,16 @@ export class StageContainerTraits extends SpyneTrait {
     return undefined;
   }
 
+  static stage$GetPageClass(pageId){
+    const pageIdLookup = {
+      "login" : PageGuestView,
+      "home" :  PageGuestView,
+      "404"  : Page404View
+    }
+
+    return pageIdLookup[pageId] || PageAcmeView;
+  }
+
   /**
    * Re-runs the redirect rule when auth changes without the route moving.
    *
@@ -100,7 +110,7 @@ export class StageContainerTraits extends SpyneTrait {
     // single boolean pair above.
     if (is404 || pageId === '404') {
       this.stage$ShowShell(false);
-      this.appendView(new Page404View({ data, isDeepLink }), '.page-container');
+      this.appendView(new Page404View({ data, isDeepLink }));
       return;
     }
 
@@ -119,25 +129,26 @@ export class StageContainerTraits extends SpyneTrait {
     this.stage$ShowShell(
       !StageContainerTraits.GUEST_ONLY_PAGES.includes(pageId),
     );
-    this.appendView(new PageView({ data, isDeepLink }), '.page-container');
+    const pageClass = this.stage$GetPageClass(pageId);
+
+    this.appendView(new pageClass({ data, isDeepLink }));
   }
 
   /**
-   * Guest-only pages get no sidenav and no page gutter — the landing page in
-   * particular needs the width back, since its copy column is only md:w-2/5
-   * with md:px-20 inside it.
+   * Guest-only pages drop the page gutter — the landing page in particular needs
+   * the width back, since its copy column is only md:w-2/5 with md:px-20 inside
+   * it.
+   *
+   * The sidenav is no longer touched here. UIContainer owns that column and
+   * decides its own visibility from the route.
    */
   static stage$ShowShell(hasShell) {
-    this.props.el$('.slot-ui').toggle('hide', !hasShell);
-    this.props.el$('.slot-page').toggle('is-full-bleed', !hasShell);
+    this.props.el$().toggle('is-full-bleed', !hasShell);
   }
 
   static stage$OnAppInitEvent(e) {
     this.stage$OnRouteEvent(e, true);
   }
 
-  static stage$OnRendered() {
-    this.appendView(new UISideNavView(), '.slot-ui');
-    this.appendView(new NavBreadcrumbView(), '.slot-ui');
-  }
+  static stage$OnRendered() {}
 }

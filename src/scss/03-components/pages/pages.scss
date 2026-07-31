@@ -2,29 +2,22 @@
 @use 'page-items/page-item';
 @use 'page-items/section-title';
 
-// StageView carries its own layout classes now (the dashboard shell is
-// `flex h-screen flex-col md:flex-row md:overflow-hidden`, straight from
-// dashboard/layout.tsx), so this rule only holds slot behaviour. The layout
-// declarations that used to live here — background, display, flex-direction,
-// flex-grow, padding — are gone: as an id selector they scored (1,0,0) against
-// Tailwind's (0,1,0) and silently pinned the shell to a column, so the sidenav
-// never moved beside the page at md.
-#stage-view {
+// The two columns are siblings under #app now, not descendants of #stage-view —
+// #stage-view IS the page column. So neither rule can be nested under it.
+//
+// Both are two-class selectors, (0,2,0), which is what lets them win against the
+// Tailwind utilities on the same element, (0,1,0), without an id or !important.
 
-  .slot-ui{
-    &.hide{
-      display: none;
-    }
+// UIContainer hides itself on any page that is not the dashboard.
+.slot-ui.hide {
+  display: none;
+}
 
-  }
-
-  // Shell-less routes (home, login) drop the dashboard page gutter — those
-  // templates bring their own padding, and the landing page needs the width
-  // back for its md:w-2/5 copy column.
-  .slot-page.is-full-bleed{
-    padding: 0;
-  }
-
+// Shell-less routes (home, login, 404) drop the dashboard page gutter — those
+// templates bring their own padding, and the landing page needs the width back
+// for its md:w-2/5 copy column.
+.slot-page.is-full-bleed {
+  padding: 0;
 }
 
 .page-view {
@@ -94,15 +87,10 @@ nav.breadcrumbs {
   }
 }
 
-.page-container {
-  inline-size: min(100%, var(--max-content-width));
-  margin-inline: auto;
-
-  padding-inline: clamp(0.25rem, 2vw, 1rem);
-  //padding-block: clamp(0.5rem, 1.5vw, 1rem);
-
-  display: block;
-}
+// .page-container removed. It was applied to one element — the page column —
+// where its padding-inline, max-width and auto margins all fought the Tailwind
+// utilities on the same element at equal specificity. The column is sized and
+// padded by dashboard/layout.tsx's own classes now.
 
 /* ===== Stage (wraps breadcrumbs + page content) ===== */
 /*

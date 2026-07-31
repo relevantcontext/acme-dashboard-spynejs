@@ -14,16 +14,34 @@
 // Mirrors traits/utils/page-item-template-lookup.js, which does the same for
 // page-item templates.
 
-const ctx = import.meta.webpackContext('components/pages/templates', {
-  recursive: false,
+import PageTmpl from 'components/pages/templates/page.tmpl.html';
+
+const context = import.meta.webpackContext('components/pages/templates', {
+  recursive: true,
   regExp: /\.html$/,
 });
 
-const pageTemplateLookup = {};
+export const pageTemplateLookup = {};
 
-ctx.keys().forEach((key) => {
+context.keys().forEach((key) => {
   const filename = key.replace('./', '');
-  pageTemplateLookup[filename] = ctx(key);
+  pageTemplateLookup[filename] = context(key);
 });
 
-export default pageTemplateLookup;
+export const getPageTemplate = (templateName) => {
+  if (typeof templateName !== 'string' || !templateName.trim()) {
+    return PageTmpl;
+  }
+
+  const template = pageTemplateLookup[templateName];
+
+  if (template === undefined) {
+    console.warn(
+      `Spyne Warning: unknown page template "${templateName}" — falling back to page.tmpl.html`,
+    );
+
+    return PageTmpl;
+  }
+
+  return template;
+};
