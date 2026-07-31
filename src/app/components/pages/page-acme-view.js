@@ -1,7 +1,11 @@
-import { ViewStream, safeClone, SpyneAppProperties } from 'spyne';
+import {
+  ViewStream,
+  safeClone,
+  SpyneAppProperties,
+  ChannelPayloadFilter,
+} from 'spyne';
 import { PageItemCoreTraits } from 'traits/page/page-item-core-traits.js';
 import { getPageTemplate } from 'traits/utils/page-template-lookup.js';
-import { contentSwapFilter } from 'traits/utils/acme-data-filters.js';
 
 /**
  * A page of the real app — anything that is not a guest page or a 404.
@@ -50,18 +54,19 @@ export class PageAcmeView extends ViewStream {
   }
 
   addActionListeners() {
-    // Admission is declared, not decided in the handler: the filter passes only
-    // payloads whose status.isContentSwap is true, which is also what each page
-    // item disposes on. One flag governs both halves of the swap.
-    //
-    // The pattern may be broad because the filter fails closed — REQUEST_EVENT
-    // carries fetch config and no status, so it can never reach the handler.
+    // The pipeline is narrowed so the build method fires once in the normal
+    // case, rather than firing repeatedly and being gated inside the handler.
+    // Only payloads carrying a landed dump are admitted — which also excludes
+    // CHANNEL_ACME_DATA_REQUEST_EVENT, whose payload is fetch config with no
+    // status at all, so the broad pattern is safe. [admit-by-payload-filter]
     return [
       ['CHANNEL_ROUTE_CHANGE_EVENT', 'disposeViewStream'],
       [
         'CHANNEL_ACME_DATA_.*_EVENT',
         'pageItemCore$OnAcmeData',
-        contentSwapFilter(),
+        new ChannelPayloadFilter({
+          payload: (payload) => payload?.status?.isLoaded === true,
+        }),
       ],
     ];
   }

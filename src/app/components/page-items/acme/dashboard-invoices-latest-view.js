@@ -1,7 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
 import { DashboardInvoicesLatestTraits } from 'traits/page-items/dashboard-invoices-latest-traits.js';
-import { contentSwapFilter } from 'traits/utils/acme-data-filters.js';
 import DashboardInvoicesLatestTmpl from './templates/dashboard-invoices-latest-view.tmpl.html';
 
 /**
@@ -33,7 +32,6 @@ export class DashboardInvoicesLatestView extends ViewStream {
     props.class = 'flex w-full flex-col md:col-span-4';
     props.template = DashboardInvoicesLatestTmpl;
     props.traits = [DashboardInvoicesLatestTraits];
-    props.channels = [['CHANNEL_ACME_DATA', true]];
     props.data = {
       ...props.data,
       heading,
@@ -45,17 +43,10 @@ export class DashboardInvoicesLatestView extends ViewStream {
   }
 
   addActionListeners() {
-    // This item carries its own exit. On the next content swap it disposes
-    // itself and PageAcmeView adds a replacement — the parent only ever adds,
-    // and never holds a reference to what it added.
-    // [active-child-on-custom-channel] [single-active-child]
-    //
-    // props.channels declares [CHANNEL, true] — skip-first — so the payload
-    // that built this item does not immediately destroy it.
-    // [skip-replayed-birth-event]
-    return [
-      ['CHANNEL_ACME_DATA_.*_EVENT', 'disposeViewStream', contentSwapFilter()],
-    ];
+    // No channel. This item is parent-governed: it is built by PageAcmeView with
+    // its data already in props, and it renders and disposes with the page.
+    // Nothing arrives after birth, so there is nothing to listen for.
+    return [];
   }
 
   broadcastEvents() {

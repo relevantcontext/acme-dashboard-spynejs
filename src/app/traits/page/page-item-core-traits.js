@@ -216,20 +216,49 @@ export class PageItemCoreTraits extends SpyneTrait {
   }
 
   /**
-   * Builds the page's items from a content-swap payload.
+   * Composes the page's items from the Acme dump.
    *
-   * No guard and no "have I already rendered" bookkeeping. The listener admits
-   * only swap payloads, and each page item disposes ITSELF on the same payload,
-   * so this method only ever adds — which is what single-active-child requires
-   * of a parent. [active-child-on-custom-channel] [single-active-child]
+   * The branch reads state this view already holds rather than a flag kept
+   * alongside it. `props.acmeData` being set means this page was already
+   * composed, so a further payload is not a duplicate to swallow — it is news,
+   * and it gets its own handling.
+   *
+   * A boolean guard would say only "ignore this". Asking whether the data is
+   * already here says what actually happened, and leaves somewhere obvious to
+   * put the answer when a second arrival needs one.
    */
   static pageItemCore$OnAcmeData(e, props = this.props) {
     const { data, status } = e?.payload ?? {};
+
+    if (props.acmeData) {
+      return this.pageItemCore$OnAcmeDataAfterCompose(e, props);
+    }
 
     props.acmeData = data ?? null;
     props.acmeStatus = status ?? null;
 
     this.pageItemCore$AddDashboardPageItems();
+  }
+
+  /**
+   * Data arrived after this page was composed. Why it arrived decides what to do.
+   *
+   * The status is recorded either way, so anything reading it is current.
+   *
+   * A failed request keeps whatever is on screen — the payload still carries the
+   * last good dump, so blanking the page would lose more than it reports.
+   * Surfacing the message needs an error region the acme pages do not have yet;
+   * this is where that goes.
+   *
+   * Otherwise it is a refreshed dump, and the page deliberately does not rebuild.
+   * That matches next-learn: its dashboard has no revalidation at all, and only
+   * `/dashboard/invoices` is revalidated — after a delete, which is the one
+   * mutation there that does not redirect. In-place refresh belongs to that
+   * table, at the row, not to every page.
+   */
+  static pageItemCore$OnAcmeDataAfterCompose(e, props = this.props) {
+    const { status } = e?.payload ?? {};
+    props.acmeStatus = status ?? null;
   }
 
   static pageItemCore$AddPageItems(elementsArr = this.props.data.pageItems) {
