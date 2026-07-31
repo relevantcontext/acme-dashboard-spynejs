@@ -71,6 +71,34 @@ export async function fetchCardData() {
   };
 }
 
+/**
+ * Every invoice, unfiltered and unpaginated, ordered exactly as
+ * fetchFilteredInvoices orders its page.
+ *
+ * The SpyneJS client holds the whole set and filters and pages it in the
+ * browser, so /api/bootstrap ships this rather than page one. The Next.js app
+ * keeps using fetchFilteredInvoices below — it re-queries per keystroke and per
+ * page click, which is the behaviour the two apps are being compared on.
+ *
+ * ORDER BY is duplicated deliberately rather than sorted client-side: it is what
+ * makes "page 1" mean the same rows on both sides.
+ */
+export async function fetchAllInvoices() {
+  return sql`
+      SELECT
+        invoices.id,
+        invoices.amount,
+        invoices.date,
+        invoices.status,
+        customers.name,
+        customers.email,
+        customers.image_url
+      FROM invoices
+      JOIN customers ON invoices.customer_id = customers.id
+      ORDER BY invoices.date DESC
+    `;
+}
+
 export async function fetchFilteredInvoices(query, currentPage) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 

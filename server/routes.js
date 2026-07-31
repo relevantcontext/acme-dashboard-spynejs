@@ -73,8 +73,8 @@ export function buildRouter() {
   //
   // The Next.js app fetches per page, because each page is a server component
   // that re-runs its own queries on navigation. The SpyneJS client is a single
-  // long-lived page: it loads once on authentication, caches into
-  // SpyneAppProperties, and re-requests only when a mutation invalidates it.
+  // long-lived page: it loads once on authentication, is held by
+  // ChannelAcmeData, and re-requested only when a mutation invalidates it.
   // That makes one round trip the honest shape rather than six.
   //
   // The individual endpoints below are all still here and still correct — this
@@ -94,7 +94,7 @@ export function buildRouter() {
         q.fetchCardData(),
         q.fetchRevenue(),
         q.fetchLatestInvoices(),
-        q.fetchFilteredInvoices('', 1),
+        q.fetchAllInvoices(),
         q.fetchInvoicesPages(''),
         q.fetchFilteredCustomers(''),
         q.fetchCustomers(),
@@ -104,6 +104,7 @@ export function buildRouter() {
         cards,
         revenue,
         latestInvoices,
+        // Every invoice. The client pages and filters this set itself.
         invoices,
         totalPages,
         customers,

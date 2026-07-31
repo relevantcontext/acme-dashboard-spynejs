@@ -13,6 +13,7 @@ import { ChannelApp } from 'channels/channel-app.js';
 import { ChannelLocalStorage } from 'channels/channel-local-storage.js';
 import { ChannelAcmeAuth } from 'channels/channel-acme-auth.js';
 import { ChannelAcmeData } from 'channels/channel-acme-data.js';
+import { ChannelAcmeInvoices } from 'channels/channel-acme-invoices.js';
 //plugins
 
 // views
@@ -73,12 +74,25 @@ const config = {
         'message',
         'keyup',
         'keydown',
+        // Back/forward between two query strings on the SAME path — page=2 to
+        // page=3 — does not move routeData, so CHANNEL_ROUTE sees no change and
+        // the history step would be invisible. CHANNEL_WINDOW binds with
+        // addEventListener, so this coexists with the route channel's own
+        // `window.onpopstate` property assignment rather than replacing it.
+        'popstate',
       ],
       customEvents: [
         {
           name: 'spyne_cms_item_connected',
           buffer: 400,
         },
+        // history.replaceState and pushState fire NOTHING — verified: zero
+        // popstate events for either. So InvoicesTableView announces its own
+        // write, and ChannelAcmeInvoices hears it here. Without this the loop
+        // is open and only back/forward would ever reach the channel.
+        //
+        // Read as CHANNEL_WINDOW_ACME_INVOICES_PARAMS_CHANGED_EVENT.
+        { name: 'acme_invoices_params_changed' },
       ],
       listenForScroll: true,
       listenForOrientation: true,
@@ -115,11 +129,14 @@ AcmeDbConnectionsTraits.acmeDbConnections$RegisterChannels();
 SpyneApp.registerChannel(new ChannelAcmeAuth());
 SpyneApp.registerChannel(new ChannelAcmeData());
 
+// Search and pagination for the invoices table. Registered after the data
+// channel it resolves against.
+SpyneApp.registerChannel(new ChannelAcmeInvoices());
+
 // A ChannelFetch request can only be sent from a ViewStream, so this null-
 // appended view listens to both channels and performs them. It renders nothing
 // and exists solely to hold that boundary.
 new AcmeRequester().appendToNull();
-
 
 const registerCmsChannels = () => {
   const mapFn = SpyneApp.pluginsFn.mapCmsData || ((d) => d);
