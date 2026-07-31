@@ -67,8 +67,13 @@ export class DashboardInvoicesLatestView extends ViewStream {
   /**
    * The API returns rows already shaped for display — `amount` arrives
    * currency-formatted from fetchLatestInvoices, matching the Next.js query — so
-   * the only work here is renaming image_url to the view's imageUrl and
-   * resolving the source's `{ 'border-t': i !== 0 }` into isFirst.
+   * the only work here is the image path, and resolving the source's
+   * `{ 'border-t': i !== 0 }` into isFirst.
+   *
+   * The seed data stores `/customers/<name>.png`, which the Next.js app resolves
+   * against public/. This app has no public root, so the path is prefixed with
+   * `imgs/` — the convention that resolves against IMG_PATH, and therefore lands
+   * on /static/imgs in dev and /assets/static/imgs in a production build.
    */
   renderRows() {
     const latestInvoices =
@@ -83,7 +88,7 @@ export class DashboardInvoicesLatestView extends ViewStream {
           name: invoice.name,
           email: invoice.email,
           amount: invoice.amount,
-          imageUrl: invoice.image_url,
+          imageUrl: 'imgs' + invoice.image_url,
           isFirst: i === 0,
         },
       });

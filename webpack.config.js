@@ -69,20 +69,9 @@ export default (env = { mode: 'development' }) => {
     cache: { type: 'filesystem' },
 
     devServer: {
-      static: [
-        {
-          directory: path.resolve(__dirname, 'src'),
-        },
-        // The seed data stores avatar paths as `/customers/<name>.png`, and the
-        // same rows are read by the Next.js app, where they resolve against
-        // public/. The path belongs to the database, so it is served here rather
-        // than rewritten — a rewrite would make the two apps disagree about what
-        // the data says.
-        {
-          directory: path.resolve(__dirname, 'src/static/imgs/customers'),
-          publicPath: '/customers',
-        },
-      ],
+      static: {
+        directory: path.resolve(__dirname, 'src'),
+      },
       historyApiFallback: true,
 
       // Fixed, not 'auto': the port is part of the comparison's documented
@@ -312,11 +301,9 @@ function buildCopyPlugin({ assetsFolder, buildType }) {
   const patterns = [
     { from: './src/static/imgs', to: `${assetsFolder}static/imgs` },
     { from: './src/static/fonts', to: `${assetsFolder}static/fonts` },
-    // Also emitted at /customers, outside assetsFolder: the seed data addresses
-    // these by absolute path, so they have to sit at the web root whatever the
-    // build type. The pattern above already copies them under static/imgs too —
-    // that costs 48KB and keeps them findable where every other image lives.
-    { from: './src/static/imgs/customers', to: 'customers' },
+    // The customer avatars need no pattern of their own: they live under
+    // static/imgs, so the first pattern already emits them, and the views
+    // address them through the `imgs/` prefix that resolves against IMG_PATH.
   ];
 
   if (buildType === 'apache') {
