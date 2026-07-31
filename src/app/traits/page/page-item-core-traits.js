@@ -216,19 +216,18 @@ export class PageItemCoreTraits extends SpyneTrait {
   }
 
   /**
-   * Builds the page's items the first time Acme data arrives, and only then.
+   * Builds the page's items from a content-swap payload.
    *
-   * All three data actions carry complete state, so whichever lands first is
-   * enough. `hasRendered` guards against rebuilding on the ones that follow.
+   * No guard and no "have I already rendered" bookkeeping. The listener admits
+   * only swap payloads, and each page item disposes ITSELF on the same payload,
+   * so this method only ever adds — which is what single-active-child requires
+   * of a parent. [active-child-on-custom-channel] [single-active-child]
    */
   static pageItemCore$OnAcmeData(e, props = this.props) {
-    if (props.hasRendered === true) return;
-
     const { data, status } = e?.payload ?? {};
 
     props.acmeData = data ?? null;
     props.acmeStatus = status ?? null;
-    props.hasRendered = true;
 
     this.pageItemCore$AddDashboardPageItems();
   }

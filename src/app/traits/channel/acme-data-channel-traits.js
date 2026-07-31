@@ -201,12 +201,34 @@ export class AcmeDataChannelTraits extends SpyneTrait {
    *
    * The corollary: no action may ever emit a partial payload. Adding one
    * silently stops this channel being a source of truth.
+   *
+   * ── status.isContentSwap ────────────────────────────────────────────────
+   *
+   * The change-type flag that governs single-active-child on this channel.
+   * CHANNEL_ROUTE can drive a swap with no flag because a route event is
+   * inherently the whole truth; a domain channel is not, until one is engineered
+   * onto it. [active-child-on-custom-channel]
+   *
+   * True means "a page should rebuild its items from this payload". It is
+   * derived here, in one place, rather than passed by each call site — a caller
+   * that forgot it would silently produce an un-rebuildable page.
+   *
+   * Deliberately NOT "the data changed". It has to be true on an ERROR too,
+   * because the error still carries the loaded data and may be the payload a
+   * late-mounting page replays; a "did it change" reading would leave that page
+   * permanently blank. It is false only for MUTATION, which is a form-level
+   * outcome the page has no reason to rebuild for — the refreshed dump lands
+   * a moment later and swaps then.
    */
   static acmeData$Publish(action, status = {}) {
+    const isLoaded = this.props.acmeIsLoaded === true;
+
     this.sendChannelPayload(action, {
       data: this.acmeData$GetData(),
       status: {
-        isLoaded: this.props.acmeIsLoaded === true,
+        isLoaded,
+        isContentSwap:
+          isLoaded && action !== 'CHANNEL_ACME_DATA_MUTATION_EVENT',
         error: null,
         message: null,
         ...status,

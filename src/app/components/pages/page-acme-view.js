@@ -1,6 +1,7 @@
 import { ViewStream, safeClone, SpyneAppProperties } from 'spyne';
 import { PageItemCoreTraits } from 'traits/page/page-item-core-traits.js';
 import { getPageTemplate } from 'traits/utils/page-template-lookup.js';
+import { contentSwapFilter } from 'traits/utils/acme-data-filters.js';
 
 /**
  * A page of the real app — anything that is not a guest page or a 404.
@@ -39,7 +40,6 @@ export class PageAcmeView extends ViewStream {
 
     props.acmeData = null;
     props.acmeStatus = null;
-    props.hasRendered = false;
 
     // A page names its own layout in app.model.json via `template`, e.g.
     // "dashboard.page.tmpl.html". Unknown or absent falls back to the shared
@@ -50,14 +50,18 @@ export class PageAcmeView extends ViewStream {
   }
 
   addActionListeners() {
-    // All three data actions carry complete state, so any of them is enough to
-    // build the page. ERROR is included deliberately: it still carries whatever
-    // has loaded, so a failed mutation must not leave the page empty.
+    // Admission is declared, not decided in the handler: the filter passes only
+    // payloads whose status.isContentSwap is true, which is also what each page
+    // item disposes on. One flag governs both halves of the swap.
+    //
+    // The pattern may be broad because the filter fails closed — REQUEST_EVENT
+    // carries fetch config and no status, so it can never reach the handler.
     return [
       ['CHANNEL_ROUTE_CHANGE_EVENT', 'disposeViewStream'],
       [
-        'CHANNEL_ACME_DATA_(LOADED|UPDATED|ERROR)_EVENT',
+        'CHANNEL_ACME_DATA_.*_EVENT',
         'pageItemCore$OnAcmeData',
+        contentSwapFilter(),
       ],
     ];
   }

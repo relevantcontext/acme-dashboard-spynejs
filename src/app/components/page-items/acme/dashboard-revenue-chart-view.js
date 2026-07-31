@@ -1,6 +1,7 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
 import { DashboardRevenueTraits } from 'traits/page-items/dashboard-revenue-traits.js';
+import { contentSwapFilter } from 'traits/utils/acme-data-filters.js';
 import DashboardRevenueChartTmpl from './templates/dashboard-revenue-chart-view.tmpl.html';
 
 /**
@@ -47,6 +48,7 @@ export class DashboardRevenueChartView extends ViewStream {
     props.class = 'w-full md:col-span-4';
     props.template = DashboardRevenueChartTmpl;
     props.traits = [DashboardRevenueTraits];
+    props.channels = [['CHANNEL_ACME_DATA', true]];
 
     // On props, not on the instance: props has the framework's GC cleanup, and
     // a trait method reading `props.chartHeight` has the same signature whether
@@ -64,7 +66,17 @@ export class DashboardRevenueChartView extends ViewStream {
   }
 
   addActionListeners() {
-    return [];
+    // This item carries its own exit. On the next content swap it disposes
+    // itself and PageAcmeView adds a replacement — the parent only ever adds,
+    // and never holds a reference to what it added.
+    // [active-child-on-custom-channel] [single-active-child]
+    //
+    // props.channels declares [CHANNEL, true] — skip-first — so the payload
+    // that built this item does not immediately destroy it.
+    // [skip-replayed-birth-event]
+    return [
+      ['CHANNEL_ACME_DATA_.*_EVENT', 'disposeViewStream', contentSwapFilter()],
+    ];
   }
 
   broadcastEvents() {

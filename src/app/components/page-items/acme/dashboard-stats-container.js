@@ -1,5 +1,6 @@
 import { ViewStream } from 'spyne';
 import { DashboardStatsTraits } from 'traits/page-items/dashboard-stats-traits.js';
+import { contentSwapFilter } from 'traits/utils/acme-data-filters.js';
 
 /**
  * Owns the dashboard's summary-stat row.
@@ -38,6 +39,7 @@ export class DashboardStatsContainer extends ViewStream {
     props.tagName = 'div';
     props.class = 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4';
     props.traits = [DashboardStatsTraits];
+    props.channels = [['CHANNEL_ACME_DATA', true]];
     props.data = {
       ...props.data,
       cards: props.data?.cards || [],
@@ -47,7 +49,17 @@ export class DashboardStatsContainer extends ViewStream {
   }
 
   addActionListeners() {
-    return [];
+    // This item carries its own exit. On the next content swap it disposes
+    // itself and PageAcmeView adds a replacement — the parent only ever adds,
+    // and never holds a reference to what it added.
+    // [active-child-on-custom-channel] [single-active-child]
+    //
+    // props.channels declares [CHANNEL, true] — skip-first — so the payload
+    // that built this item does not immediately destroy it.
+    // [skip-replayed-birth-event]
+    return [
+      ['CHANNEL_ACME_DATA_.*_EVENT', 'disposeViewStream', contentSwapFilter()],
+    ];
   }
 
   broadcastEvents() {
