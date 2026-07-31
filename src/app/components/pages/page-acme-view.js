@@ -37,17 +37,16 @@ export class PageAcmeView extends ViewStream {
     props.data = safeClone(props.data);
     props.data.href = SpyneAppProperties.getHrefFromData(props.data);
 
+    props.acmeData = null;
+    props.acmeStatus = null;
+    props.hasRendered = false;
+
     // A page names its own layout in app.model.json via `template`, e.g.
     // "dashboard.page.tmpl.html". Unknown or absent falls back to the shared
     // page.tmpl.html, so existing pages are unaffected.
     props.template = getPageTemplate(props.data.template);
 
     super(props);
-
-    this.pageItemViews = [];
-    this.acmeData = null;
-    this.acmeStatus = null;
-    this.hasRendered = false;
   }
 
   addActionListeners() {
@@ -56,9 +55,10 @@ export class PageAcmeView extends ViewStream {
     // has loaded, so a failed mutation must not leave the page empty.
     return [
       ['CHANNEL_ROUTE_CHANGE_EVENT', 'disposeViewStream'],
-      ['CHANNEL_ACME_DATA_LOADED_EVENT', 'onAcmeData'],
-      ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'onAcmeData'],
-      ['CHANNEL_ACME_DATA_ERROR_EVENT', 'onAcmeData'],
+      [
+        'CHANNEL_ACME_DATA_(LOADED|UPDATED|ERROR)_EVENT',
+        'pageItemCore$OnAcmeData',
+      ],
     ];
   }
 
@@ -66,32 +66,7 @@ export class PageAcmeView extends ViewStream {
     return [['a', 'click']];
   }
 
-  /**
-   * The channel replays its last payload on subscribe, so this can fire before
-   * the element exists. The values are kept and renderPageItems does nothing
-   * until onRendered has run.
-   */
-  onAcmeData(e) {
-    const { data, status } = e?.payload ?? {};
-    this.acmeData = data ?? null;
-    this.acmeStatus = status ?? null;
-    this.renderPageItems();
-  }
-
-  onRendered() {
-    this.hasRendered = true;
-    this.renderPageItems();
-  }
-
-  renderPageItems() {
-    if (!this.hasRendered) return;
-    if (!this.props.data.pageItems) return;
-
-    this.pageItemViews.forEach((view) => view.disposeViewStream());
-
-    this.pageItemViews = this.pageItemCore$AddDashboardPageItems(
-      this.acmeData,
-      this.acmeStatus,
-    );
-  }
+  // Page items are built by pageItemCore$OnAcmeData when the data arrives, not
+  // here — on a cold load the page mounts while the dump is still in flight.
+  onRendered() {}
 }

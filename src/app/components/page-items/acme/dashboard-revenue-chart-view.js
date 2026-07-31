@@ -1,8 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import { DashboardRevenueBarView } from 'components/page-items/acme/dashboard-revenue-bar-view.js';
-import { DashboardRevenueYAxisView } from 'components/page-items/acme/dashboard-revenue-y-axis-view.js';
-import { generateYAxis, getBarHeight } from 'traits/utils/acme-chart-utils.js';
+import { DashboardRevenueTraits } from 'traits/page-items/dashboard-revenue-traits.js';
 import DashboardRevenueChartTmpl from './templates/dashboard-revenue-chart-view.tmpl.html';
 
 /**
@@ -48,6 +46,12 @@ export class DashboardRevenueChartView extends ViewStream {
     props.tagName = 'div';
     props.class = 'w-full md:col-span-4';
     props.template = DashboardRevenueChartTmpl;
+    props.traits = [DashboardRevenueTraits];
+
+    // On props, not on the instance: props has the framework's GC cleanup, and
+    // a trait method reading `props.chartHeight` has the same signature whether
+    // its context is a ViewStream or a Channel.
+    props.chartHeight = chartHeight;
     props.data = {
       ...props.data,
       heading,
@@ -57,8 +61,6 @@ export class DashboardRevenueChartView extends ViewStream {
     };
 
     super(props);
-
-    this.chartHeight = chartHeight;
   }
 
   addActionListeners() {
@@ -70,36 +72,6 @@ export class DashboardRevenueChartView extends ViewStream {
   }
 
   onRendered() {
-    this.renderChart();
-  }
-
-  renderChart() {
-    const revenue = this.props.data.acmeData?.revenue || [];
-
-    if (revenue.length === 0) return;
-
-    // topLabel is the top of the scale every bar is measured against, so the
-    // axis and the bars have to be generated from one call — computing them
-    // separately would let the tallest bar disagree with the top label.
-    const { yAxisLabels, topLabel } = generateYAxis(revenue);
-
-    this.appendView(
-      new DashboardRevenueYAxisView({
-        data: yAxisLabels.map((label) => ({ label })),
-      }),
-      `[data-slot='y-axis']`,
-    );
-
-    revenue.forEach((month) => {
-      this.appendView(
-        new DashboardRevenueBarView({
-          data: {
-            month: month.month,
-            barHeight: getBarHeight(month.revenue, topLabel, this.chartHeight),
-          },
-        }),
-        `[data-slot='bars']`,
-      );
-    });
+    this.dashboardRevenue$RenderChart();
   }
 }

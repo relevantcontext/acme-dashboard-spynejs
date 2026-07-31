@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
-import { DashboardInvoicesLatestRowView } from 'components/page-items/acme/dashboard-invoices-latest-row-view.js';
+import { DashboardInvoicesLatestTraits } from 'traits/page-items/dashboard-invoices-latest-traits.js';
 import DashboardInvoicesLatestTmpl from './templates/dashboard-invoices-latest-view.tmpl.html';
 
 /**
@@ -31,6 +31,7 @@ export class DashboardInvoicesLatestView extends ViewStream {
     props.tagName = 'div';
     props.class = 'flex w-full flex-col md:col-span-4';
     props.template = DashboardInvoicesLatestTmpl;
+    props.traits = [DashboardInvoicesLatestTraits];
     props.data = {
       ...props.data,
       heading,
@@ -50,35 +51,6 @@ export class DashboardInvoicesLatestView extends ViewStream {
   }
 
   onRendered() {
-    this.renderRows();
-  }
-
-  /**
-   * The API returns rows already shaped for display — `amount` arrives
-   * currency-formatted from fetchLatestInvoices, matching the Next.js query — so
-   * the only work here is the image path, and resolving the source's
-   * `{ 'border-t': i !== 0 }` into isFirst.
-   *
-   * The seed data stores `/customers/<name>.png`, which the Next.js app resolves
-   * against public/. This app has no public root, so the path is prefixed with
-   * `imgs/` — the convention that resolves against IMG_PATH, and therefore lands
-   * on /static/imgs in dev and /assets/static/imgs in a production build.
-   */
-  renderRows() {
-    const latestInvoices = this.props.data.acmeData?.latestInvoices || [];
-
-    latestInvoices.forEach((invoice, i) => {
-      const view = new DashboardInvoicesLatestRowView({
-        data: {
-          name: invoice.name,
-          email: invoice.email,
-          amount: invoice.amount,
-          imageUrl: 'imgs' + invoice.image_url,
-          isFirst: i === 0,
-        },
-      });
-
-      this.appendView(view, `[data-slot='invoice-rows']`);
-    });
+    this.dashboardInvoicesLatest$RenderRows();
   }
 }

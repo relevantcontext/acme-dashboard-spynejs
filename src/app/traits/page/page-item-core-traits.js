@@ -184,17 +184,13 @@ export class PageItemCoreTraits extends SpyneTrait {
    * own `cards` object of values. Flattening would have one silently overwrite
    * the other.
    *
-   * @param {Object} acmeData    the whole dump, or null before it has loaded
-   * @param {Object} acmeStatus  { isLoaded, error, message }
-   * @returns {Array<ViewStream>} the views created, so a re-render can dispose
-   *                              exactly what it made
+   * Nothing is returned and no reference is kept. A ViewStream is encapsulated —
+   * a parent never holds its children, or the declarative wiring stops being the
+   * thing that describes the app.
    */
-  static pageItemCore$AddDashboardPageItems(
-    acmeData = null,
-    acmeStatus = null,
-    elementsArr = this.props.data.pageItems,
-  ) {
-    const views = [];
+  static pageItemCore$AddDashboardPageItems(props = this.props) {
+    const { acmeData, acmeStatus, data } = props;
+    const elementsArr = data.pageItems;
 
     const addElement = (obj) => {
       const { props, container, viewClass, isPrototype } = obj;
@@ -210,7 +206,6 @@ export class PageItemCoreTraits extends SpyneTrait {
       const view = new ViewClass(props);
 
       this.appendView(view, appendElSelector);
-      views.push(view);
 
       if (props?.styles) {
         PageItemCoreTraits.pageItemCore$AddStyles(view.props.el, props.styles);
@@ -218,8 +213,24 @@ export class PageItemCoreTraits extends SpyneTrait {
     };
 
     elementsArr.forEach(addElement);
+  }
 
-    return views;
+  /**
+   * Builds the page's items the first time Acme data arrives, and only then.
+   *
+   * All three data actions carry complete state, so whichever lands first is
+   * enough. `hasRendered` guards against rebuilding on the ones that follow.
+   */
+  static pageItemCore$OnAcmeData(e, props = this.props) {
+    if (props.hasRendered === true) return;
+
+    const { data, status } = e?.payload ?? {};
+
+    props.acmeData = data ?? null;
+    props.acmeStatus = status ?? null;
+    props.hasRendered = true;
+
+    this.pageItemCore$AddDashboardPageItems();
   }
 
   static pageItemCore$AddPageItems(elementsArr = this.props.data.pageItems) {

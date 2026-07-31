@@ -1,15 +1,5 @@
 import { ViewStream } from 'spyne';
-import { DashboardStatCardView } from 'components/page-items/acme/dashboard-stat-card-view.js';
-
-// Card type -> the field it reads out of the cards payload. The shape comes
-// straight from fetchCardData in queries.js, which is the verbatim port of the
-// Next.js query, so both apps read the same four numbers.
-const VALUE_BY_TYPE = {
-  collected: 'totalPaidInvoices',
-  pending: 'totalPendingInvoices',
-  invoices: 'numberOfInvoices',
-  customers: 'numberOfCustomers',
-};
+import { DashboardStatsTraits } from 'traits/page-items/dashboard-stats-traits.js';
 
 /**
  * Owns the dashboard's summary-stat row.
@@ -47,6 +37,7 @@ export class DashboardStatsContainer extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class = 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4';
+    props.traits = [DashboardStatsTraits];
     props.data = {
       ...props.data,
       cards: props.data?.cards || [],
@@ -64,34 +55,6 @@ export class DashboardStatsContainer extends ViewStream {
   }
 
   onRendered() {
-    this.renderCards();
-  }
-
-  /**
-   * Each definition is merged with its value and handed to a card as that card's
-   * own props.data, unchanged.
-   */
-  renderCards() {
-    const cards = this.props.data.acmeData?.cards;
-
-    this.props.data.cards.forEach((card) => {
-      // No selector: appendView with no query targets this view's own element,
-      // which is the grid.
-      this.appendView(
-        new DashboardStatCardView({
-          data: { ...card, value: this.getCardValue(card, cards) },
-        }),
-      );
-    });
-  }
-
-  /**
-   * Undefined until the dump lands, which the card renders as an empty value
-   * rather than as a zero — a blank card is honestly "not known yet", where a 0
-   * would assert something false.
-   */
-  getCardValue(card, cards) {
-    if (!cards) return undefined;
-    return cards[VALUE_BY_TYPE[card.type]];
+    this.dashboardStats$RenderCards();
   }
 }
