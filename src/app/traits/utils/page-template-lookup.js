@@ -8,7 +8,7 @@
 // Naming the file is deliberate over deriving it from pageId/topicId/optionId —
 // a developer reading the model sees exactly which file renders the page, and
 // two routes can share a layout without a filename convention deciding it for
-// them. PageView falls back to page.tmpl.html when `template` is absent or
+// them. A page view falls back to page.tmpl.html when `template` is absent or
 // unknown.
 //
 // Mirrors traits/utils/page-item-template-lookup.js, which does the same for

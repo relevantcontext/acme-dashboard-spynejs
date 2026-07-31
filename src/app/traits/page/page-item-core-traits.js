@@ -163,17 +163,44 @@ export class PageItemCoreTraits extends SpyneTrait {
     return bodyRegion;
   }
 
-  static pageItemCore$AddDashboardPageItems(elementsArr = this.props.data.pageItems,) {
+  /**
+   * Builds an Acme page's items, handing each one the current Acme data at
+   * construction.
+   *
+   * ── Why the data arrives as a constructor prop ──────────────────────────
+   *
+   * A page item is then a pure function of its props: it is handed its content
+   * and renders it, with no channel of its own, no listener, and no global to
+   * read. That is the whole point of the SpyneJS side of this comparison — a
+   * view generates its content from what it was given.
+   *
+   * It also removes a race. Items used to mount empty and fill in when an event
+   * arrived, which is why a 40ms setTimeout was needed to let the DOM settle
+   * first. Constructing them only once the data exists means there is nothing to
+   * wait for.
+   *
+   * `acmeData` is namespaced rather than merged flat: the model already gives
+   * DashboardStatsContainer a `cards` array of definitions, and the dump has its
+   * own `cards` object of values. Flattening would have one silently overwrite
+   * the other.
+   *
+   * @param {Object} acmeData    the whole dump, or null before it has loaded
+   * @param {Object} acmeStatus  { isLoaded, error, message }
+   * @returns {Array<ViewStream>} the views created, so a re-render can dispose
+   *                              exactly what it made
+   */
+  static pageItemCore$AddDashboardPageItems(
+    acmeData = null,
+    acmeStatus = null,
+    elementsArr = this.props.data.pageItems,
+  ) {
+    const views = [];
+
     const addElement = (obj) => {
       const { props, container, viewClass, isPrototype } = obj;
 
-      /**
-       *
-       * TODO: add the ACME Data to the page item's props.data
-       *
-       * */
-
       props.template = this.pageItemCore$GetTemplate(props, isPrototype);
+      props.data = { ...props.data, acmeData, acmeStatus };
 
       const ViewClass = this.pageItemCore$GetViewClass(viewClass);
 
@@ -183,6 +210,7 @@ export class PageItemCoreTraits extends SpyneTrait {
       const view = new ViewClass(props);
 
       this.appendView(view, appendElSelector);
+      views.push(view);
 
       if (props?.styles) {
         PageItemCoreTraits.pageItemCore$AddStyles(view.props.el, props.styles);
@@ -190,6 +218,8 @@ export class PageItemCoreTraits extends SpyneTrait {
     };
 
     elementsArr.forEach(addElement);
+
+    return views;
   }
 
   static pageItemCore$AddPageItems(elementsArr = this.props.data.pageItems) {

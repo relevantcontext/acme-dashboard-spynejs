@@ -26,58 +26,37 @@ const VALUE_BY_TYPE = {
  *
  * ── Where the content comes from ────────────────────────────────────────────
  *
- * Two sources, and the split is the point:
+ * Both halves arrive as props, from two sources, and the split is the point:
  *
- *   props.data.cards   which cards exist, their titles and types. Static, from
- *                      app.model.json.
- *   the data store     the values. From the /api/bootstrap dump, read out of
- *                      SpyneAppProperties.
+ *   props.data.cards            which cards exist, their titles and types.
+ *                               Static, from app.model.json.
+ *   props.data.acmeData.cards   the values. From the /api/bootstrap dump,
+ *                               handed down by PageAcmeView at construction.
  *
- * The read happens in onRendered rather than through a subscription, because by
- * then the dump has usually already landed — the request goes out the moment
- * auth resolves, well before a page mounts. Reading gives the values
- * synchronously on first paint instead of rendering blank and filling in.
- *
- * DATA_LOADED covers the case where it has not landed yet, and DATA_UPDATED
- * covers a mutation changing the numbers underneath a page already on screen.
- * Both re-render, which is why the cards are disposed and re-appended rather
- * than mutated in place — a DomElementTemplate renders once by design.
+ * This view has no channel and no listener. It is a pure function of its props:
+ * given definitions and values, it renders a row. When the data changes,
+ * PageAcmeView disposes it and builds a new one — which is also why the cards it
+ * appends need no tracking of their own.
  *
  * @param {Object} props
  * @param {Object} props.data
  * @param {Array<{title: String, type: String}>} props.data.cards
+ * @param {Object} [props.data.acmeData]
  */
 export class DashboardStatsContainer extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class = 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4';
-    props.channels = ['CHANNEL_ACME_DATA'];
     props.data = {
       ...props.data,
       cards: props.data?.cards || [],
     };
 
     super(props);
-
-    // The appended card instances, so a re-render can dispose exactly what it
-    // created rather than emptying the root and hoping nothing else lived there.
-    this.cardViews = [];
-
-    // Last data seen on CHANNEL_ACME_DATA. Null until the dump lands.
-    this.acmeData = null;
   }
 
   addActionListeners() {
-    // One listener per action name — a duplicate registration for the same
-    // action clobbers the first.
-    return [
-      ['CHANNEL_ACME_DATA_LOADED_EVENT', 'onDataChanged'],
-      ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'onDataChanged'],
-      // ERROR too: every payload carries complete state, so an error replayed to
-      // a late-mounting view still holds whatever data has loaded. Listening for
-      // it is what stops a failed mutation from blanking the page.
-      ['CHANNEL_ACME_DATA_ERROR_EVENT', 'onDataChanged'],
-    ];
+    return [];
   }
 
   broadcastEvents() {
@@ -89,36 +68,20 @@ export class DashboardStatsContainer extends ViewStream {
   }
 
   /**
-   * Caches the payload's data and re-renders. The cache exists because a
-   * replayed payload can arrive before this view has an element — the channel
-   * replays on subscribe — in which case onRendered renders it a moment later.
-   */
-  onDataChanged(e) {
-    this.acmeData = e?.payload?.data ?? null;
-    this.renderCards();
-  }
-
-  /**
-   * Replaces the row. Each definition is merged with its value and handed to a
-   * card as that card's own props.data, unchanged.
+   * Each definition is merged with its value and handed to a card as that card's
+   * own props.data, unchanged.
    */
   renderCards() {
-    if (!this.props.el) return;
-
-    const cards = this.acmeData?.cards;
-
-    this.cardViews.forEach((view) => view.disposeViewStream());
-    this.cardViews = [];
+    const cards = this.props.data.acmeData?.cards;
 
     this.props.data.cards.forEach((card) => {
-      const view = new DashboardStatCardView({
-        data: { ...card, value: this.getCardValue(card, cards) },
-      });
-
       // No selector: appendView with no query targets this view's own element,
       // which is the grid.
-      this.appendView(view);
-      this.cardViews.push(view);
+      this.appendView(
+        new DashboardStatCardView({
+          data: { ...card, value: this.getCardValue(card, cards) },
+        }),
+      );
     });
   }
 

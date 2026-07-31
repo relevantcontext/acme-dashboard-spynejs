@@ -48,7 +48,6 @@ export class DashboardRevenueChartView extends ViewStream {
     props.tagName = 'div';
     props.class = 'w-full md:col-span-4';
     props.template = DashboardRevenueChartTmpl;
-    props.channels = ['CHANNEL_ACME_DATA'];
     props.data = {
       ...props.data,
       heading,
@@ -60,19 +59,10 @@ export class DashboardRevenueChartView extends ViewStream {
     super(props);
 
     this.chartHeight = chartHeight;
-    this.childViews = [];
-    this.acmeData = null;
   }
 
   addActionListeners() {
-    return [
-      ['CHANNEL_ACME_DATA_LOADED_EVENT', 'onDataChanged'],
-      ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'onDataChanged'],
-      // ERROR too: every payload carries complete state, so an error replayed to
-      // a late-mounting view still holds whatever data has loaded. Listening for
-      // it is what stops a failed mutation from blanking the page.
-      ['CHANNEL_ACME_DATA_ERROR_EVENT', 'onDataChanged'],
-    ];
+    return [];
   }
 
   broadcastEvents() {
@@ -83,23 +73,8 @@ export class DashboardRevenueChartView extends ViewStream {
     this.renderChart();
   }
 
-  /**
-   * Caches the payload's data and re-renders. The cache exists because a
-   * replayed payload can arrive before this view has an element — the channel
-   * replays on subscribe — in which case onRendered renders it a moment later.
-   */
-  onDataChanged(e) {
-    this.acmeData = e?.payload?.data ?? null;
-    this.renderChart();
-  }
-
   renderChart() {
-    if (!this.props.el) return;
-
-    const revenue = this.acmeData?.revenue || [];
-
-    this.childViews.forEach((view) => view.disposeViewStream());
-    this.childViews = [];
+    const revenue = this.props.data.acmeData?.revenue || [];
 
     if (revenue.length === 0) return;
 
@@ -108,7 +83,7 @@ export class DashboardRevenueChartView extends ViewStream {
     // separately would let the tallest bar disagree with the top label.
     const { yAxisLabels, topLabel } = generateYAxis(revenue);
 
-    this.appendChild(
+    this.appendView(
       new DashboardRevenueYAxisView({
         data: yAxisLabels.map((label) => ({ label })),
       }),
@@ -116,7 +91,7 @@ export class DashboardRevenueChartView extends ViewStream {
     );
 
     revenue.forEach((month) => {
-      this.appendChild(
+      this.appendView(
         new DashboardRevenueBarView({
           data: {
             month: month.month,
@@ -126,14 +101,5 @@ export class DashboardRevenueChartView extends ViewStream {
         `[data-slot='bars']`,
       );
     });
-  }
-
-  /**
-   * Appends and records, so a re-render disposes exactly what it created rather
-   * than emptying a slot and hoping nothing else lived there.
-   */
-  appendChild(view, selector) {
-    this.appendView(view, selector);
-    this.childViews.push(view);
   }
 }

@@ -1,7 +1,6 @@
 import { ViewStream, safeClone, SpyneAppProperties } from 'spyne';
 import { PageItemCoreTraits } from 'traits/page/page-item-core-traits.js';
 import { getPageTemplate } from 'traits/utils/page-template-lookup.js';
-import PageTmpl from './templates/page.tmpl.html';
 
 export class PageGuestView extends ViewStream {
   constructor(props = {}) {
@@ -19,7 +18,6 @@ export class PageGuestView extends ViewStream {
     super(props);
   }
 
-
   addActionListeners() {
     return [['CHANNEL_ROUTE_CHANGE_EVENT', 'disposeViewStream']];
   }
@@ -28,8 +26,12 @@ export class PageGuestView extends ViewStream {
     return [['a', 'click']];
   }
 
+  /**
+   * No delay and no data subscription. A guest page's items are static content
+   * from app.model.json, and the template has already rendered its regions by
+   * the time this runs, so there is nothing to wait for.
+   */
   onRendered() {
-    const onDelay = ()=> this.pageItemCore$onRendered();
-    window.setTimeout(onDelay, 40);
+    this.pageItemCore$onRendered();
   }
 }
