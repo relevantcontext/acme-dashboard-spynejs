@@ -1,146 +1,60 @@
 import { SpyneTrait } from 'spyne';
-import { AcmeAuthStateTraits } from 'traits/app/acme-auth-state-traits.js';
 import { Page404View } from 'components/pages/page-404-view.js';
-import { PageView } from 'components/pages/page-view.js';
-import { PageGuestView} from 'components/pages/page-guest-view.js';
-import { PageAcmeView} from 'components/pages/page-acme-view.js';
+import { PageGuestView } from 'components/pages/page-guest-view.js';
+import { PageAcmeView } from 'components/pages/page-acme-view.js';
 
+/**
+ * Logic for StageContainer — the page column, and nothing else.
+ *
+ * It answers one question: given a page-data event, what renders here? It does
+ * not decide whether the user is allowed to be on this page. ChannelApp applies
+ * the auth boundary before emitting, so by the time an event arrives here the
+ * route has already been permitted — a redirect means no event is sent at all.
+ *
+ * The sidenav is not its concern either. UIContainer owns that column and reads
+ * the route itself.
+ */
 export class StageContainerTraits extends SpyneTrait {
-  // Pages a guest may view. An authenticated user is redirected off them, and
-  // they render without the dashboard shell — in the Next.js app they are simply
-  // the routes that do not sit under dashboard/layout.tsx.
-  //
-  // The two meanings coincide here because the dashboard shell IS the
-  // authenticated area. If that ever stops being true, this needs to become two
-  // lists rather than one.
-  static GUEST_ONLY_PAGES = ['home', 'login'];
-
-  // Where each side of the auth boundary is sent when it lands on the wrong one.
-  static REDIRECT_UNAUTHENTICATED_PAGE = 'login';
-  static REDIRECT_AUTHENTICATED_PAGE = 'dashboard';
-
   constructor(context) {
     let traitPrefix = 'stage$';
     super(context, traitPrefix);
   }
 
   /**
-   * Returns the pageId to redirect to, or undefined to render as requested.
+   * The page class IS the declaration of what kind of page this is.
    *
-   * Deliberately mirrors the authorized() callback in the Next.js app's
-   * auth.config.ts branch for branch, so the two can be read side by side:
-   *
-   *   const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
-   *   if (isOnDashboard) {
-   *     if (isLoggedIn) return true;
-   *     return false;                                    // → login
-   *   } else if (isLoggedIn) {
-   *     return Response.redirect(new URL('/dashboard'));
-   *   }
-   *   return true;
-   *
-   * `!isGuestOnlyPage` is their `isOnDashboard`, and `undefined` is their
-   * `return true`.
+   * PageGuestView renders without the dashboard shell and subscribes to no data.
+   * PageAcmeView is the real app — it takes the shell and the Acme data. Anything
+   * not named here is an app page, so new dashboard routes need no entry.
    */
-  static stage$GetRedirectPageId(pageId, isAuthenticated) {
-    const isGuestOnlyPage =
-      StageContainerTraits.GUEST_ONLY_PAGES.includes(pageId);
-
-    if (!isGuestOnlyPage) {
-      if (isAuthenticated) return undefined;
-      return StageContainerTraits.REDIRECT_UNAUTHENTICATED_PAGE;
-    } else if (isAuthenticated) {
-      return StageContainerTraits.REDIRECT_AUTHENTICATED_PAGE;
-    }
-
-    return undefined;
-  }
-
-  static stage$GetPageClass(pageId){
+  static stage$GetPageClass(pageId) {
     const pageIdLookup = {
-      "login" : PageGuestView,
-      "home" :  PageGuestView,
-      "404"  : Page404View
-    }
+      login: PageGuestView,
+      home: PageGuestView,
+      404: Page404View,
+    };
 
     return pageIdLookup[pageId] || PageAcmeView;
-  }
-
-  /**
-   * Re-runs the redirect rule when auth changes without the route moving.
-   *
-   * Signing out on /dashboard fires AUTH_CHANGED and nothing else — no route
-   * event — so without this the user sits on a page they can no longer load,
-   * every request silently 401ing. The same path covers logging in while on
-   * /login, which is a guest-only page and so redirects to the dashboard.
-   *
-   * INIT_AUTH deliberately does not trigger this. At boot the route event is
-   * already about to run and would redirect twice.
-   */
-  static stage$OnAuthChanged(e) {
-    const { isAuthenticated } = e.payload;
-
-    const redirectPageId = StageContainerTraits.stage$GetRedirectPageId(
-      this.props.currentPageId,
-      isAuthenticated,
-    );
-
-    if (redirectPageId !== undefined) {
-      this.sendInfoToChannel('CHANNEL_ROUTE', { pageId: redirectPageId });
-    }
   }
 
   static stage$OnRouteEvent(e, isDeepLink = false) {
     const { pageId, is404 } = e.payload;
     const data = e.payload;
 
-    // Read live rather than from payload.initData. initData is captured once,
-    // when appStatus$GetChannels' merge resolves, and is never refreshed — so
-    // after a login it still reports the boot-time auth state. Using it here
-    // redirected the user straight back to /login the moment they signed in.
-    const isAuthenticated = AcmeAuthStateTraits.acmeAuthState$IsAuthenticated();
+    // is404 is computed by ChannelApp from the whole routeData, so it catches an
+    // invalid topicId or optionId that pageId alone would not.
+    const PageClass = is404 ? Page404View : this.stage$GetPageClass(pageId);
 
-    // Tracked so a later auth change can be evaluated against the page the user
-    // is actually on. Set before the early returns below: if this call
-    // redirects, the resulting route event overwrites it with the new pageId.
-    this.props.currentPageId = pageId;
-
-    // 404 short-circuits ahead of the auth check. An invalid route is not a
-    // redirect decision, and resolving it first keeps the redirect rule to the
-    // single boolean pair above.
-    if (is404 || pageId === '404') {
-      this.stage$ShowShell(false);
-      this.appendView(new Page404View({ data, isDeepLink }));
-      return;
-    }
-
-    const redirectPageId = StageContainerTraits.stage$GetRedirectPageId(
-      pageId,
-      isAuthenticated,
-    );
-
-    // Short-circuit before rendering: the requested page is never built, the
-    // route simply moves and this method runs again for the new pageId.
-    if (redirectPageId !== undefined) {
-      this.sendInfoToChannel('CHANNEL_ROUTE', { pageId: redirectPageId });
-      return;
-    }
-
-    this.stage$ShowShell(
-      !StageContainerTraits.GUEST_ONLY_PAGES.includes(pageId),
-    );
-    const pageClass = this.stage$GetPageClass(pageId);
-
-    this.appendView(new pageClass({ data, isDeepLink }));
+    // Only the real app takes the gutter. Derived from the page class rather
+    // than from a second list of page ids, so the two cannot disagree.
+    this.stage$ShowShell(PageClass === PageAcmeView);
+    this.appendView(new PageClass({ data, isDeepLink }));
   }
 
   /**
-   * Guest-only pages drop the page gutter — the landing page in particular needs
+   * Shell-less pages drop the page gutter — the landing page in particular needs
    * the width back, since its copy column is only md:w-2/5 with md:px-20 inside
    * it.
-   *
-   * The sidenav is no longer touched here. UIContainer owns that column and
-   * decides its own visibility from the route.
    */
   static stage$ShowShell(hasShell) {
     this.props.el$().toggle('is-full-bleed', !hasShell);

@@ -69,6 +69,16 @@ export class AppStatusTraits extends SpyneTrait {
     const is404Route = Object.values(routeData).includes('404');
 
     /**
+     * Apply the auth boundary BEFORE resolving content. A redirect means this
+     * route is not the one that will render, so emitting page data for it would
+     * have the stage build a page that is about to be replaced.
+     *
+     * 404 is exempt. An invalid route is not a redirect decision, and resolving
+     * it first keeps the rule in appRedirect$GetPageId to a single boolean pair.
+     */
+    if (!is404Route && this.appRedirect$Apply(routeData.pageId)) return;
+
+    /**
      * Resolve content only for valid routes.
      * If resolution fails, fall back to route-only state.
      */

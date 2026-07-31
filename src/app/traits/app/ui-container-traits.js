@@ -33,13 +33,12 @@ export class UIContainerTraits extends SpyneTrait {
   }
 
   /**
-   * CHANNEL_ROUTE publishes pageId inside routeData. Both the boot deep-link and
+   * ChannelApp publishes pageId at the payload root. Both the boot page and
    * every later navigation land here, so one method covers first paint and
    * subsequent routing.
    */
   static uiContainer$OnRouteEvent(e) {
-    const { routeData } = e?.payload ?? {};
-    this.uiContainer$SetVisibility(routeData?.pageId);
+    this.uiContainer$SetVisibility(e?.payload?.pageId);
   }
 
   /**
@@ -56,10 +55,10 @@ export class UIContainerTraits extends SpyneTrait {
    * Everything that belongs to the left column mounts here.
    *
    * The column starts hidden (the `hide` class is on the root at construction)
-   * so a guest landing on /login never sees a sidenav flash before the route
-   * resolves. CHANNEL_ROUTE caches its last payload, so this view's listener
-   * fires as soon as it subscribes and reveals the column on the dashboard
-   * without waiting for a navigation.
+   * so a guest landing on /login never sees a sidenav flash before the page
+   * resolves. CHANNEL_APP caches its last payload, so this view's listener fires
+   * as soon as it subscribes and reveals the column on the dashboard without
+   * waiting for a navigation.
    */
   static uiContainer$OnRendered() {
     this.appendView(new UISideNavView());

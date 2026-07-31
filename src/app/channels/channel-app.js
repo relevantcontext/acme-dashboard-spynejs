@@ -1,18 +1,24 @@
 import { Channel } from 'spyne';
 import { AppStatusTraits } from 'traits/app/app-status-traits.js';
 import { AppSettingsTraits } from 'traits/app/app-settings-traits.js';
+import { AppRedirectTraits } from 'traits/app/app-redirect-traits.js';
 
 export class ChannelApp extends Channel {
   constructor(name, props = {}) {
     name = 'CHANNEL_APP';
     props.sendCachedPayload = true;
-    props.traits = [AppStatusTraits, AppSettingsTraits];
+    props.traits = [AppStatusTraits, AppSettingsTraits, AppRedirectTraits];
     super(name, props);
   }
 
   onRegistered() {
     this.appStatus$GetChannels();
     this.appSettings$InitSettingEvents();
+
+    // The auth boundary. Subscribed here rather than owned by a view: a redirect
+    // decides whether a page is emitted at all, so it has to run before the
+    // stage is told to build one.
+    this.appRedirect$ListenToAuth();
   }
 
   addRegisteredActions() {
