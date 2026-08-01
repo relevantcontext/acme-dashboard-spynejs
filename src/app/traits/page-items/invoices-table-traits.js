@@ -99,18 +99,4 @@ export class InvoicesTableTraits extends SpyneTrait {
   static invoicesTable$AnnounceParamsChanged() {
     window.dispatchEvent(new CustomEvent(INVOICE_PARAMS_EVENT));
   }
-
-  // ── List (the table) ──────────────────────────────────────────────────────
-
-  /**
-   * The resolved page, arriving finished: the rows for this query and page, the
-   * page count for this query, and the ellipsis-aware page sequence. Nothing is
-   * computed here.
-   *
-   * Rendering the rows is the next piece of work; this currently reports what
-   * lands so the loop can be watched end to end.
-   */
-  static invoicesTable$OnList(e) {
-    console.log('CHANNEL_ACME_INVOICES_LIST_EVENT', e?.payload);
-  }
 }

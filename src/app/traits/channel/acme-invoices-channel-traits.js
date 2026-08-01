@@ -194,9 +194,17 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
 
     const filtered = filterInvoices(invoices, query);
     const totalPages = getTotalPages(filtered.length);
+    const paginated = paginateInvoices(filtered, page);
 
     this.sendChannelPayload('CHANNEL_ACME_INVOICES_LIST_EVENT', {
-      invoices: paginateInvoices(filtered, page),
+      invoices: paginated,
+
+      // The ids on this page, in order. The table renders every invoice once
+      // and treats a query as a visibility pass, so what it needs is not the
+      // rows but the answer to "which of the rows I already have, and which of
+      // those is first and last". Resolving that here keeps the view's work to
+      // a Set membership test per row.
+      pageIds: paginated.map((invoice) => invoice.id),
       pages: generatePagination(page, totalPages),
       totalPages,
       page,

@@ -1,8 +1,8 @@
 import { ViewStream } from 'spyne';
 import InvoicesTableTmpl from './templates/invoices-table-view.tmpl.html';
 import { InvoicesTableParamsNullView } from 'components/page-items/acme/invoices-table-params-null-view.js';
-import { InvoicesTableBodyView } from 'components/page-items/acme/invoices-table-body-view.js';
 import { InvoicesTableTraits } from 'traits/page-items/invoices-table-traits.js';
+import { InvoicesTableRowsTraits } from 'traits/page-items/invoices-table-rows-traits.js';
 
 /**
  * Converted from app/ui/invoices/table.tsx (outer markup).
@@ -11,23 +11,22 @@ import { InvoicesTableTraits } from 'traits/page-items/invoices-table-traits.js'
  * a real table at `md` and up. The card stack is still to come; mount
  * InvoicesCardView into [data-slot="invoice-cards"].
  *
- * ── This view owns the chrome, not the rows ────────────────────────────────
+ * ── What this view owns ─────────────────────────────────────────────────────
  *
- * The heading row, the wrappers and the empty tbody are its template. The rows
- * belong to InvoicesTableBodyView, which ADOPTS that tbody rather than being
- * given a place to render into. Splitting there means the rows can later be
- * replaced as a unit — dispose the body, adopt a fresh tbody — without this
- * view reaching into anyone's DOM.
+ * The table chrome, and the set. It builds a row view per invoice — every
+ * invoice, once — and then answers each resolved list by showing the rows on
+ * that page and hiding the rest. Rows own their own two controls and nothing
+ * else; the set-level facts (on this page? first or last VISIBLE?) live here,
+ * because no row can work them out alone.
  *
- * This view only ever RECEIVES the list. The URL side of the loop — applying an
- * UPDATE_PARAMS instruction and announcing the write — belongs to the null view
- * nested below, which shares this view's trait because the two halves are one
- * concern.
+ * Two traits, sliced by concern rather than by owner: InvoicesTableTraits is the
+ * URL side, shared with the null view below; InvoicesTableRowsTraits is the rows.
+ * [slice-traits-by-concern]
  *
  * No skip-first on CHANNEL_ACME_INVOICES: the channel replays, and the replayed
- * LIST payload is exactly what this view needs to render on mount. That is the
- * opposite of the null view's case, which must ignore its birth slot.
- * [choose-replay-semantics]
+ * LIST payload is exactly what this view needs to show the right page on mount.
+ * That is the opposite of the null view's case, which must ignore its birth
+ * slot. [choose-replay-semantics]
  */
 export class InvoicesTableView extends ViewStream {
   constructor(props = {}) {
@@ -35,13 +34,13 @@ export class InvoicesTableView extends ViewStream {
     props.class = 'mt-6 flow-root';
     props.template = InvoicesTableTmpl;
     props.channels = ['CHANNEL_ACME_INVOICES'];
-    props.traits = [InvoicesTableTraits];
+    props.traits = [InvoicesTableTraits, InvoicesTableRowsTraits];
 
     super(props);
   }
 
   addActionListeners() {
-    return [['CHANNEL_ACME_INVOICES_LIST_EVENT', 'invoicesTable$OnList']];
+    return [['CHANNEL_ACME_INVOICES_LIST_EVENT', 'invoicesTableRows$OnList']];
   }
 
   broadcastEvents() {
@@ -51,15 +50,6 @@ export class InvoicesTableView extends ViewStream {
   onRendered() {
     new InvoicesTableParamsNullView().appendToNull();
 
-    // The tbody from this view's own template, handed over as the body view's
-    // element. appendView still runs — it is what exchanges the parent/child
-    // streams, so the body disposes with this view — but an adopted child is
-    // never re-attached, so the tbody does not move.
-    this.appendView(
-      new InvoicesTableBodyView({
-        el: this.props.el$('[data-slot="invoice-rows"]').el,
-        data: this.props.data,
-      }),
-    );
+    this.invoicesTableRows$RenderRows();
   }
 }
