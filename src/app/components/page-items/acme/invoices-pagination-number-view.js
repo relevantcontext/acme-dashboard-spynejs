@@ -7,41 +7,41 @@ const BASE = 'flex h-10 w-10 items-center justify-center text-sm border';
  * One numbered page of app/ui/invoices/pagination.tsx (the PaginationNumber
  * inner component).
  *
- * Two things the template cannot express, resolved here:
- *
- *   - tagName. The source renders a <div> when the page isActive or is the
- *     '...' ellipsis (position 'middle'), and an <a> otherwise. props.tagName is
- *     set accordingly, so a non-navigating cell is genuinely not a link.
- *
- *   - class. The source's clsx keys off position (first/last/single rounding),
- *     isActive (filled blue) and middle (muted, no hover). Composed into
- *     props.class.
+ * A current page is inert; every other number is a button carrying a page
+ * request. Ellipses have their own ViewStream and never enter this component.
  *
  * @param {Object} props
  * @param {Object} props.data
- * @param {String|Number} props.data.page
- * @param {String} [props.data.href]
- * @param {Boolean} [props.data.isActive]
+ * @param {Number} props.data.pageNumber
+ * @param {Boolean} [props.data.isCurrent]
  * @param {'first'|'last'|'middle'|'single'} [props.data.position]
  */
 export class InvoicesPaginationNumberView extends ViewStream {
   constructor(props = {}) {
-    const { page, href = '', position, isActive } = props.data || {};
-    const isMiddle = position === 'middle';
+    const { pageNumber, position, isCurrent } = props.data || {};
 
     const classes = [BASE];
-    if (position === 'first' || position === 'single') classes.push('rounded-l-md');
-    if (position === 'last' || position === 'single') classes.push('rounded-r-md');
-    if (isActive) classes.push('z-10 bg-blue-600 border-blue-600 text-white');
-    if (!isActive && !isMiddle) classes.push('hover:bg-gray-100');
-    if (isMiddle) classes.push('text-gray-300');
+    if (position === 'first' || position === 'single')
+      classes.push('rounded-l-md');
+    if (position === 'last' || position === 'single')
+      classes.push('rounded-r-md');
+    if (isCurrent) classes.push('z-10 bg-blue-600 border-blue-600 text-white');
+    else classes.push('hover:bg-gray-100');
 
-    // A link only when it navigates; a div when active or the ellipsis.
-    props.tagName = isActive || isMiddle ? 'div' : 'a';
-    if (props.tagName === 'a') props.href = href;
+    props.tagName = isCurrent ? 'div' : 'button';
+    if (props.tagName === 'button') props.type = 'button';
     props.class = classes.join(' ');
+    if (isCurrent) props['aria-current'] = 'page';
+    props['aria-label'] = `page ${pageNumber}`;
+    props.dataset = isCurrent
+      ? {}
+      : {
+          eventType: 'acmeInvoices',
+          btnType: 'pagination',
+          pageNumber,
+        };
     props.template = InvoicesPaginationNumberTmpl;
-    props.data = { ...props.data, page: String(page ?? '') };
+    props.data = { ...props.data, pageNumber: String(pageNumber ?? '') };
 
     super(props);
   }

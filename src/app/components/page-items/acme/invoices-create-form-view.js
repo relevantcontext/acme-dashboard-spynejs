@@ -62,7 +62,9 @@ export class InvoicesCreateFormView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [];
+    return [
+      ['a', 'click']
+    ];
   }
 
   onRendered() {}

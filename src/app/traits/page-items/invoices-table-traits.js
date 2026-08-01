@@ -13,8 +13,8 @@ import {
  *
  * ── Why the write is a view's job at all ────────────────────────────────────
  *
- * ChannelAcmeInvoices holds no `query` and no `page`; window.location is the
- * state. It emits UPDATE_PARAMS as an INSTRUCTION and then learns what happened
+ * ChannelAcmeInvoices holds no `query`; window.location is the search state. It
+ * emits UPDATE_PARAMS as an INSTRUCTION and then learns what happened
  * by reading location.search back off a window event, exactly as a bookmark or a
  * back button would arrive.
  *
@@ -22,8 +22,7 @@ import {
  * wrote and read the URL would have to tell its own edits apart from a deeplink
  * — and identity is never implicit here, so that means a correlation mechanism
  * existing solely to undo an ambiguity it created. With the write over here, a
- * keystroke, a page click, a bookmark and a Back press are indistinguishable,
- * which is correct.
+ * keystroke, a bookmark and a Back press are indistinguishable, which is correct.
  *
  * ── Why a separate null view rather than the table itself ───────────────────
  *
@@ -66,18 +65,13 @@ export class InvoicesTableTraits extends SpyneTrait {
    *
    * ── Always replaceState ─────────────────────────────────────────────────
    *
-   * Search and paging alike. A typed word must not leave one history entry per
-   * keystroke, and paging is the same kind of thing: a view of the set the user
-   * is already looking at, not a place they travelled to.
+   * A typed word must not leave one history entry per keystroke. Pagination is
+   * local state and never enters this URL-writing concern.
    *
    * This also keeps the page intact. Measured here: a popstate rebuilds
    * PageAcmeView and everything under it even when only the query string moved
    * — the route channel emits a change event on popstate whether or not
-   * routeData actually differs. Pushing per page click would therefore tear
-   * down and rebuild the whole invoices page on every Back press.
-   *
-   * Divergence from next-learn, which pages with <Link> and so pushes. Named in
-   * the comparison rather than hidden.
+   * routeData actually differs.
    *
    * The path is preserved as-is and never re-derived: this must not go through
    * CHANNEL_ROUTE, which writes the path only and would strip the params it is

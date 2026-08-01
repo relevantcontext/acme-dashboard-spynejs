@@ -75,8 +75,8 @@ const config = {
         'message',
         'keyup',
         'keydown',
-        // Back/forward between two query strings on the SAME path — page=2 to
-        // page=3 — does not move routeData, so CHANNEL_ROUTE sees no change and
+        // Back/forward between two searches on the SAME path does not move
+        // routeData, so CHANNEL_ROUTE sees no change and
         // the history step would be invisible. CHANNEL_WINDOW binds with
         // addEventListener, so this coexists with the route channel's own
         // `window.onpopstate` property assignment rather than replacing it.

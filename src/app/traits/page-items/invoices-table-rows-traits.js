@@ -71,8 +71,8 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
   }
 
   /**
-   * The resolved page, arriving finished from the channel: which invoice ids are
-   * on it, in order.
+   * The visible page IDs, calculated by the pagination ViewStream and relayed by
+   * the invoices channel.
    *
    * The payload is kept rather than acted on directly, because this fires BEFORE
    * the rows exist on a cold mount. CHANNEL_ACME_INVOICES replays, so the
@@ -80,7 +80,7 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
    * while onRendered — and therefore the rows — is still to come. Holding the
    * payload lets whichever happens second do the work.
    */
-  static invoicesTableRows$OnList(e, props = this.props) {
+  static invoicesTableRows$OnVisibleIds(e, props = this.props) {
     props.listPayload = e?.payload ?? null;
 
     this.invoicesTableRows$ApplyVisibility();
@@ -89,7 +89,7 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
   /**
    * Shows the current page and marks its visible edges.
    *
-   * `pageIds` is the channel's answer — already filtered by the query and sliced
+   * `visibleIds` is the paginator's answer — already sliced
    * to the page — so this is a Set membership test per row rather than a search.
    *
    * `is-first` / `is-last` exist because CSS cannot express "first visible":
@@ -108,10 +108,10 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
     const els = props.invoiceEls$.filter((el) => el.isConnected === true);
     props.invoiceEls$ = els;
 
-    const pageIds = payload.pageIds || [];
-    const onThisPage = new Set(pageIds);
-    const firstId = pageIds[0];
-    const lastId = pageIds[pageIds.length - 1];
+    const visibleIds = payload.visibleIds || [];
+    const onThisPage = new Set(visibleIds);
+    const firstId = payload.firstVisibleId ?? visibleIds[0];
+    const lastId = payload.lastVisibleId ?? visibleIds[visibleIds.length - 1];
 
     els.forEach((el) => {
       const { invoiceId } = el.dataset;

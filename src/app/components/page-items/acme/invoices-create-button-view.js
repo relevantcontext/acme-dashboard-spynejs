@@ -29,6 +29,7 @@ export class InvoicesCreateButtonView extends ViewStream {
       channel: 'ROUTE',
       pageId: 'dashboard',
       topicId: 'invoices',
+      optionId: 'create',
       eventPreventDefault: 'true',
     };
     props.template = InvoicesCreateButtonTmpl;

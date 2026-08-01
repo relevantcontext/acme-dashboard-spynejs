@@ -28,6 +28,8 @@ import { InvoicesCustomerOptionView } from 'components/page-items/acme/invoices-
 import { InvoicesDeleteButtonView } from 'components/page-items/acme/invoices-delete-button-view.js';
 import { InvoicesEditFormView } from 'components/page-items/acme/invoices-edit-form-view.js';
 import { InvoicesPaginationArrowView } from 'components/page-items/acme/invoices-pagination-arrow-view.js';
+import { InvoicesPaginationEllipsisView } from 'components/page-items/acme/invoices-pagination-ellipsis-view.js';
+import { InvoicesPaginationItemsView } from 'components/page-items/acme/invoices-pagination-items-view.js';
 import { InvoicesPaginationNumberView } from 'components/page-items/acme/invoices-pagination-number-view.js';
 import { InvoicesPaginationContainer } from 'components/page-items/acme/invoices-pagination-container.js';
 import { InvoicesStatusView } from 'components/page-items/acme/invoices-status-view.js';
@@ -348,6 +350,8 @@ export class PageItemCoreTraits extends SpyneTrait {
       InvoicesDeleteButtonView,
       InvoicesEditFormView,
       InvoicesPaginationArrowView,
+      InvoicesPaginationEllipsisView,
+      InvoicesPaginationItemsView,
       InvoicesPaginationNumberView,
       InvoicesPaginationContainer,
       InvoicesStatusView,

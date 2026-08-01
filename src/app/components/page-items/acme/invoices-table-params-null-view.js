@@ -25,8 +25,8 @@ import { InvoicesTableTraits } from 'traits/page-items/invoices-table-traits.js'
  * dispose listener fires on the route event that is current at birth.
  * [single-active-child] [skip-replayed-birth-event] [no-leaked-subscription]
  *
- * Paging does not trip this: ?page=2 and ?page=3 are the same path, so
- * routeData does not move and no route event fires.
+ * Pagination does not trip this because page selection is local to the
+ * pagination ViewStream and never writes the URL.
  *
  * No skip-first on CHANNEL_ACME_INVOICES, deliberately. That channel replays,
  * but its slot holds a LIST payload whenever this view is born — the instruction

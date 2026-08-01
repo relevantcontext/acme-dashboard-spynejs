@@ -1,11 +1,10 @@
 /**
  * The client-side equivalent of fetchFilteredInvoices / fetchInvoicesPages.
  *
- * The SpyneJS app holds every invoice and resolves a page in the browser; the
- * Next.js app re-queries Postgres on every keystroke and every page click. These
- * functions are what make the two agree on what a search matches and what "page
- * 2" contains — so they reproduce the SQL rather than doing something merely
- * reasonable.
+ * The SpyneJS app holds every invoice and filters the collection in the browser;
+ * the Next.js app re-queries Postgres on every keystroke. These functions keep
+ * the matching semantics aligned with the SQL rather than doing something
+ * merely reasonable.
  *
  * Pure register: input to output, no framework, independently testable.
  * [author-in-correct-register]
@@ -54,68 +53,18 @@ export const filterInvoices = (invoices = [], query = '') => {
 };
 
 /**
- * LIMIT/OFFSET. The set is already ordered by date DESC — the server sorts it
- * once in SQL rather than the client re-sorting, so "page 1" means the same rows
- * on both sides without duplicating a comparator.
- */
-export const paginateInvoices = (invoices = [], page = 1) => {
-  const offset = (Math.max(1, page) - 1) * ITEMS_PER_PAGE;
-  return invoices.slice(offset, offset + ITEMS_PER_PAGE);
-};
-
-/**
- * Matches fetchInvoicesPages: the count is of the FILTERED set, so the page
- * count shrinks as a search narrows.
- */
-export const getTotalPages = (filteredCount = 0) =>
-  Math.ceil(filteredCount / ITEMS_PER_PAGE);
-
-/**
- * Verbatim port of generatePagination from the Next.js app's lib/utils.ts.
+ * Reads the invoice search term off a query string.
  *
- * Kept identical rather than improved: the two apps render the same control, so
- * a different ellipsis rule would show as a different pager and read as a bug in
- * one of them. If this changes, change both.
- */
-export const generatePagination = (currentPage, totalPages) => {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-
-  if (currentPage <= 3) {
-    return [1, 2, 3, '...', totalPages - 1, totalPages];
-  }
-
-  if (currentPage >= totalPages - 2) {
-    return [1, 2, '...', totalPages - 2, totalPages - 1, totalPages];
-  }
-
-  return [
-    1,
-    '...',
-    currentPage - 1,
-    currentPage,
-    currentPage + 1,
-    '...',
-    totalPages,
-  ];
-};
-
-/**
- * Reads the two params off a query string.
- *
- * The channel never holds these. window.location is the state, so this runs on
+ * The channel never holds it. window.location is the state, so this runs on
  * every params event and the answer is always current — there is no cached copy
  * to fall out of step, and a deeplink is indistinguishable from an edit, which
  * is the point of the loop.
  */
 export const readInvoiceParams = (search = '') => {
   const params = new URLSearchParams(search);
-  const page = Number(params.get('page'));
 
   return {
     query: params.get('query') || '',
-    page: Number.isFinite(page) && page > 0 ? page : 1,
   };
 };
 
@@ -123,9 +72,8 @@ export const readInvoiceParams = (search = '') => {
  * The inverse of readInvoiceParams: merges an update into the current query
  * string and returns the new one.
  *
- * Merging rather than replacing is what makes "paging preserves the query" fall
- * out for free — the pager sends only `page`, so everything else in the URL is
- * left where it was. An empty value DELETES its key, matching search.tsx, which
+ * Merging rather than replacing leaves unrelated URL parameters intact. An
+ * empty value DELETES its key, matching search.tsx, which
  * does `if (term) params.set('query', term) else params.delete('query')` so a
  * cleared search box leaves no `?query=` behind.
  *

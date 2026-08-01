@@ -40,7 +40,12 @@ export class InvoicesTableView extends ViewStream {
   }
 
   addActionListeners() {
-    return [['CHANNEL_ACME_INVOICES_LIST_EVENT', 'invoicesTableRows$OnList']];
+    return [
+      [
+        'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT',
+        'invoicesTableRows$OnVisibleIds',
+      ],
+    ];
   }
 
   broadcastEvents() {
