@@ -1,6 +1,7 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
 import InvoicesEditFormTmpl from './templates/invoices-form-view.tmpl.html';
+import { InvoicesFormTraits } from 'traits/form/invoices-form-traits.js';
 
 const USER_ICON =
   'pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500';
@@ -26,24 +27,27 @@ const DOLLAR_ICON =
  */
 export class InvoicesEditFormView extends ViewStream {
   constructor(props = {}) {
-    const { invoice = {} } = props.data || {};
-    const isPaid = invoice.status === 'paid';
-
     props.tagName = 'form';
+    props.dataset = { eventPreventDefault: 'true' };
     props.template = InvoicesEditFormTmpl;
+    props.channels = [
+      'CHANNEL_UI',
+      'CHANNEL_ACME_INVOICES',
+      ['CHANNEL_ACME_DATA', true],
+    ];
+    props.traits = [InvoicesFormTraits];
     props.data = {
       ...props.data,
       customerLabel: 'Choose customer',
       customerPlaceholder: 'Select a customer',
-      selectedCustomerId: invoice.customer_id || '',
       amountLabel: 'Choose an amount',
       amountPlaceholder: 'Enter USD amount',
-      attrAmount: invoice.amount === undefined ? '' : String(invoice.amount),
+      attrAmount: '',
       statusLabel: 'Set the invoice status',
       pendingLabel: 'Pending',
       paidLabel: 'Paid',
-      pendingCheckedAttr: isPaid ? '' : 'checked',
-      paidCheckedAttr: isPaid ? 'checked' : '',
+      pendingCheckedAttr: '',
+      paidCheckedAttr: '',
       cancelLabel: 'Cancel',
       attrCancelHref: '/dashboard/invoices',
       submitLabel: 'Edit Invoice',
@@ -58,11 +62,18 @@ export class InvoicesEditFormView extends ViewStream {
   }
 
   addActionListeners() {
-    return [];
+    return [
+      ['CHANNEL_ACME_INVOICES_EDIT_EVENT', 'invoicesForm$OnEdit'],
+      ['CHANNEL_UI_SUBMIT_EVENT', 'invoicesForm$OnSubmit'],
+      ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'invoicesForm$OnDataUpdated'],
+    ];
   }
 
   broadcastEvents() {
-    return [];
+    return [
+      ['form', 'submit'],
+      ['a', 'click'],
+    ];
   }
 
   onRendered() {}

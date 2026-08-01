@@ -46,6 +46,8 @@ export class ChannelAcmeInvoices extends Channel {
 
       // Every invoice id matching the current query, plus the authoritative set.
       'CHANNEL_ACME_INVOICES_LIST_EVENT',
+      'CHANNEL_ACME_INVOICES_CREATE_EVENT',
+      'CHANNEL_ACME_INVOICES_EDIT_EVENT',
       // A validated response to a pagination control's CHANNEL_UI request.
       'CHANNEL_ACME_INVOICES_PAGINATION_EVENT',
       // A pagination ViewStream result relayed for the isolated table view.

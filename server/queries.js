@@ -87,6 +87,7 @@ export async function fetchAllInvoices() {
   return sql`
       SELECT
         invoices.id,
+        invoices.customer_id,
         invoices.amount,
         invoices.date,
         invoices.status,

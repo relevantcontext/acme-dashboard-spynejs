@@ -1,6 +1,7 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
 import InvoicesCreateFormTmpl from './templates/invoices-form-view.tmpl.html';
+import { InvoicesFormTraits } from 'traits/form/invoices-form-traits.js';
 
 const USER_ICON =
   'pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500';
@@ -30,7 +31,14 @@ const DOLLAR_ICON =
 export class InvoicesCreateFormView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'form';
+    props.dataset = { eventPreventDefault: 'true' };
     props.template = InvoicesCreateFormTmpl;
+    props.channels = [
+      'CHANNEL_UI',
+      'CHANNEL_ACME_INVOICES',
+      ['CHANNEL_ACME_DATA', true],
+    ];
+    props.traits = [InvoicesFormTraits];
     props.data = {
       ...props.data,
       customerLabel: 'Choose customer',
@@ -58,12 +66,17 @@ export class InvoicesCreateFormView extends ViewStream {
   }
 
   addActionListeners() {
-    return [];
+    return [
+      ['CHANNEL_ACME_INVOICES_CREATE_EVENT', 'invoicesForm$OnCreate'],
+      ['CHANNEL_UI_SUBMIT_EVENT', 'invoicesForm$OnSubmit'],
+      ['CHANNEL_ACME_DATA_UPDATED_EVENT', 'invoicesForm$OnDataUpdated'],
+    ];
   }
 
   broadcastEvents() {
     return [
-      ['a', 'click']
+      ['form', 'submit'],
+      ['a', 'click'],
     ];
   }
 

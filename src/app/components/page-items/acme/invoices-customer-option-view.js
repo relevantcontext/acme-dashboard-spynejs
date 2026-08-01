@@ -35,5 +35,9 @@ export class InvoicesCustomerOptionView extends ViewStream {
     return [];
   }
 
-  onRendered() {}
+  onRendered() {
+    if (this.props.data?.selected === true) {
+      this.props.el$().el.selected = true;
+    }
+  }
 }

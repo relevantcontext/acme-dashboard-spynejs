@@ -43,6 +43,7 @@ export class ChannelAcmeData extends Channel {
     return [
       // Consumed by AcmeRequester. Views do not listen for this.
       'CHANNEL_ACME_DATA_REQUEST_EVENT',
+      'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT',
 
       // The dump landed. LOADED is the first one after authentication; UPDATED
       // is every refresh after a mutation. Split so a view can render on first
@@ -62,5 +63,7 @@ export class ChannelAcmeData extends Channel {
     ];
   }
 
-  onViewStreamInfo() {}
+  onViewStreamInfo(e) {
+    this.acmeData$OnViewStreamInfo(e);
+  }
 }

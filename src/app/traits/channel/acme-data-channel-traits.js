@@ -121,6 +121,12 @@ export class AcmeDataChannelTraits extends SpyneTrait {
     this.acmeData$Request(payload.btnType, payload);
   }
 
+  static acmeData$OnViewStreamInfo(e) {
+    if (e?.action !== 'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT') return;
+    const payload = e?.payload || {};
+    this.acmeData$Request(payload.btnType, payload);
+  }
+
   /**
    * The one way a request leaves this channel. ACME_ENDPOINTS turns the btnType
    * plus the UI payload into fetch props, including the mapFn that stamps the

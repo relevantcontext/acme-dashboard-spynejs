@@ -81,8 +81,8 @@ export const ACME_ENDPOINTS = {
   },
 
   'update-invoice': {
-    toRequest: ({ id, customerId, amount, status }) => ({
-      url: `/api/invoices/${id}`,
+    toRequest: ({ invoiceId, customerId, amount, status }) => ({
+      url: `/api/invoices/${invoiceId}`,
       method: 'PUT',
       ...jsonBody({ customerId, amount, status }),
     }),

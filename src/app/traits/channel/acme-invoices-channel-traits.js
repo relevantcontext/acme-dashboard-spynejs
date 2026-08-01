@@ -62,6 +62,14 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     this.getChannel('CHANNEL_UI', paginationFilter).subscribe(
       this.acmeInvoices$OnPaginationRequest.bind(this),
     );
+
+    const formNavigationFilter = new ChannelPayloadFilter({
+      eventType: 'acmeInvoices',
+      btnType: (btnType) => ['create', 'edit', 'cancel'].includes(btnType),
+    });
+    this.getChannel('CHANNEL_UI', formNavigationFilter).subscribe(
+      this.acmeInvoices$OnFormNavigation.bind(this),
+    );
   }
 
   static acmeInvoices$ListenToParams() {
@@ -77,7 +85,58 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
 
   static acmeInvoices$OnData(e) {
     this.props.invoices = e?.payload?.data?.invoices || [];
+    this.props.customerOptions = e?.payload?.data?.customerOptions || [];
     this.acmeInvoices$PublishList();
+  }
+
+  static acmeInvoices$OnFormNavigation(e) {
+    const { btnType, invoiceId } = e?.payload || {};
+    const customers = this.props.customerOptions || [];
+
+    if (btnType === 'cancel') {
+      this.acmeInvoices$PublishList();
+      this.sendPayloadToRouteChannel({
+        pageId: 'dashboard',
+        topicId: 'invoices',
+        optionId: '',
+      });
+      return;
+    }
+
+    if (btnType === 'create') {
+      this.sendChannelPayload('CHANNEL_ACME_INVOICES_CREATE_EVENT', {
+        customers,
+      });
+      this.sendPayloadToRouteChannel({
+        pageId: 'dashboard',
+        topicId: 'invoices',
+        optionId: 'create',
+      });
+      return;
+    }
+
+    const invoice = (this.props.invoices || []).find(
+      ({ id }) => String(id) === String(invoiceId),
+    );
+    if (!invoice) return;
+
+    const customerId =
+      invoice.customer_id ??
+      customers.find(({ name }) => name === invoice.name)?.id;
+
+    this.sendChannelPayload('CHANNEL_ACME_INVOICES_EDIT_EVENT', {
+      customers,
+      invoice: {
+        ...invoice,
+        customer_id: customerId,
+        amount: Number(invoice.amount) / 100,
+      },
+    });
+    this.sendPayloadToRouteChannel({
+      pageId: 'dashboard',
+      topicId: 'invoices',
+      optionId: 'edit',
+    });
   }
 
   static acmeInvoices$OnParamsChanged() {
