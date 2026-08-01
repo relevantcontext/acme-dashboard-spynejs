@@ -5,13 +5,14 @@ import {
   getTotalPages,
   generatePagination,
   readInvoiceParams,
+  INVOICE_PARAMS_EVENT,
 } from 'traits/utils/acme-invoice-utils.js';
 
-// The custom window event InvoicesTableView dispatches after it writes the URL.
-// CHANNEL_WINDOW derives its action as `CHANNEL_WINDOW_${name.toUpperCase()}_EVENT`,
-// and the name is registered in index.js under config.channels.WINDOW.customEvents.
-const PARAMS_CHANGED_ACTION =
-  'CHANNEL_WINDOW_ACME_INVOICES_PARAMS_CHANGED_EVENT';
+// The custom window event InvoicesTableParamsNullView dispatches after it writes
+// the URL. The label is derived here rather than written out, exactly as
+// CHANNEL_WINDOW derives it, so the name has one definition — the same constant
+// index.js registers and the null view dispatches.
+const PARAMS_CHANGED_ACTION = `CHANNEL_WINDOW_${INVOICE_PARAMS_EVENT.toUpperCase()}_EVENT`;
 
 // Back and forward. The route channel owns popstate through `window.onpopstate`
 // — a property assignment, so nothing here may touch it — but CHANNEL_WINDOW
@@ -120,13 +121,13 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
    * moved", and location.search says what it moved to.
    */
   static acmeInvoices$ListenToParams() {
-    [PARAMS_CHANGED_ACTION, POPSTATE_ACTION].forEach((action) => {
-      const actionFilter = new ChannelPayloadFilter({ action });
-
-      this.getChannel('CHANNEL_WINDOW', actionFilter).subscribe(
-        this.acmeInvoices$OnParamsChanged.bind(this),
-      );
+    const paramsActionsPayloadFilter = new ChannelPayloadFilter({
+      action: (a) => [PARAMS_CHANGED_ACTION, POPSTATE_ACTION].includes(a),
     });
+
+    this.getChannel('CHANNEL_WINDOW', paramsActionsPayloadFilter).subscribe(
+      this.acmeInvoices$OnParamsChanged.bind(this),
+    );
   }
 
   // ── Inbound ───────────────────────────────────────────────────────────────
@@ -142,9 +143,7 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
 
   /**
    * A new search returns to page 1 — otherwise a narrowed set leaves the user on
-   * a page that no longer exists. `replace` rather than `push`, so a typed word
-   * does not leave one history entry per keystroke; search.tsx uses
-   * router.replace for the same reason.
+   * a page that no longer exists.
    *
    * The value is read live off the element rather than from any stored copy —
    * CHANNEL_UI reports the raising element, and its current value is the truth.
@@ -152,20 +151,19 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
   static acmeInvoices$OnSearchEvent(e) {
     const query = e?.srcElement?.el?.value ?? '';
 
-    this.acmeInvoices$PublishParams({ query, page: 1 }, 'replace');
+    this.acmeInvoices$PublishParams({ query, page: 1 });
   }
 
   /**
    * Paging preserves the query, so only `page` is sent and the table keeps the
-   * rest of the URL as it is. `push`, so back steps through pages — which is
-   * what Next.js's <Link> does.
+   * rest of the URL as it is.
    */
   static acmeInvoices$OnPageEvent(e) {
     const page = Number(e?.payload?.page);
 
     if (!Number.isFinite(page) || page < 1) return;
 
-    this.acmeInvoices$PublishParams({ page }, 'push');
+    this.acmeInvoices$PublishParams({ page });
   }
 
   // ── Outbound ──────────────────────────────────────────────────────────────
@@ -173,11 +171,13 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
   /**
    * An instruction, not a state change. The table applies it to the URL, and
    * this channel finds out what happened the same way a bookmark would.
+   *
+   * No history mode rides it. Every params write REPLACES — see the null view
+   * for why — so there is nothing here to select.
    */
-  static acmeInvoices$PublishParams(params, historyMode) {
+  static acmeInvoices$PublishParams(params) {
     this.sendChannelPayload('CHANNEL_ACME_INVOICES_UPDATE_PARAMS_EVENT', {
       params,
-      historyMode,
     });
   }
 
@@ -201,6 +201,7 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
       totalPages,
       page,
       query,
+      filtered,
       totalFiltered: filtered.length,
     });
   }

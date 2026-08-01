@@ -2,7 +2,7 @@
 // Tailwind first — its base layer is a reset, so the design system in app.scss
 // must cascade on top of it, not the other way round.
 import './scss/tailwind.scss';
-import './scss/app.scss';
+//import './scss/app.scss';
 
 // load spyne
 import { SpyneApp, ChannelFetch, SpyneAppProperties } from 'spyne';
@@ -29,6 +29,7 @@ import AppModelURL from 'data/app.model.json';
 import { AppContainer } from './app/app-container.js';
 
 import pageItemTemplateLookup from 'traits/utils/page-item-template-lookup.js';
+import { INVOICE_PARAMS_EVENT } from 'traits/utils/acme-invoice-utils.js';
 
 const config = {
   channels: {
@@ -87,12 +88,12 @@ const config = {
           buffer: 400,
         },
         // history.replaceState and pushState fire NOTHING — verified: zero
-        // popstate events for either. So InvoicesTableView announces its own
-        // write, and ChannelAcmeInvoices hears it here. Without this the loop
-        // is open and only back/forward would ever reach the channel.
+        // popstate events for either. So InvoicesTableParamsNullView announces
+        // its own write, and ChannelAcmeInvoices hears it here. Without this the
+        // loop is open and only back/forward would ever reach the channel.
         //
         // Read as CHANNEL_WINDOW_ACME_INVOICES_PARAMS_CHANGED_EVENT.
-        { name: 'acme_invoices_params_changed' },
+        { name: INVOICE_PARAMS_EVENT },
       ],
       listenForScroll: true,
       listenForOrientation: true,

@@ -118,3 +118,143 @@ export const readInvoiceParams = (search = '') => {
     page: Number.isFinite(page) && page > 0 ? page : 1,
   };
 };
+
+/**
+ * The inverse of readInvoiceParams: merges an update into the current query
+ * string and returns the new one.
+ *
+ * Merging rather than replacing is what makes "paging preserves the query" fall
+ * out for free — the pager sends only `page`, so everything else in the URL is
+ * left where it was. An empty value DELETES its key, matching search.tsx, which
+ * does `if (term) params.set('query', term) else params.delete('query')` so a
+ * cleared search box leaves no `?query=` behind.
+ *
+ * Returns the search string without its leading `?` — URLSearchParams.toString
+ * form — because an empty result must produce a bare path rather than a
+ * trailing `?`.
+ */
+export const buildInvoiceSearch = (search = '', params = {}) => {
+  const next = new URLSearchParams(search);
+
+  Object.entries(params).forEach(([key, value]) => {
+    const str = value === null || value === undefined ? '' : String(value);
+
+    if (str === '') {
+      next.delete(key);
+      return;
+    }
+
+    next.set(key, str);
+  });
+
+  return next.toString();
+};
+
+/**
+ * The custom window event that closes the params loop.
+ *
+ * history.replaceState and pushState fire nothing — verified, zero popstate
+ * events for either — so the view that writes the URL announces the write
+ * itself. Every consumer derives from this one string: index.js registers it in
+ * config.channels.WINDOW.customEvents, the null view dispatches it, and the
+ * channel derives its action label from it the way the framework does
+ * (`CHANNEL_WINDOW_${name.toUpperCase()}_EVENT`). Three copies of the literal
+ * would be three chances for the loop to open silently.
+ */
+export const INVOICE_PARAMS_EVENT = 'acme_invoices_params_changed';
+
+/**
+ * formatCurrency and formatDateToLocal from the Next.js app's lib/utils.ts.
+ *
+ * The source builds a new Intl formatter on every call — `toLocaleString` does
+ * so internally, and formatDateToLocal constructs an Intl.DateTimeFormat per
+ * invoice. Constructing an Intl formatter is the expensive part; formatting
+ * with one is cheap. Both are hoisted to module scope here and reused across
+ * every row, which is the whole difference at list scale. Output is identical.
+ */
+const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
+const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
+
+// Amounts are stored in CENTS — see filterInvoices.
+export const formatInvoiceAmount = (amount) =>
+  CURRENCY_FORMATTER.format(Number(amount) / 100);
+
+export const formatInvoiceDate = (dateStr) =>
+  DATE_FORMATTER.format(new Date(dateStr));
+
+const STATUS_PILL_BASE =
+  'inline-flex items-center rounded-full px-2 py-1 text-xs';
+
+const STATUS_PILL_VARIANT = {
+  pending: 'bg-gray-100 text-gray-500',
+  paid: 'bg-green-500 text-white',
+};
+
+/**
+ * The status pill's classes, resolved from the status.
+ *
+ * Exported because the pill now has two renderers — InvoicesStatusView for a
+ * single pill, and the bulk row template for a whole table — and a table whose
+ * pills drift from the component's pills would read as a bug in one of them.
+ */
+export const getInvoiceStatusClass = (status) =>
+  `${STATUS_PILL_BASE} ${STATUS_PILL_VARIANT[status] ?? STATUS_PILL_VARIANT.pending}`;
+
+/**
+ * Shapes raw invoice records into what the bulk row template renders.
+ *
+ * Every decision is made here and the template iterates a finished array: the
+ * image path, the alt text, both formatted values, the pill classes, and the
+ * status branch as an object section — exactly one of `isPaid` / `isPending` is
+ * present, so the template needs no conditional syntax it does not have.
+ * [shape-data-for-logicless-template] [conditional-via-object-section]
+ *
+ * Keys landing in attributes carry the `attr` prefix.
+ * [attr-prefix-for-attribute-placeholders]
+ *
+ * The seed stores `/customers/<name>.png`, which Next.js resolves against
+ * public/. This app has no public root, so the path is prefixed with `imgs` —
+ * the convention that resolves against IMG_PATH.
+ *
+ * ── Why the icons ride every row ────────────────────────────────────────────
+ *
+ * They were first passed once at the ROOT of the template data, on the reading
+ * that outer-scope properties stay reachable inside a section. Measured here:
+ * they do not — every `{{svg*}}` inside `{{#invoices}}` rendered EMPTY while
+ * every per-row key rendered correctly, and the status icons nested one level
+ * deeper failed the same way. So each row carries its own reference.
+ *
+ * That costs nothing that matters: `icons` holds four strings built once by the
+ * caller, and a row copies POINTERS to them, not the strings. The status icon
+ * sits inside the isPaid/isPending object because that object is the scope the
+ * section renders in — the shape InvoicesStatusView already uses.
+ */
+export const buildInvoiceRows = (invoices = [], icons = {}) =>
+  invoices.map((invoice) => {
+    const isPaid = invoice.status === 'paid';
+
+    return {
+      name: invoice.name,
+      email: invoice.email,
+      amount: formatInvoiceAmount(invoice.amount),
+      date: formatInvoiceDate(invoice.date),
+      attrImageSrc: 'imgs' + invoice.image_url,
+      attrImageAlt: `${invoice.name}'s profile picture`,
+      attrInvoiceId: invoice.id,
+      attrEditHref: `/dashboard/invoices/${invoice.id}/edit`,
+      attrStatusClass: getInvoiceStatusClass(isPaid ? 'paid' : 'pending'),
+      svgPencil: icons.svgPencil,
+      svgTrash: icons.svgTrash,
+      ...(isPaid
+        ? { isPaid: { label: 'Paid', svgCheck: icons.svgCheck } }
+        : { isPending: { label: 'Pending', svgClock: icons.svgClock } }),
+    };
+  });

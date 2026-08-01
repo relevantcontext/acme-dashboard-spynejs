@@ -1,0 +1,56 @@
+<table><tbody data-slot="rendered-rows">
+{{#invoices}}
+<tr
+  class="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
+  data-invoice-id="{{attrInvoiceId}}"
+>
+  <td class="whitespace-nowrap py-3 pl-6 pr-3">
+    <div class="flex items-center gap-3">
+      <img
+        src="{{attrImageSrc}}"
+        class="rounded-full"
+        width="28"
+        height="28"
+        alt="{{attrImageAlt}}"
+      />
+      <p>{{name}}</p>
+    </div>
+  </td>
+  <td class="whitespace-nowrap px-3 py-3">{{email}}</td>
+  <td class="whitespace-nowrap px-3 py-3">{{amount}}</td>
+  <td class="whitespace-nowrap px-3 py-3">{{date}}</td>
+  <td class="whitespace-nowrap px-3 py-3">
+    <span class="{{attrStatusClass}}">
+      {{#isPending}}{{label}}{{svgClock}}{{/isPending}}
+      {{#isPaid}}{{label}}{{svgCheck}}{{/isPaid}}
+    </span>
+  </td>
+  <td class="whitespace-nowrap py-3 pl-6 pr-3">
+    <div class="flex justify-end gap-3">
+      <a
+        class="rounded-md border p-2 hover:bg-gray-100"
+        href="{{attrEditHref}}"
+        data-channel="ROUTE"
+        data-page-id="dashboard"
+        data-topic-id="invoices"
+        data-option-id="edit"
+        data-invoice-id="{{attrInvoiceId}}"
+        data-event-prevent-default="true"
+      >
+        {{svgPencil}}
+      </a>
+      <button
+        type="button"
+        class="rounded-md border p-2 hover:bg-gray-100"
+        data-event-type="acmeInvoices"
+        data-btn-type="delete-invoice"
+        data-invoice-id="{{attrInvoiceId}}"
+      >
+        <span class="sr-only">Delete</span>
+        {{svgTrash}}
+      </button>
+    </div>
+  </td>
+</tr>
+{{/invoices}}
+</tbody></table>

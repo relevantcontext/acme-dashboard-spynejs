@@ -1,13 +1,7 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
+import { getInvoiceStatusClass } from 'traits/utils/acme-invoice-utils.js';
 import InvoicesStatusTmpl from './templates/invoices-status-view.tmpl.html';
-
-const PILL_BASE = 'inline-flex items-center rounded-full px-2 py-1 text-xs';
-
-const PILL_BY_STATUS = {
-  pending: 'bg-gray-100 text-gray-500',
-  paid: 'bg-green-500 text-white',
-};
 
 /**
  * Converted from app/ui/invoices/status.tsx.
@@ -27,7 +21,9 @@ export class InvoicesStatusView extends ViewStream {
     const status = props.data?.status === 'paid' ? 'paid' : 'pending';
 
     props.tagName = 'span';
-    props.class = `${PILL_BASE} ${PILL_BY_STATUS[status]}`;
+    // Shared with the bulk row template, so a single pill and a table of pills
+    // cannot drift apart.
+    props.class = getInvoiceStatusClass(status);
     props.template = InvoicesStatusTmpl;
     props.data = {
       ...props.data,
