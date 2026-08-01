@@ -205,6 +205,13 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
       // those is first and last". Resolving that here keeps the view's work to
       // a Set membership test per row.
       pageIds: paginated.map((invoice) => invoice.id),
+
+      // Every id the channel currently holds, unfiltered — the answer to "does
+      // this invoice still exist", which is a different question from "is it on
+      // this page". A row absent from the PAGE hides; a row absent from HERE has
+      // been deleted and disposes itself. Without the distinction a deleted row
+      // would merely hide, and its view would outlive its record.
+      allIds: invoices.map((invoice) => invoice.id),
       pages: generatePagination(page, totalPages),
       totalPages,
       page,

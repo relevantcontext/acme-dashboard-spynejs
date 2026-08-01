@@ -46,7 +46,9 @@ export class InvoicesCreateButtonView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [];
+    return [
+      ['a', 'click']
+    ];
   }
 
   onRendered() {}

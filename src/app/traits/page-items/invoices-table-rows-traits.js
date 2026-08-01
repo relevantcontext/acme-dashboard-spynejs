@@ -96,10 +96,17 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
    * :first-child counts DOM children, and the hidden rows are still children.
    */
   static invoicesTableRows$ApplyVisibility(props = this.props) {
-    const els = props.invoiceEls$;
     const payload = props.listPayload;
 
-    if (!els || !payload) return;
+    if (!props.invoiceEls$ || !payload) return;
+
+    // A deleted row disposes ITSELF — the table cannot, since it holds no
+    // reference to it — so the cache is pruned rather than rebuilt. Order does
+    // not matter: a row that has gone is dropped here, and one that goes a
+    // moment later is dropped on the next list. isConnected is the only test
+    // that works either way.
+    const els = props.invoiceEls$.filter((el) => el.isConnected === true);
+    props.invoiceEls$ = els;
 
     const pageIds = payload.pageIds || [];
     const onThisPage = new Set(pageIds);

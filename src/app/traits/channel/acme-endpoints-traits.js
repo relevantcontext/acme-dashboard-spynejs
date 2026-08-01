@@ -89,9 +89,13 @@ export const ACME_ENDPOINTS = {
     mapFn: tag('mutation'),
   },
 
+  // The key is `invoiceId`, matching the row's data-invoice-id and the route
+  // key of the same name — domain nouns rather than a bare `id`, which would
+  // also collide with ViewStream's own element id in any props that carried it.
+  // [name-route-keys-for-legibility]
   'delete-invoice': {
-    toRequest: ({ id }) => ({
-      url: `/api/invoices/${id}`,
+    toRequest: ({ invoiceId }) => ({
+      url: `/api/invoices/${invoiceId}`,
       method: 'DELETE',
     }),
     mapFn: tag('mutation'),

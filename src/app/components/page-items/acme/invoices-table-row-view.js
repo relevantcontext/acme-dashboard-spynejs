@@ -1,4 +1,5 @@
 import { ViewStream } from 'spyne';
+import { InvoicesTableRowTraits } from 'traits/page-items/invoices-table-row-traits.js';
 import InvoicesTableRowTmpl from './templates/invoices-table-row-view.tmpl.html';
 
 /**
@@ -26,11 +27,16 @@ import InvoicesTableRowTmpl from './templates/invoices-table-row-view.tmpl.html'
  * is the one a reader can follow from the markup to the handler without leaving
  * the module.
  *
- * ── No channels ─────────────────────────────────────────────────────────────
+ * ── One channel, for one question ───────────────────────────────────────────
  *
- * A row holds no opinion it could form alone. Whether it is on the current page,
- * and whether it is the first or last VISIBLE row, are facts about the set —
- * so the table owns them and a row has nothing to subscribe to.
+ * A row does not subscribe for its visibility: whether it is on the current
+ * page, and whether it is the first or last VISIBLE row, are facts about the
+ * SET, and the table owns those.
+ *
+ * It subscribes for its own existence. "Has my invoice been deleted" is about
+ * this row alone, and only this row can act on the answer — a parent never holds
+ * a reference to a child ViewStream, so disposal has to originate here.
+ * [invoicesTableRow$OnList]
  *
  * @param {Object} props
  * @param {Object} props.data  one entry from buildInvoiceRows
@@ -41,12 +47,14 @@ export class InvoicesTableRowView extends ViewStream {
     props.class = 'invoice-row';
     props.dataset = { invoiceId: props.data?.attrInvoiceId };
     props.template = InvoicesTableRowTmpl;
+    props.channels = ['CHANNEL_ACME_INVOICES'];
+    props.traits = [InvoicesTableRowTraits];
 
     super(props);
   }
 
   addActionListeners() {
-    return [];
+    return [['CHANNEL_ACME_INVOICES_LIST_EVENT', 'invoicesTableRow$OnList']];
   }
 
   broadcastEvents() {
