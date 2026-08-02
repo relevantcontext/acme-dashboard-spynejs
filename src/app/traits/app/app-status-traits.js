@@ -61,7 +61,6 @@ export class AppStatusTraits extends SpyneTrait {
    */
   static appStatus$SendDataEvent(routeData, isInitialData = false) {
     const { initData } = this.props;
-
     /**
      * If any route key is '404', the route is semantically invalid.
      * Content resolution must not be attempted.

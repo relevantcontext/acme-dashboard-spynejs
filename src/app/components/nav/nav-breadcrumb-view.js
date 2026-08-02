@@ -15,7 +15,7 @@ export class NavBreadcrumbView extends ViewStream {
   }
 
   addActionListeners() {
-    return [['CHANNEL_APP_INIT_EVENT', 'navBreadcrumb$OnAppInitEvent']];
+    return [['CHANNEL_ROUTE_DEEPLINK_EVENT', 'navBreadcrumb$OnAppInitEvent']];
   }
 
   broadcastEvents() {

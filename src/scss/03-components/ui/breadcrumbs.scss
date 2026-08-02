@@ -18,7 +18,7 @@
   }
 
   h3 {
-    color: var(--text-primary);
+    //color: var(--text-primary);
   }
 
   .breadcrumbs-list {
@@ -49,14 +49,19 @@
 
     .breadcrumb-item {
       display: inline-flex; /* or inline-block */
-      align-items: center;
-      margin-right: 8px;
+      align-items: baseline;
+      margin-right:.5rem;
+      text-transform: none;
+      font-family: "Lusitania", "Lusitania Fallback", sans-serif;
 
       /* Add a separator for every item except the first visible one */
       &:not(:first-child)::before {
-        content: '>';
-        margin-right: 8px;
-        color: var(--text-primary);
+        content: '/';
+        font-size: 1.25rem;
+        margin-right: .75rem;
+        font-weight: 100;
+        margin-left: .25rem;
+        //color: var(--text-primary);
       }
 
       /* Hidden: simply remove from layout entirely */
@@ -68,10 +73,10 @@
       /* Active: optionally style the entire li or anchor differently */
       &.breadcrumb-item--active a {
         //font-weight: bold;
-        font-weight: 600;
-        text-decoration: underline;
+       // font-weight: 600;
+       // text-decoration: underline;
         // color: var(--link);
-        color: var(--text-primary);
+       // color: var(--text-primary);
 
         cursor: pointer;
       }
@@ -79,7 +84,7 @@
       /* For the anchor inside li */
       a {
         text-decoration: none;
-        color: var(--text-primary);
+      //  color: var(--text-primary);
         /* inactive anchor styles if needed */
       }
     }

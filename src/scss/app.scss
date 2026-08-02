@@ -5,6 +5,7 @@
 // it: that block disables the SpyneJS design system, and these are not part of
 // it. @use must also precede any style rule in the file.
 @use '03-components/acme/invoices-table';
+@use '03-components/ui/breadcrumbs.scss';
 
 // 1. SpyneJS Design System
 
@@ -24,7 +25,6 @@
 @use '03-components/ui/menu-drawer.scss';
 @use '03-components/ui/menu-hamburger.scss';
 @use '03-components/ui/footer.scss';
-@use '03-components/ui/breadcrumbs.scss';
 @use '03-components/ui/_codeblock';
 
 @use '03-components/cards/cards';

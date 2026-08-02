@@ -4,7 +4,7 @@ import BreadcrumbTmpl from './templates/nav-breadcrumb-item.tmpl.html';
 export class NavBreadcrumbItem extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'li';
-    props.class = 'breadcrumb-item';
+    props.class = 'breadcrumb-item ';
     props.traits = [NavBreadcrumbItemTraits];
     props.channels = ['CHANNEL_ROUTE'];
     props.template = BreadcrumbTmpl;

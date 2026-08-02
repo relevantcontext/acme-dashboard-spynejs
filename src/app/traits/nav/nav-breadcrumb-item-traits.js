@@ -1,5 +1,7 @@
 import { SpyneTrait } from 'spyne';
 import { pick } from 'ramda';
+import { UtilTraits } from 'traits/utils/util-traits.js';
+
 export class NavBreadcrumbItemTraits extends SpyneTrait {
   constructor(context) {
     let traitPrefix = 'navBreadcrumbItem$';
@@ -88,7 +90,9 @@ export class NavBreadcrumbItemTraits extends SpyneTrait {
     return [
       'breadcrumb-item', // Base class
       !isVisible && 'breadcrumb-item--hidden', // Hides the link if false
-      isActive ? 'breadcrumb-item--active' : 'breadcrumb-item--inactive',
+      isActive
+        ? 'breadcrumb-item--active text-gray-500 before:text-gray-400'
+        : 'breadcrumb-item--inactive text-gray-900 before:text-gray-400',
     ]
       .filter(Boolean)
       .join(' ');
@@ -110,7 +114,7 @@ export class NavBreadcrumbItemTraits extends SpyneTrait {
       if (navLink === undefined) {
         return;
       }
-      this.props.link$.el.innerText = navLink.title;
+      this.props.link$.el.innerText = UtilTraits.util$InitialCapWords(navLink.title);
       this.props.link$.el.href = navLink.href;
 
       bcProps.forEach((prop) => {

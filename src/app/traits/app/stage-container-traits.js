@@ -2,6 +2,8 @@ import { SpyneTrait } from 'spyne';
 import { Page404View } from 'components/pages/page-404-view.js';
 import { PageGuestView } from 'components/pages/page-guest-view.js';
 import { PageAcmeView } from 'components/pages/page-acme-view.js';
+import { UISideNavView } from 'components/page-items/acme/ui-sidenav-view.js';
+import { NavBreadcrumbView} from 'components/nav/nav-breadcrumb-view.js';
 
 /**
  * Logic for StageContainer — the page column, and nothing else.
@@ -64,5 +66,9 @@ export class StageContainerTraits extends SpyneTrait {
     this.stage$OnRouteEvent(e, true);
   }
 
-  static stage$OnRendered() {}
+  static stage$OnRendered() {
+    this.appendView(new NavBreadcrumbView());
+
+
+  }
 }

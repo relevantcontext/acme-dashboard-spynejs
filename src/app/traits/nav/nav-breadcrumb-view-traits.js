@@ -1,4 +1,4 @@
-import { SpyneTrait } from 'spyne';
+import { SpyneTrait, SpyneAppProperties } from 'spyne';
 import { NavBreadcrumbItem } from 'components/nav/nav-breadcrumb-item.js';
 export class NavBreadcrumbViewTraits extends SpyneTrait {
   constructor(context) {
@@ -8,7 +8,8 @@ export class NavBreadcrumbViewTraits extends SpyneTrait {
   }
 
   static navBreadcrumb$OnAppInitEvent(e) {
-    const payload = e.payload.initData;
+
+    const payload = e.payload;
     this.navBreadcrumb$initBreadcrumbs({ payload });
   }
 

@@ -29,7 +29,11 @@ export class UINavLinkView extends ViewStream {
   constructor(props = {}) {
     props.class = 'contents';
     props.template = UINavLinkTmpl;
-    props.data = props.data || [];
+
+    const filterNavLevel2 = o=>o.navLevel <= 2;
+
+    console.log("nav level is ",props.data);
+    props.data = props.data.filter(filterNavLevel2) || [];
 
     super(props);
   }

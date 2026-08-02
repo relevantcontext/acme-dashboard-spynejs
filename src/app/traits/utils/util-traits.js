@@ -27,6 +27,18 @@ export class UtilTraits extends SpyneTrait {
     });
   }
 
+  static util$InitialCapWords(str) {
+    if (typeof str !== 'string') return str;
+
+    const newText = str
+      .toLocaleLowerCase()
+      .replace(/\b\p{L}/gu, (character) => character.toLocaleUpperCase());
+
+    console.log('new text is ', newText);
+
+    return newText;
+  }
+
   static util$GetRandInt(max, min = 0) {
     let maxNum = max - min + 1;
     return Math.floor(Math.random() * maxNum) + min;
