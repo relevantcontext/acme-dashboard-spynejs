@@ -34,6 +34,7 @@ export class CustomersTableView extends ViewStream {
     props.tagName = 'div';
     props.class = 'w-full';
     props.template = CustomersTableTmpl;
+    props.channels = ['CHANNEL_ACME_CUSTOMERS'];
     props.traits = [CustomersTableTraits];
     props.data = {
       ...props.data,
@@ -48,7 +49,7 @@ export class CustomersTableView extends ViewStream {
   }
 
   addActionListeners() {
-    return [];
+    return [['CHANNEL_ACME_CUSTOMERS_LIST_EVENT', 'customersTable$OnList']];
   }
 
   broadcastEvents() {

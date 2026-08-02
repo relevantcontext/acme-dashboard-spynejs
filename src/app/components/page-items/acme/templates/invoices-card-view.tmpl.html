@@ -12,12 +12,37 @@
     </div>
     <p class="text-sm text-gray-500">{{email}}</p>
   </div>
-  <div data-slot="status"></div>
+  <span class="{{attrStatusClass}}">
+    {{#isPending}}{{label}}{{svgClock}}{{/isPending}}
+    {{#isPaid}}{{label}}{{svgCheck}}{{/isPaid}}
+  </span>
 </div>
 <div class="flex w-full items-center justify-between pt-4">
   <div>
     <p class="text-xl font-medium">{{amount}}</p>
     <p>{{date}}</p>
   </div>
-  <div class="flex justify-end gap-2" data-slot="card-actions"></div>
+  <div class="flex justify-end gap-2">
+    <a
+      class="rounded-md border p-2 hover:bg-gray-100"
+      href="{{attrEditHref}}"
+      data-event-type="acmeInvoices"
+      data-btn-type="edit"
+      data-invoice-id="{{attrInvoiceId}}"
+      data-event-prevent-default="true"
+    >
+      {{svgPencil}}
+      <span class="sr-only">Edit</span>
+    </a>
+    <button
+      type="button"
+      class="rounded-md border p-2 hover:bg-gray-100"
+      data-event-type="acmeData"
+      data-btn-type="delete-invoice"
+      data-invoice-id="{{attrInvoiceId}}"
+    >
+      {{svgTrash}}
+      <span class="sr-only">Delete</span>
+    </button>
+  </div>
 </div>

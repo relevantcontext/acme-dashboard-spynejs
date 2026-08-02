@@ -1,4 +1,5 @@
 import { ViewStream } from 'spyne';
+import { InvoicesTableRowTraits } from 'traits/page-items/invoices-table-row-traits.js';
 import InvoicesCardTmpl from './templates/invoices-card-view.tmpl.html';
 
 /**
@@ -18,36 +19,25 @@ import InvoicesCardTmpl from './templates/invoices-card-view.tmpl.html';
  */
 export class InvoicesCardView extends ViewStream {
   constructor(props = {}) {
-    const {
-      name = '',
-      email = '',
-      amount = '',
-      date = '',
-      imageUrl = '',
-    } = props.data || {};
-
     props.tagName = 'div';
-    props.class = 'mb-2 w-full rounded-md bg-white p-4';
+    props.class = 'invoice-card mb-2 w-full rounded-md bg-white p-4';
+    props.dataset = { invoiceId: props.data?.attrInvoiceId };
     props.template = InvoicesCardTmpl;
-    props.data = {
-      ...props.data,
-      name,
-      email,
-      amount,
-      date,
-      attrImageSrc: imageUrl,
-      attrImageAlt: `${name}'s profile picture`,
-    };
+    props.channels = ['CHANNEL_ACME_INVOICES'];
+    props.traits = [InvoicesTableRowTraits];
 
     super(props);
   }
 
   addActionListeners() {
-    return [];
+    return [['CHANNEL_ACME_INVOICES_LIST_EVENT', 'invoicesTableRow$OnList']];
   }
 
   broadcastEvents() {
-    return [];
+    return [
+      ['a', 'click'],
+      ['button', 'click'],
+    ];
   }
 
   onRendered() {}

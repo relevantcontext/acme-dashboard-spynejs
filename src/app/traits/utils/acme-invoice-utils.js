@@ -1,3 +1,5 @@
+import { buildAcmeSearch } from 'traits/utils/acme-query-utils.js';
+
 /**
  * The client-side equivalent of fetchFilteredInvoices / fetchInvoicesPages.
  *
@@ -81,22 +83,7 @@ export const readInvoiceParams = (search = '') => {
  * form — because an empty result must produce a bare path rather than a
  * trailing `?`.
  */
-export const buildInvoiceSearch = (search = '', params = {}) => {
-  const next = new URLSearchParams(search);
-
-  Object.entries(params).forEach(([key, value]) => {
-    const str = value === null || value === undefined ? '' : String(value);
-
-    if (str === '') {
-      next.delete(key);
-      return;
-    }
-
-    next.set(key, str);
-  });
-
-  return next.toString();
-};
+export const buildInvoiceSearch = buildAcmeSearch;
 
 /**
  * The custom window event that closes the params loop.

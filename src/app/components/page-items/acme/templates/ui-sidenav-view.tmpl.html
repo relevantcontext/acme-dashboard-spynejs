@@ -9,11 +9,15 @@
 >
   <div data-slot="nav-links" class="contents"></div>
   <div class="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
-  <button data-event-type="signOut"
-          id="sign-out"
-    class="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
-  >
-    {{svgPower}}
-    <div class="hidden md:block">{{signOutText}}</div>
-  </button>
+  <form>
+    <button
+      type="button"
+      data-event-type="signOut"
+      id="sign-out"
+      class="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
+    >
+      {{svgPower}}
+      <div class="hidden md:block">{{signOutText}}</div>
+    </button>
+  </form>
 </div>

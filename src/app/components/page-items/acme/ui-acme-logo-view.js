@@ -22,10 +22,7 @@ export class UIAcmeLogoView extends ViewStream {
     props.template = UIAcmeLogoTmpl;
     props.data = {
       ...props.data,
-      // shrink-0 added to the source's classes: the logo is a flex item and the
-      // login page's w-36 wrapper is narrower than icon + word, so without it
-      // the icon gets squeezed below 48px.
-      svgGlobeAlt: withClass('globeAlt', 'h-12 w-12 shrink-0 rotate-[15deg]'),
+      svgGlobeAlt: withClass('globeAlt', 'h-12 w-12 rotate-[15deg]'),
       logoText,
     };
 

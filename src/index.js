@@ -14,6 +14,7 @@ import { ChannelLocalStorage } from 'channels/channel-local-storage.js';
 import { ChannelAcmeAuth } from 'channels/channel-acme-auth.js';
 import { ChannelAcmeData } from 'channels/channel-acme-data.js';
 import { ChannelAcmeInvoices } from 'channels/channel-acme-invoices.js';
+import { ChannelAcmeCustomers } from 'channels/channel-acme-customers.js';
 //plugins
 
 // views
@@ -30,6 +31,7 @@ import { AppContainer } from './app/app-container.js';
 
 import pageItemTemplateLookup from 'traits/utils/page-item-template-lookup.js';
 import { INVOICE_PARAMS_EVENT } from 'traits/utils/acme-invoice-utils.js';
+import { CUSTOMER_PARAMS_EVENT } from 'traits/utils/acme-customer-utils.js';
 
 const config = {
   channels: {
@@ -88,12 +90,14 @@ const config = {
           buffer: 400,
         },
         // history.replaceState and pushState fire NOTHING — verified: zero
-        // popstate events for either. So InvoicesTableParamsNullView announces
-        // its own write, and ChannelAcmeInvoices hears it here. Without this the
-        // loop is open and only back/forward would ever reach the channel.
+        // popstate events for either. The persistent AcmeQueryParamsNullView
+        // announces its own write, and the appropriate domain channel hears it
+        // here. Without this the loop is open and only back/forward would ever
+        // reach a channel.
         //
         // Read as CHANNEL_WINDOW_ACME_INVOICES_PARAMS_CHANGED_EVENT.
         { name: INVOICE_PARAMS_EVENT },
+        { name: CUSTOMER_PARAMS_EVENT },
       ],
       listenForScroll: true,
       listenForOrientation: true,
@@ -130,9 +134,10 @@ AcmeDbConnectionsTraits.acmeDbConnections$RegisterChannels();
 SpyneApp.registerChannel(new ChannelAcmeAuth());
 SpyneApp.registerChannel(new ChannelAcmeData());
 
-// Search and pagination for the invoices table. Registered after the data
-// channel it resolves against.
+// Client-side domain projections. Registered after the data channel they
+// resolve against.
 SpyneApp.registerChannel(new ChannelAcmeInvoices());
+SpyneApp.registerChannel(new ChannelAcmeCustomers());
 
 // A ChannelFetch request can only be sent from a ViewStream, so this null-
 // appended view listens to both channels and performs them. It renders nothing

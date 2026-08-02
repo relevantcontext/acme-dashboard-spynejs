@@ -43,6 +43,27 @@ export class CustomersTableTraits extends SpyneTrait {
       }),
       `[data-slot='search']`,
     );
+
+    props.customerEls$ = props.el$('[data-customer-id]').els;
+    this.customersTable$ApplyVisibility();
+  }
+
+  static customersTable$OnList(e, props = this.props) {
+    props.customerListPayload = e?.payload || null;
+    this.customersTable$ApplyVisibility();
+  }
+
+  static customersTable$ApplyVisibility(props = this.props) {
+    if (!props.customerEls$ || !props.customerListPayload) return;
+
+    const matchedIds = new Set(props.customerListPayload.matchedIds || []);
+
+    props.customerEls$.forEach((el) => {
+      el.classList.toggle(
+        'hidden',
+        matchedIds.has(el.dataset.customerId) === false,
+      );
+    });
   }
 
   /**
@@ -59,6 +80,7 @@ export class CustomersTableTraits extends SpyneTrait {
    */
   static customersTable$GetRows(customers = []) {
     return customers.map((customer) => ({
+      attrCustomerId: customer.id,
       name: customer.name,
       email: customer.email,
       totalInvoices: customer.total_invoices,

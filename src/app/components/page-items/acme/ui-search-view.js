@@ -9,17 +9,17 @@ import UISearchTmpl from './templates/ui-search-view.tmpl.html';
  * pushes the term into the URL with useRouter/useSearchParams, so the server
  * component re-renders with new data.
  *
- * Here the keystroke is broadcast to CHANNEL_UI by broadcastEvents — never by a
- * manual addEventListener. The attributes are on the input rather than on this
- * root element because CHANNEL_UI reports the element the event originated from.
+ * Here the keystroke is broadcast to CHANNEL_UI by broadcastEvents — never by
+ * a manual addEventListener. The attributes are on the input rather than on
+ * this root element because CHANNEL_UI reports the originating element.
  *
  * ── Why this does NOT talk to the API ───────────────────────────────────────
  *
  * eventType is `acmeSearch`, not `acmeData`, so ChannelAcmeData never sees it.
- * Every invoice and customer is already in SpyneAppProperties from the
+ * Every invoice and customer is already held by its domain channel from the
  * /api/bootstrap dump, so searching filters what is in hand — no request, no
- * round trip, and nothing to debounce. The table listens for this event and
- * filters itself.
+ * round trip, and nothing to debounce. The corresponding domain channel
+ * publishes the resolved match set.
  *
  * That is the sharpest divergence from the Next.js side, where each keystroke
  * pushes a new search param and re-runs a server component against SQL.
@@ -36,7 +36,7 @@ export class UISearchView extends ViewStream {
       inputId = 'search',
       labelText = 'Search',
       placeholder = '',
-      query = '',
+      query = new URLSearchParams(window.location.search).get('query') || '',
       btnType = 'filter-invoices',
     } = props.data || {};
 

@@ -5,6 +5,7 @@ import { StageContainer } from 'components/stage-container.js';
 import { UIContainer } from 'components/ui-container.js';
 import { UIFooterView } from 'components/ui-elements/ui-footer-view.js';
 import { LocalStorageNullView } from 'components/ui-elements/null-views/local-storage-null-view.js';
+import { AcmeQueryParamsNullView } from 'components/ui-elements/null-views/acme-query-params-null-view.js';
 
 export class AppContainerTraits extends SpyneTrait {
   constructor(context) {
@@ -71,11 +72,12 @@ export class AppContainerTraits extends SpyneTrait {
    * its own visibility and contents without the other knowing.
    */
   static app$OnAppViewRendered() {
-   // this.appendView(new UIHeaderView());
-   // this.appendView(new UIMenuDrawerView());
+    // this.appendView(new UIHeaderView());
+    // this.appendView(new UIMenuDrawerView());
     this.appendView(new UIContainer());
     this.appendView(new StageContainer());
-   // this.appendView(new UIFooterView());
+    // this.appendView(new UIFooterView());
     new LocalStorageNullView().appendToNull();
+    new AcmeQueryParamsNullView().appendToNull();
   }
 }

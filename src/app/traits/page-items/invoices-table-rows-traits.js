@@ -2,8 +2,10 @@ import { SpyneTrait } from 'spyne';
 import { withClass } from 'traits/utils/svg-icons.js';
 import { buildInvoiceRows } from 'traits/utils/acme-invoice-utils.js';
 import { InvoicesTableRowView } from 'components/page-items/acme/invoices-table-row-view.js';
+import { InvoicesCardView } from 'components/page-items/acme/invoices-card-view.js';
 
 const ROWS_SELECTOR = '[data-slot="invoice-rows"]';
+const CARDS_SELECTOR = '[data-slot="invoice-cards"]';
 
 /**
  * The four icons every row needs, built ONCE at module load.
@@ -62,9 +64,11 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
 
     buildInvoiceRows(invoices, ROW_ICONS).forEach((data) => {
       this.appendView(new InvoicesTableRowView({ data }), ROWS_SELECTOR);
+      this.appendView(new InvoicesCardView({ data }), CARDS_SELECTOR);
     });
 
     props.invoiceEls$ = props.el$(`${ROWS_SELECTOR} tr`).els;
+    props.invoiceCardEls$ = props.el$(`${CARDS_SELECTOR} .invoice-card`).els;
 
     // The list may already have arrived — see the note on ordering below.
     this.invoicesTableRows$ApplyVisibility();
@@ -119,6 +123,18 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
       el.classList.toggle('is-hidden', onThisPage.has(invoiceId) === false);
       el.classList.toggle('is-first', invoiceId === firstId);
       el.classList.toggle('is-last', invoiceId === lastId);
+    });
+
+    const cardEls = (props.invoiceCardEls$ || []).filter(
+      (el) => el.isConnected === true,
+    );
+    props.invoiceCardEls$ = cardEls;
+
+    cardEls.forEach((el) => {
+      el.classList.toggle(
+        'hidden',
+        onThisPage.has(el.dataset.invoiceId) === false,
+      );
     });
   }
 }

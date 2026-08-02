@@ -28,7 +28,8 @@ import { AcmeNavLinkTraits } from 'traits/acme-nav-link-traits.js';
  */
 export class UINavLinkView extends ViewStream {
   constructor(props = {}) {
-    props.class = 'contents';
+    props.class =
+      'flex grow flex-row justify-between space-x-2 md:flex-none md:flex-col md:space-x-0 md:space-y-2';
     props.template = UINavLinkTmpl;
     props.channels = ['CHANNEL_ROUTE'];
     props.traits = [AcmeNavLinkTraits];

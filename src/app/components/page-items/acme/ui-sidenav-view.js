@@ -12,9 +12,9 @@ import { AcmeNavTraits } from 'traits/acme-nav-traits.js';
  * instances. Composition happens at the ViewStream level, so the template
  * describes the shape and the mounting comes later.
  *
- * The source wraps the sign-out button in a <form> whose action is the
- * `signOut` server action. There is no server action here, so the form is
- * dropped and the button stands on its own; the click is wired later.
+ * The source wraps the sign-out button in a <form>. That wrapper is preserved
+ * because it participates in the responsive flex layout; only the server
+ * action is replaced by the ViewStream's declared click broadcast.
  */
 export class UISideNavView extends ViewStream {
   constructor(props = {}) {
