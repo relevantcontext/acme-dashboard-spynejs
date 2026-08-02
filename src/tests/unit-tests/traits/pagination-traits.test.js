@@ -5,6 +5,20 @@ const ids = (count) =>
   Array.from({ length: count }, (_, index) => `invoice-${index + 1}`);
 
 describe('PaginationTraits', () => {
+  it('returns a complete initial state from an independently normalized config', () => {
+    const config = PaginationTraits.pagination$NormalizeConfig({
+      itemsPerPage: 12,
+      siblingCount: 2,
+      boundaryCount: 2,
+    });
+    const state = PaginationTraits.pagination$CreateInitialState(config);
+
+    expect(config.itemsPerPage).to.equal(12);
+    expect(state.config).to.deep.equal(config);
+    expect(state.visibleIds).to.deep.equal([]);
+    expect(state.hidePagination).to.equal(true);
+  });
+
   it('calculates a visible ID slice from a zero-based page index', () => {
     const state = PaginationTraits.pagination$CreateState({
       items: ids(14),

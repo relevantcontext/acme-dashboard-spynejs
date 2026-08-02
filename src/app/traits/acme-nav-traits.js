@@ -1,26 +1,32 @@
 import { SpyneTrait } from 'spyne';
-import { UINavLinkView} from 'components/page-items/acme/ui-nav-link-view.js';
+import { UINavLinkView } from 'components/page-items/acme/ui-nav-link-view.js';
+import { withClass } from 'traits/utils/svg-icons.js';
+
+const NAV_PRESENTATION = {
+  home: { navTitle: 'Home', icon: 'home' },
+  invoices: { navTitle: 'Invoices', icon: 'documentDuplicate' },
+  customers: { navTitle: 'Customers', icon: 'userGroup' },
+};
 
 export class AcmeNavTraits extends SpyneTrait {
   constructor(context) {
-    let traitPrefix = 'acmeNav$';
-    super(context, traitPrefix);
+    super(context, 'acmeNav$');
   }
 
-
-
   static acmeNav$OnInitNav(e) {
-    const {navLinks} = e.payload;
+    const { navLinks = [] } = e.payload;
+    const data = Array.from(navLinks)
+      .filter(({ pageId, navLevel }) => pageId === 'dashboard' && navLevel <= 2)
+      .map((link) => {
+        const presentation = NAV_PRESENTATION[link.topicId || 'home'];
 
-    const data = Array.from(navLinks).filter(o => o.pageId==='dashboard')
+        return {
+          ...link,
+          navTitle: presentation.navTitle,
+          svgIcon: withClass(presentation.icon, 'w-6'),
+        };
+      });
 
-
-
-    console.log("NAV LINKS ",{e, data, navLinks})
-
-    this.appendView(new UINavLinkView({
-      data
-    }), `[data-slot='nav-links']`);
-
+    this.appendView(new UINavLinkView({ data }), `[data-slot='nav-links']`);
   }
 }

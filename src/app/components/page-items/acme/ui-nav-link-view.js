@@ -1,5 +1,6 @@
 import { ViewStream } from 'spyne';
 import UINavLinkTmpl from './templates/ui-nav-link-view.tmpl.html';
+import { AcmeNavLinkTraits } from 'traits/acme-nav-link-traits.js';
 
 /**
  * Converted from app/ui/dashboard/nav-links.tsx.
@@ -29,23 +30,22 @@ export class UINavLinkView extends ViewStream {
   constructor(props = {}) {
     props.class = 'contents';
     props.template = UINavLinkTmpl;
-
-    const filterNavLevel2 = o=>o.navLevel <= 2;
-
-    console.log("nav level is ",props.data);
-    props.data = props.data.filter(filterNavLevel2) || [];
+    props.channels = ['CHANNEL_ROUTE'];
+    props.traits = [AcmeNavLinkTraits];
+    props.data = props.data || [];
 
     super(props);
   }
 
   addActionListeners() {
-    return [];
+    return [
+      ['CHANNEL_ROUTE_DEEPLINK_EVENT', 'acmeNavLink$OnRoute'],
+      ['CHANNEL_ROUTE_CHANGE_EVENT', 'acmeNavLink$OnRoute'],
+    ];
   }
 
   broadcastEvents() {
-    return [
-      ['a', 'click']
-    ];
+    return [['a', 'click']];
   }
 
   onRendered() {}

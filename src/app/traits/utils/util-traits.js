@@ -34,8 +34,6 @@ export class UtilTraits extends SpyneTrait {
       .toLocaleLowerCase()
       .replace(/\b\p{L}/gu, (character) => character.toLocaleUpperCase());
 
-    console.log('new text is ', newText);
-
     return newText;
   }
 

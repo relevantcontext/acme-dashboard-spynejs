@@ -32,6 +32,7 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     this.acmeInvoices$ListenToData();
     this.acmeInvoices$ListenToUiEvents();
     this.acmeInvoices$ListenToParams();
+    this.acmeInvoices$ListenToRoute();
   }
 
   static acmeInvoices$ListenToData() {
@@ -83,6 +84,16 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     );
   }
 
+  static acmeInvoices$ListenToRoute() {
+    const routeFilter = new ChannelPayloadFilter({
+      action: 'CHANNEL_ROUTE_CHANGE_EVENT',
+    });
+
+    this.getChannel('CHANNEL_ROUTE', routeFilter).subscribe(
+      this.acmeInvoices$OnRoute.bind(this),
+    );
+  }
+
   static acmeInvoices$OnData(e) {
     this.props.invoices = e?.payload?.data?.invoices || [];
     this.props.customerOptions = e?.payload?.data?.customerOptions || [];
@@ -94,7 +105,6 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     const customers = this.props.customerOptions || [];
 
     if (btnType === 'cancel') {
-      this.acmeInvoices$PublishList();
       this.sendPayloadToRouteChannel({
         pageId: 'dashboard',
         topicId: 'invoices',
@@ -141,6 +151,16 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
 
   static acmeInvoices$OnParamsChanged() {
     this.acmeInvoices$PublishList();
+  }
+
+  static acmeInvoices$OnRoute(e) {
+    const { pageId, topicId, optionId } = e?.payload?.routeData || {};
+    const isInvoicesList =
+      pageId === 'dashboard' &&
+      topicId === 'invoices' &&
+      (optionId === '' || optionId === undefined);
+
+    if (isInvoicesList) this.acmeInvoices$PublishList();
   }
 
   static acmeInvoices$OnSearchEvent(e) {

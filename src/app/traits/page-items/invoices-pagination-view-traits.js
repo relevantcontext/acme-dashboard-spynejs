@@ -29,6 +29,7 @@ export class InvoicesPaginationViewTraits extends SpyneTrait {
    */
   static invoicesPagination$OnPagination(e) {
     const pageNumber = e?.payload?.pageNumber;
+
     const state = this.pagination$SetCurrentPageNumber(pageNumber);
 
     this.invoicesPagination$RenderAndPublish(state);

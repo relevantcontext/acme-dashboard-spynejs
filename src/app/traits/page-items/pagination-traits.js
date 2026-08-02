@@ -193,15 +193,10 @@ export class PaginationTraits extends SpyneTrait {
     };
   }
 
-  static pagination$Initialize(config = {}, props = this.props) {
-    props.paginationConfig =
-      PaginationTraits.pagination$NormalizeConfig(config);
-    props.paginationItems = [];
-    props.paginationState = PaginationTraits.pagination$CreateState({
-      config: props.paginationConfig,
+  static pagination$CreateInitialState(config = {}) {
+    return PaginationTraits.pagination$CreateState({
+      config,
     });
-
-    return props.paginationState;
   }
 
   static pagination$SetItems(items = [], props = this.props) {

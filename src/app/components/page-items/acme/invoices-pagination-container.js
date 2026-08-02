@@ -19,15 +19,18 @@ export class InvoicesPaginationContainer extends ViewStream {
     props.template = InvoicesPaginationContainerTmpl;
     props.channels = ['CHANNEL_ACME_INVOICES'];
     props.traits = [PaginationTraits, InvoicesPaginationViewTraits];
-
-    super(props);
-
-    this.pagination$Initialize({
+    props.paginationConfig = PaginationTraits.pagination$NormalizeConfig({
       itemsPerPage: props.data?.itemsPerPage ?? ITEMS_PER_PAGE,
       maxPageNumbers: props.data?.maxPageNumbers ?? 7,
       siblingCount: props.data?.siblingCount ?? 1,
       boundaryCount: props.data?.boundaryCount ?? 1,
     });
+    props.paginationItems = [];
+    props.paginationState = PaginationTraits.pagination$CreateInitialState(
+      props.paginationConfig,
+    );
+
+    super(props);
   }
 
   addActionListeners() {

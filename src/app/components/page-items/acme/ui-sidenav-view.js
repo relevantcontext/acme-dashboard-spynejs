@@ -24,7 +24,7 @@ export class UISideNavView extends ViewStream {
     props.class = 'flex h-full flex-col px-3 py-4 md:px-2';
     props.template = UISideNavTmpl;
     props.channels = ['CHANNEL_ROUTE'];
-    props.traits = [AcmeNavTraits]
+    props.traits = [AcmeNavTraits];
     props.data = {
       ...props.data,
       signOutText,
@@ -39,13 +39,10 @@ export class UISideNavView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [
-      ['button#sign-out', 'click']
-    ];
+    return [['button#sign-out', 'click']];
   }
 
   onRendered() {
     this.appendView(new UIAcmeLogoView(), `[data-slot='acme-logo']`);
-
   }
 }
