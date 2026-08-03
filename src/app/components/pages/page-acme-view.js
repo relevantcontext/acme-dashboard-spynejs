@@ -4,8 +4,8 @@ import {
   SpyneAppProperties,
   ChannelPayloadFilter,
 } from 'spyne';
-import { PageItemCoreTraits } from 'traits/page/page-item-core-traits.js';
-import { getPageTemplate } from 'traits/utils/page-template-lookup.js';
+import { PageItemCoreTraits } from 'traits/page-item-core-traits.js';
+import { getPageTemplate } from 'utils/page-template-lookup.js';
 
 /**
  * A page of the real app — anything that is not a guest page or a 404.

@@ -11,7 +11,7 @@
 // them. A page view falls back to page.tmpl.html when `template` is absent or
 // unknown.
 //
-// Mirrors traits/utils/page-item-template-lookup.js, which does the same for
+// Mirrors utils/page-item-template-lookup.js, which does the same for
 // page-item templates.
 
 import PageTmpl from 'components/pages/templates/page.tmpl.html';

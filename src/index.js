@@ -20,7 +20,7 @@ import { ChannelAcmeCustomers } from 'channels/channel-acme-customers.js';
 import { AcmeRequester } from 'components/acme-requester.js';
 
 // traits
-import { AcmeDbConnectionsTraits } from 'traits/channel/acme-db-connections-traits.js';
+import { AcmeDbConnectionsTraits } from 'traits/acme-db-connections-traits.js';
 
 //data fetch
 import AppModelURL from 'data/app.model.json';
@@ -28,9 +28,9 @@ import AppModelURL from 'data/app.model.json';
 // initial view
 import { AppContainer } from './app/app-container.js';
 
-import pageItemTemplateLookup from 'traits/utils/page-item-template-lookup.js';
-import { INVOICE_PARAMS_EVENT } from 'traits/utils/acme-invoice-utils.js';
-import { CUSTOMER_PARAMS_EVENT } from 'traits/utils/acme-customer-utils.js';
+import pageItemTemplateLookup from 'utils/page-item-template-lookup.js';
+import { INVOICE_PARAMS_EVENT } from 'utils/acme-invoice-utils.js';
+import { CUSTOMER_PARAMS_EVENT } from 'utils/acme-customer-utils.js';
 
 const config = {
   channels: {
@@ -120,7 +120,7 @@ SpyneApp.registerChannel(new ChannelLocalStorage());
 // Acme SQL connection. The ChannelFetch instances are registered from a trait
 // rather than inline, so every channel the app owns is still discoverable here
 // without this file carrying six instantiations. See
-// traits/channel/acme-db-connections-traits.js.
+// traits/acme-db-connections-traits.js.
 AcmeDbConnectionsTraits.acmeDbConnections$RegisterChannels();
 
 // The two semantic channels between those fetch channels and the app. Auth is

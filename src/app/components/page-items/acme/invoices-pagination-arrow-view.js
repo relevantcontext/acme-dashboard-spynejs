@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { withClass } from 'traits/utils/svg-icons.js';
+import { withClass } from 'utils/svg-icons.js';
 import InvoicesPaginationArrowTmpl from './templates/invoices-pagination-arrow-view.tmpl.html';
 
 const BASE = 'flex h-10 w-10 items-center justify-center rounded-md border';

@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { InvoicesTableRowTraits } from 'traits/page-items/invoices-table-row-traits.js';
+import { InvoicesTableRowTraits } from 'traits/invoices-table-row-traits.js';
 import InvoicesCardTmpl from './templates/invoices-card-view.tmpl.html';
 
 /**

@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { UIContainerTraits } from 'traits/app/ui-container-traits.js';
+import { UIContainerTraits } from 'traits/ui-container-traits.js';
 
 /**
  * The dashboard's left column, from the Next.js app's dashboard/layout.tsx:

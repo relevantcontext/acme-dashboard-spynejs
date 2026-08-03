@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { withClass } from 'traits/utils/svg-icons.js';
+import { withClass } from 'utils/svg-icons.js';
 import DashboardStatCardTmpl from './templates/dashboard-stat-card-view.tmpl.html';
 
 // Card type -> icon, from the iconMap in app/ui/dashboard/cards.tsx.

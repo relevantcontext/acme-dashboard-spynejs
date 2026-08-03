@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { CustomersTableTraits } from 'traits/page-items/customers-table-traits.js';
+import { CustomersTableTraits } from 'traits/customers-table-traits.js';
 import CustomersTableTmpl from './templates/customers-table-view.tmpl.html';
 
 /**

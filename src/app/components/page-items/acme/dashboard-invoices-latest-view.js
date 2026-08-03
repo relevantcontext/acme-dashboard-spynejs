@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
-import { withClass } from 'traits/utils/svg-icons.js';
-import { DashboardInvoicesLatestTraits } from 'traits/page-items/dashboard-invoices-latest-traits.js';
+import { withClass } from 'utils/svg-icons.js';
+import { DashboardInvoicesLatestTraits } from 'traits/dashboard-invoices-latest-traits.js';
 import DashboardInvoicesLatestTmpl from './templates/dashboard-invoices-latest-view.tmpl.html';
 
 /**

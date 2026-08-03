@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
-import { withClass } from 'traits/utils/svg-icons.js';
-import { FormLoginTraits } from 'traits/form/form-login-traits.js';
+import { withClass } from 'utils/svg-icons.js';
+import { FormLoginTraits } from 'traits/form-login-traits.js';
 import LoginFormTmpl from './templates/login-form-view.tmpl.html';
 
 const ICON_CLASS =

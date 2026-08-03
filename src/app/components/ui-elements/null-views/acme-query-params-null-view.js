@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { AcmeQueryParamsTraits } from 'traits/app/acme-query-params-traits.js';
+import { AcmeQueryParamsTraits } from 'traits/acme-query-params-traits.js';
 
 export class AcmeQueryParamsNullView extends ViewStream {
   constructor(props = {}) {

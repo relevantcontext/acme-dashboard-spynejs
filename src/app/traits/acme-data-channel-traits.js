@@ -1,6 +1,6 @@
 import { SpyneTrait, ChannelPayloadFilter } from 'spyne';
-import { AcmeAuthStateTraits } from 'traits/app/acme-auth-state-traits.js';
-import { AcmeEndpointsTraits } from 'traits/channel/acme-endpoints-traits.js';
+import { AcmeAuthStateTraits } from 'traits/acme-auth-state-traits.js';
+import { AcmeEndpointsTraits } from 'traits/acme-endpoints-traits.js';
 
 /**
  * The shape every payload carries, whether or not anything has loaded. A view

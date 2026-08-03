@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
-import { withClass } from 'traits/utils/svg-icons.js';
-import { DashboardRevenueTraits } from 'traits/page-items/dashboard-revenue-traits.js';
+import { withClass } from 'utils/svg-icons.js';
+import { DashboardRevenueTraits } from 'traits/dashboard-revenue-traits.js';
 import DashboardRevenueChartTmpl from './templates/dashboard-revenue-chart-view.tmpl.html';
 
 /**

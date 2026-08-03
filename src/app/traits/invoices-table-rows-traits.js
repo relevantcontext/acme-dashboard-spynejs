@@ -1,6 +1,6 @@
 import { SpyneTrait } from 'spyne';
-import { withClass } from 'traits/utils/svg-icons.js';
-import { buildInvoiceRows } from 'traits/utils/acme-invoice-utils.js';
+import { withClass } from 'utils/svg-icons.js';
+import { buildInvoiceRows } from 'utils/acme-invoice-utils.js';
 import { InvoicesTableRowView } from 'components/page-items/acme/invoices-table-row-view.js';
 import { InvoicesCardView } from 'components/page-items/acme/invoices-card-view.js';
 

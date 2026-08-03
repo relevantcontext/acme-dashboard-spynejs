@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
-import { withClass } from 'traits/utils/svg-icons.js';
-import { getInvoiceStatusClass } from 'traits/utils/acme-invoice-utils.js';
+import { withClass } from 'utils/svg-icons.js';
+import { getInvoiceStatusClass } from 'utils/acme-invoice-utils.js';
 import InvoicesStatusTmpl from './templates/invoices-status-view.tmpl.html';
 
 /**

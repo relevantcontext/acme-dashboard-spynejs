@@ -1,5 +1,5 @@
 import { SpyneTrait, ChannelPayloadFilter } from 'spyne';
-import { AcmeAuthStateTraits } from 'traits/app/acme-auth-state-traits.js';
+import { AcmeAuthStateTraits } from 'traits/acme-auth-state-traits.js';
 
 /**
  * Logic for ChannelAcmeAuth — everything the app knows about who the user is.

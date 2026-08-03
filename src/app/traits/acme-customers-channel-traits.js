@@ -3,7 +3,7 @@ import {
   CUSTOMER_PARAMS_EVENT,
   filterCustomers,
   readCustomerParams,
-} from 'traits/utils/acme-customer-utils.js';
+} from 'utils/acme-customer-utils.js';
 
 const PARAMS_CHANGED_ACTION = `CHANNEL_WINDOW_${CUSTOMER_PARAMS_EVENT.toUpperCase()}_EVENT`;
 const POPSTATE_ACTION = 'CHANNEL_WINDOW_POPSTATE_EVENT';

@@ -1,6 +1,6 @@
 import { SpyneTrait } from 'spyne';
 import { UINavLinkView } from 'components/page-items/acme/ui-nav-link-view.js';
-import { withClass } from 'traits/utils/svg-icons.js';
+import { withClass } from 'utils/svg-icons.js';
 
 const NAV_PRESENTATION = {
   home: { navTitle: 'Home', icon: 'home' },

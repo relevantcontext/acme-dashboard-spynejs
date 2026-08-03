@@ -1,8 +1,8 @@
 import { ViewStream } from 'spyne';
 import InvoicesPaginationContainerTmpl from './templates/invoices-pagination-container.tmpl.html';
-import { PaginationTraits } from 'traits/page-items/pagination-traits.js';
-import { InvoicesPaginationViewTraits } from 'traits/page-items/invoices-pagination-view-traits.js';
-import { ITEMS_PER_PAGE } from 'traits/utils/acme-invoice-utils.js';
+import { PaginationTraits } from 'traits/pagination-traits.js';
+import { InvoicesPaginationViewTraits } from 'traits/invoices-pagination-view-traits.js';
+import { ITEMS_PER_PAGE } from 'utils/acme-invoice-utils.js';
 
 /**
  * Persistent pagination controller for the invoices page.

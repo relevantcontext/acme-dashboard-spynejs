@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { withClass } from 'traits/utils/svg-icons.js';
+import { withClass } from 'utils/svg-icons.js';
 import InvoicesCreateButtonTmpl from './templates/invoices-create-button-view.tmpl.html';
 
 /**

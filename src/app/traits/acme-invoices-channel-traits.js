@@ -3,7 +3,7 @@ import {
   filterInvoices,
   readInvoiceParams,
   INVOICE_PARAMS_EVENT,
-} from 'traits/utils/acme-invoice-utils.js';
+} from 'utils/acme-invoice-utils.js';
 
 const PARAMS_CHANGED_ACTION = `CHANNEL_WINDOW_${INVOICE_PARAMS_EVENT.toUpperCase()}_EVENT`;
 const POPSTATE_ACTION = 'CHANNEL_WINDOW_POPSTATE_EVENT';

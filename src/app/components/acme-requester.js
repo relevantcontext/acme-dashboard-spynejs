@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { AcmeRequesterTraits } from 'traits/app/acme-requester-traits.js';
+import { AcmeRequesterTraits } from 'traits/acme-requester-traits.js';
 
 /**
  * The ViewStream half of the Acme request path.

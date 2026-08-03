@@ -1,6 +1,6 @@
 import { SpyneTrait } from 'spyne';
 import { pick } from 'ramda';
-import { UtilTraits } from 'traits/utils/util-traits.js';
+import { UtilTraits } from 'traits/util-traits.js';
 
 export class NavBreadcrumbItemTraits extends SpyneTrait {
   constructor(context) {

@@ -1,5 +1,5 @@
 import { Channel } from 'spyne';
-import { AcmeCustomersChannelTraits } from 'traits/channel/acme-customers-channel-traits.js';
+import { AcmeCustomersChannelTraits } from 'traits/acme-customers-channel-traits.js';
 
 export class ChannelAcmeCustomers extends Channel {
   constructor(name, props = {}) {

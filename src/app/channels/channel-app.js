@@ -1,7 +1,7 @@
 import { Channel } from 'spyne';
-import { AppStatusTraits } from 'traits/app/app-status-traits.js';
-import { AppSettingsTraits } from 'traits/app/app-settings-traits.js';
-import { AppRedirectTraits } from 'traits/app/app-redirect-traits.js';
+import { AppStatusTraits } from 'traits/app-status-traits.js';
+import { AppSettingsTraits } from 'traits/app-settings-traits.js';
+import { AppRedirectTraits } from 'traits/app-redirect-traits.js';
 
 export class ChannelApp extends Channel {
   constructor(name, props = {}) {

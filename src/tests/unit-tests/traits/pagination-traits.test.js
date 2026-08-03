@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { PaginationTraits } from '/src/app/traits/page-items/pagination-traits.js';
+import { PaginationTraits } from '/src/app/traits/pagination-traits.js';
 
 const ids = (count) =>
   Array.from({ length: count }, (_, index) => `invoice-${index + 1}`);

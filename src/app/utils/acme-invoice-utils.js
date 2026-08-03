@@ -1,4 +1,4 @@
-import { buildAcmeSearch } from 'traits/utils/acme-query-utils.js';
+import { buildAcmeSearch } from 'utils/acme-query-utils.js';
 
 /**
  * The client-side equivalent of fetchFilteredInvoices / fetchInvoicesPages.

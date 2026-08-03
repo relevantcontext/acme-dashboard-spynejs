@@ -1,6 +1,6 @@
 import { ViewStream, safeClone, SpyneAppProperties } from 'spyne';
-import { PageItemCoreTraits } from 'traits/page/page-item-core-traits.js';
-import { getPageTemplate } from 'traits/utils/page-template-lookup.js';
+import { PageItemCoreTraits } from 'traits/page-item-core-traits.js';
+import { getPageTemplate } from 'utils/page-template-lookup.js';
 
 export class PageGuestView extends ViewStream {
   constructor(props = {}) {

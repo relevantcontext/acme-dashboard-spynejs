@@ -244,6 +244,7 @@ export default (env = { mode: 'development' }) => {
         css: path.resolve(__dirname, 'src/css/'),
         core: path.resolve(__dirname, 'src/_core/'),
         traits: path.resolve(__dirname, 'src/app/traits/'),
+        utils: path.resolve(__dirname, 'src/app/utils/'),
         channels: path.resolve(__dirname, 'src/app/channels/'),
         components: path.resolve(__dirname, 'src/app/components/'),
         // Load-bearing: resolves `@use '~node_modules/<pkg>/...'` imports in SCSS
