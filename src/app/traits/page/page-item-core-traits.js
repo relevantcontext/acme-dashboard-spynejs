@@ -1,7 +1,4 @@
 import { SpyneTrait, ViewStream, SpyneAppProperties } from 'spyne';
-import { HeroView } from 'components/page-items/hero-view.js';
-import { CardsContainerView } from 'components/page-items/cards-container-view.js';
-import { FormContactUsView } from 'components/page-items/form-contact-us-view.js';
 
 // Acme page-item ViewStreams. A pageItem in app.model.json names its class as a
 // `viewClass` string; pageItemCore$GetViewClass resolves it through the lookup
@@ -19,7 +16,6 @@ import { DashboardStatsContainer } from 'components/page-items/acme/dashboard-st
 import { HomeHeroView } from 'components/page-items/acme/home-hero-view.js';
 import { HomeIntroView } from 'components/page-items/acme/home-intro-view.js';
 import { CustomersCardView } from 'components/page-items/acme/customers-card-view.js';
-import { CustomersTableRowView } from 'components/page-items/acme/customers-table-row-view.js';
 import { CustomersTableView } from 'components/page-items/acme/customers-table-view.js';
 import { InvoicesCardView } from 'components/page-items/acme/invoices-card-view.js';
 import { InvoicesCreateButtonView } from 'components/page-items/acme/invoices-create-button-view.js';
@@ -37,7 +33,6 @@ import { InvoicesTableRowView } from 'components/page-items/acme/invoices-table-
 import { InvoicesTableView } from 'components/page-items/acme/invoices-table-view.js';
 import { InvoicesUpdateButtonView } from 'components/page-items/acme/invoices-update-button-view.js';
 import { UIAcmeLogoView } from 'components/page-items/acme/ui-acme-logo-view.js';
-import { UIButtonView } from 'components/page-items/acme/ui-button-view.js';
 import { LoginFormView } from 'components/page-items/acme/login-form-view.js';
 import { UINavLinkView } from 'components/page-items/acme/ui-nav-link-view.js';
 import { UISearchView } from 'components/page-items/acme/ui-search-view.js';
@@ -286,22 +281,7 @@ export class PageItemCoreTraits extends SpyneTrait {
   }
 
   static pageItemCore$onRendered(props = this.props) {
-    const { hero, pageItems, content, pageType } = props.data;
-
-    if (hero) {
-      this.appendView(
-        new HeroView({ data: hero, pageType }),
-        this.pageItemCore$GetRegion('heading'),
-      );
-    }
-
-    if (content) {
-      // no cards for this experience
-      /* this.appendView(
-        new CardsContainerView({ data: content, pageType }),
-        this.pageItemCore$GetRegion('body'),
-      );*/
-    }
+    const { pageItems } = props.data;
 
     if (pageItems) {
       this.pageItemCore$AddPageItems();
@@ -327,9 +307,7 @@ export class PageItemCoreTraits extends SpyneTrait {
 
   static pageItemCore$GetViewClass(viewClass = 'ViewStream') {
     const classLookup = {
-      ContactUsView: FormContactUsView,
-
-      // Acme — keyed by the exported class name, so a pageItem's
+      // Keyed by the exported class name, so a pageItem's
       // `viewClass: "InvoicesTableView"` resolves to the class directly.
       DashboardInvoicesLatestRowView,
       DashboardInvoicesLatestView,
@@ -341,7 +319,6 @@ export class PageItemCoreTraits extends SpyneTrait {
       HomeHeroView,
       HomeIntroView,
       CustomersCardView,
-      CustomersTableRowView,
       CustomersTableView,
       InvoicesCardView,
       InvoicesCreateButtonView,
@@ -360,7 +337,6 @@ export class PageItemCoreTraits extends SpyneTrait {
       InvoicesUpdateButtonView,
       LoginFormView,
       UIAcmeLogoView,
-      UIButtonView,
       UINavLinkView,
       UISearchView,
       UISideNavView,

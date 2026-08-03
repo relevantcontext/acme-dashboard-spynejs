@@ -8,7 +8,6 @@ import './scss/app.scss';
 import { SpyneApp, ChannelFetch, SpyneAppProperties } from 'spyne';
 
 // channels
-import { ChannelMenuDrawer } from 'channels/channel-menu-drawer';
 import { ChannelApp } from 'channels/channel-app.js';
 import { ChannelLocalStorage } from 'channels/channel-local-storage.js';
 import { ChannelAcmeAuth } from 'channels/channel-acme-auth.js';
@@ -67,9 +66,6 @@ const config = {
       add404s: true,
     },
     WINDOW: {
-      mediaQueries: {
-        showMenuDrawer: '(min-width: 1024px)',
-      },
       events: [
         'click',
         'mouseover',
@@ -120,7 +116,6 @@ SpyneApp.init(config);
 SpyneAppProperties.setProp('pageItemTemplateLookup', pageItemTemplateLookup);
 SpyneApp.registerChannel(new ChannelApp());
 SpyneApp.registerChannel(new ChannelLocalStorage());
-//SpyneApp.registerChannel(new ChannelMenuDrawer());
 
 // Acme SQL connection. The ChannelFetch instances are registered from a trait
 // rather than inline, so every channel the app owns is still discoverable here

@@ -1,6 +1,9 @@
 // page-item-template-lookup.js (WEBPACK 5 + ESM SAFE)
+//
+// Every page-item template, keyed by filename, for model pageItems that name a
+// template with isPrototype false. Mirrors page-template-lookup.js.
 
-const ctx = import.meta.webpackContext('components/page-items/templates', {
+const ctx = import.meta.webpackContext('components/page-items/acme/templates', {
   recursive: true,
   regExp: /\.html$/,
 });
