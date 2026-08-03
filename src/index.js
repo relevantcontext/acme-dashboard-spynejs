@@ -30,7 +30,7 @@ import { AppContainer } from 'components/shell/app-container.js';
 
 import pageItemTemplateLookup from 'utils/page-item-template-lookup.js';
 import { INVOICE_PARAMS_EVENT } from 'utils/acme-invoice-utils.js';
-import { CUSTOMER_PARAMS_EVENT } from 'utils/acme-customer-utils.js';
+import { CUSTOMER_PARAMS_EVENT } from 'utils/acme-utils.js';
 
 const config = {
   channels: {

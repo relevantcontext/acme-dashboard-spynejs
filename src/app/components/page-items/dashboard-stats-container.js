@@ -1,6 +1,18 @@
 import { ViewStream } from 'spyne';
-import { buildDashboardCards } from 'utils/acme-dashboard-utils.js';
+import { withClass } from 'utils/svg-icons.js';
+import { buildDashboardCards } from 'utils/acme-utils.js';
 import DashboardStatsTmpl from './templates/dashboard-stats-container.tmpl.html';
+
+// Card type -> icon, from the iconMap in app/ui/dashboard/cards.tsx. Built once
+// at module load and handed to the shaper, the same way InvoicesTableRowsTraits
+// hands ROW_ICONS to buildInvoiceRows — which is what keeps acme-utils.js free
+// of imports.
+const CARD_ICONS = {
+  collected: withClass('banknotes', 'h-5 w-5 text-gray-700'),
+  customers: withClass('userGroup', 'h-5 w-5 text-gray-700'),
+  pending: withClass('clock', 'h-5 w-5 text-gray-700'),
+  invoices: withClass('inbox', 'h-5 w-5 text-gray-700'),
+};
 
 /**
  * Owns the dashboard's summary-stat row.
@@ -47,7 +59,11 @@ export class DashboardStatsContainer extends ViewStream {
     props.template = DashboardStatsTmpl;
     props.data = {
       ...props.data,
-      cards: buildDashboardCards(props.data?.cards, props.data?.acmeData),
+      cards: buildDashboardCards(
+        props.data?.cards,
+        props.data?.acmeData,
+        CARD_ICONS,
+      ),
     };
 
     super(props);

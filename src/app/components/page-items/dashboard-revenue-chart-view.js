@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
-import { buildRevenueChart } from 'utils/acme-dashboard-utils.js';
+import { buildRevenueChart } from 'utils/acme-utils.js';
 import DashboardRevenueChartTmpl from './templates/dashboard-revenue-chart-view.tmpl.html';
 
 /**
@@ -29,7 +29,7 @@ import DashboardRevenueChartTmpl from './templates/dashboard-revenue-chart-view.
  *   generateYAxis(revenue)                      -> labels, and the top of scale
  *   (chartHeight / topLabel) * month.revenue    -> each bar's pixel height
  *
- * Both are ported verbatim in acme-chart-utils.js and resolved by
+ * Both are ported verbatim in acme-utils.js and resolved by
  * buildRevenueChart before super(), so a bar arrives with finished pixels and
  * the template stays free of arithmetic.
  *

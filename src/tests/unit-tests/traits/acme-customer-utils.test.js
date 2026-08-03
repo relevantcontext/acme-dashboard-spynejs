@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import {
   filterCustomers,
   readCustomerParams,
-} from '/src/app/utils/acme-customer-utils.js';
-import { buildAcmeSearch } from '/src/app/utils/acme-query-utils.js';
+} from '/src/app/utils/acme-utils.js';
+import { buildAcmeSearch } from '/src/app/utils/acme-utils.js';
 
 const customers = [
   { id: '1', name: 'Alice Walker', email: 'alice@example.com' },

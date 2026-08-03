@@ -1,7 +1,7 @@
 import { SpyneTrait } from 'spyne';
 import { INVOICE_PARAMS_EVENT } from 'utils/acme-invoice-utils.js';
-import { CUSTOMER_PARAMS_EVENT } from 'utils/acme-customer-utils.js';
-import { buildAcmeSearch } from 'utils/acme-query-utils.js';
+import { CUSTOMER_PARAMS_EVENT } from 'utils/acme-utils.js';
+import { buildAcmeSearch } from 'utils/acme-utils.js';
 
 const CHANGE_EVENT_BY_ACTION = {
   CHANNEL_ACME_INVOICES_UPDATE_PARAMS_EVENT: INVOICE_PARAMS_EVENT,
