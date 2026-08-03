@@ -7,8 +7,8 @@ import {
   payloadDesignButtonPrimary,
   payloadCardFlyingTech,
 } from '../mocks/route-mocks.js';
-import { NavBreadcrumbViewTraits } from '/src/app/traits/nav-breadcrumb-view-traits.js';
-import { NavBreadcrumbItemTraits } from '/src/app/traits/nav-breadcrumb-item-traits.js';
+import { NavBreadcrumbViewTraits } from '/src/app/traits/nav/nav-breadcrumb-view-traits.js';
+import { NavBreadcrumbItemTraits } from '/src/app/traits/nav/nav-breadcrumb-item-traits.js';
 import { add } from 'ramda';
 
 const propsPage = {

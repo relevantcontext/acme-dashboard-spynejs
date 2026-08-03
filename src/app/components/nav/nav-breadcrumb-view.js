@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { NavBreadcrumbViewTraits } from 'traits/nav-breadcrumb-view-traits.js';
+import { NavBreadcrumbViewTraits } from 'traits/nav/nav-breadcrumb-view-traits.js';
 import BCTmpl from './templates/nav-breadcrumb-view.tmpl.html';
 
 export class NavBreadcrumbView extends ViewStream {

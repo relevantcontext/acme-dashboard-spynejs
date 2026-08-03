@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import UINavLinkTmpl from './templates/ui-nav-link-view.tmpl.html';
-import { AcmeNavLinkTraits } from 'traits/acme-nav-link-traits.js';
+import { AcmeNavLinkTraits } from 'traits/nav/acme-nav-link-traits.js';
 
 /**
  * Converted from app/ui/dashboard/nav-links.tsx.

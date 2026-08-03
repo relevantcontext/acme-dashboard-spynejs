@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { AcmeRequesterTraits } from 'traits/acme-requester-traits.js';
+import { AcmeRequesterTraits } from 'traits/acme/acme-requester-traits.js';
 
 /**
  * The ViewStream half of the Acme request path.
@@ -27,7 +27,7 @@ import { AcmeRequesterTraits } from 'traits/acme-requester-traits.js';
  * Appended in index.js alongside the channels, so the whole request path is
  * discoverable from one entry point.
  */
-export class AcmeRequester extends ViewStream {
+export class AcmeRequesterNullView extends ViewStream {
   constructor(props = {}) {
     props.channels = ['CHANNEL_ACME_AUTH', 'CHANNEL_ACME_DATA'];
     props.traits = [AcmeRequesterTraits];

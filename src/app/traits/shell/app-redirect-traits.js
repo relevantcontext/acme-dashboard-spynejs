@@ -1,5 +1,5 @@
 import { SpyneTrait, ChannelPayloadFilter } from 'spyne';
-import { AcmeAuthStateTraits } from 'traits/acme-auth-state-traits.js';
+import { AcmeAuthStateTraits } from 'traits/acme/acme-auth-state-traits.js';
 
 /**
  * The app's auth-boundary policy, applied by ChannelApp.

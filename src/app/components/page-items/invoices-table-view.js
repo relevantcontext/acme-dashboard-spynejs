@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import InvoicesTableTmpl from './templates/invoices-table-view.tmpl.html';
-import { InvoicesTableRowsTraits } from 'traits/invoices-table-rows-traits.js';
+import { InvoicesTableRowsTraits } from 'traits/invoices/invoices-table-rows-traits.js';
 
 /**
  * Converted from app/ui/invoices/table.tsx (outer markup).

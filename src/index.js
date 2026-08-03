@@ -17,16 +17,16 @@ import { ChannelAcmeCustomers } from 'channels/channel-acme-customers.js';
 //plugins
 
 // views
-import { AcmeRequester } from 'components/shell/acme-requester.js';
+import { AcmeRequesterNullView } from 'components/shell/null-views/acme-requester-null-view.js';
 
 // traits
-import { AcmeDbConnectionsTraits } from 'traits/acme-db-connections-traits.js';
+import { AcmeDbConnectionsTraits } from 'traits/acme/acme-db-connections-traits.js';
 
 //data fetch
 import AppModelURL from 'data/app.model.json';
 
 // initial view
-import { AppContainer } from './app/components/shell/app-container.js';
+import { AppContainer } from 'components/shell/app-container.js';
 
 import pageItemTemplateLookup from 'utils/page-item-template-lookup.js';
 import { INVOICE_PARAMS_EVENT } from 'utils/acme-invoice-utils.js';
@@ -120,7 +120,7 @@ SpyneApp.registerChannel(new ChannelLocalStorage());
 // Acme SQL connection. The ChannelFetch instances are registered from a trait
 // rather than inline, so every channel the app owns is still discoverable here
 // without this file carrying six instantiations. See
-// traits/acme-db-connections-traits.js.
+// traits/acme/acme-db-connections-traits.js.
 AcmeDbConnectionsTraits.acmeDbConnections$RegisterChannels();
 
 // The two semantic channels between those fetch channels and the app. Auth is
@@ -137,7 +137,7 @@ SpyneApp.registerChannel(new ChannelAcmeCustomers());
 // A ChannelFetch request can only be sent from a ViewStream, so this null-
 // appended view listens to both channels and performs them. It renders nothing
 // and exists solely to hold that boundary.
-new AcmeRequester().appendToNull();
+new AcmeRequesterNullView().appendToNull();
 
 const registerCmsChannels = () => {
   const mapFn = SpyneApp.pluginsFn.mapCmsData || ((d) => d);

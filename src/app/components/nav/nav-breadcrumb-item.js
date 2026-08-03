@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { NavBreadcrumbItemTraits } from 'traits/nav-breadcrumb-item-traits.js';
+import { NavBreadcrumbItemTraits } from 'traits/nav/nav-breadcrumb-item-traits.js';
 import BreadcrumbTmpl from './templates/nav-breadcrumb-item.tmpl.html';
 export class NavBreadcrumbItem extends ViewStream {
   constructor(props = {}) {

@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { StageContainerTraits } from 'traits/stage-container-traits.js';
+import { StageContainerTraits } from 'traits/shell/stage-container-traits.js';
 
 export class StageContainer extends ViewStream {
   constructor(props = {}) {

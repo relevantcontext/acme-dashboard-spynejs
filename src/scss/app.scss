@@ -7,6 +7,33 @@
 @use '03-components/acme/invoices-table';
 @use '03-components/ui/breadcrumbs.scss';
 
+// ---------------------------------------------
+// App shell layout
+// ---------------------------------------------
+//
+// The two rules the shell needs, written here rather than by loading
+// 03-components/pages/pages.scss — that file is inside the disabled block
+// below and brings .page-view, .page-item and section-title with it, none of
+// which this app uses.
+//
+// Both are two-class selectors, (0,2,0), so they beat the Tailwind utilities on
+// the same element, (0,1,0), without an id or !important.
+
+// UIContainer hides itself on any route that is not the dashboard.
+.slot-ui.hide {
+  display: none;
+}
+
+// Shell-less routes (home, login, 404) drop StageContainer's page gutter: those
+// templates bring their own padding, and home's `min-h-screen` main would
+// otherwise stack on top of `p-6 md:p-12` and push the column past 100vh.
+.slot-page.is-full-bleed {
+  padding: 0;
+  nav.breadcrumbs {
+    display: none;
+  }
+}
+
 // 1. SpyneJS Design System
 
 /*

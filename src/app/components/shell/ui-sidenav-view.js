@@ -2,7 +2,7 @@ import { ViewStream } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
 import { UIAcmeLogoView } from 'components/page-items/ui-acme-logo-view.js';
 import UISideNavTmpl from './templates/ui-sidenav-view.tmpl.html';
-import { AcmeNavTraits } from 'traits/acme-nav-traits.js';
+import { AcmeNavTraits } from 'traits/nav/acme-nav-traits.js';
 
 /**
  * Converted from app/ui/dashboard/sidenav.tsx.

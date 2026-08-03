@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { AppLocalStorageTraits } from 'traits/app-local-storage-traits.js';
+import { AppLocalStorageTraits } from 'traits/shell/app-local-storage-traits.js';
 
 export class LocalStorageNullView extends ViewStream {
   constructor(props = {}) {

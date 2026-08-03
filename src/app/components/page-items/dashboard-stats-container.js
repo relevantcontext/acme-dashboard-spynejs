@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { DashboardStatsTraits } from 'traits/dashboard-stats-traits.js';
+import { DashboardStatsTraits } from 'traits/dashboard/dashboard-stats-traits.js';
 
 /**
  * Owns the dashboard's summary-stat row.

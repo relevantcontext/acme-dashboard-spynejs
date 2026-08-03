@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { AppContainerTraits } from 'traits/app-container-traits.js';
+import { AppContainerTraits } from 'traits/shell/app-container-traits.js';
 
 export class AppContainer extends ViewStream {
   constructor(props = {}) {

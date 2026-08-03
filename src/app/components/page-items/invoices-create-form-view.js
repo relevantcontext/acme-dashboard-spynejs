@@ -1,7 +1,7 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
 import InvoicesCreateFormTmpl from './templates/invoices-form-view.tmpl.html';
-import { InvoicesFormTraits } from 'traits/invoices-form-traits.js';
+import { InvoicesFormTraits } from 'traits/invoices/invoices-form-traits.js';
 
 const USER_ICON =
   'pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500';

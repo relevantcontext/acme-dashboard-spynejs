@@ -1,5 +1,5 @@
 import { ViewStream } from 'spyne';
-import { PaginationViewFactoryTraits } from 'traits/pagination-view-factory-traits.js';
+import { PaginationViewFactoryTraits } from 'traits/ui/pagination-view-factory-traits.js';
 import InvoicesPaginationItemsTmpl from './templates/invoices-pagination-items-view.tmpl.html';
 
 /**

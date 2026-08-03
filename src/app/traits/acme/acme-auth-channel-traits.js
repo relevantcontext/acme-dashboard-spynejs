@@ -1,5 +1,5 @@
 import { SpyneTrait, ChannelPayloadFilter } from 'spyne';
-import { AcmeAuthStateTraits } from 'traits/acme-auth-state-traits.js';
+import { AcmeAuthStateTraits } from 'traits/acme/acme-auth-state-traits.js';
 
 /**
  * Logic for ChannelAcmeAuth — everything the app knows about who the user is.
@@ -236,7 +236,7 @@ export class AcmeAuthChannelTraits extends SpyneTrait {
   }
 
   /**
-   * Publishes a request instruction. AcmeRequester — a null-appended ViewStream
+   * Publishes a request instruction. AcmeRequesterNullView — a null-appended ViewStream
    * listening to this channel — performs the actual sendInfoToChannel, because
    * sendInfoToChannel is a ViewStream method and Channel has no equivalent.
    */

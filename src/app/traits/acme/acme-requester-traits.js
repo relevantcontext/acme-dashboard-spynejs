@@ -1,7 +1,7 @@
 import { SpyneTrait } from 'spyne';
 
 /**
- * Logic for AcmeRequester.
+ * Logic for AcmeRequesterNullView.
  *
  * A ChannelFetch request can only be triggered by a ViewStream —
  * `sendInfoToChannel` is a ViewStream method and Channel has no equivalent, so
@@ -33,7 +33,7 @@ export class AcmeRequesterTraits extends SpyneTrait {
 
     if (!channelName) {
       console.warn(
-        'Spyne Warning: AcmeRequester received a request with no channelName',
+        'Spyne Warning: AcmeRequesterNullView received a request with no channelName',
       );
       return;
     }

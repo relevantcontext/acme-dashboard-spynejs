@@ -1,5 +1,5 @@
 import { Channel } from 'spyne';
-import { AcmeAuthChannelTraits } from 'traits/acme-auth-channel-traits.js';
+import { AcmeAuthChannelTraits } from 'traits/acme/acme-auth-channel-traits.js';
 
 /**
  * Who the user is, and everything that changes the answer.
@@ -35,7 +35,7 @@ export class ChannelAcmeAuth extends Channel {
 
   addRegisteredActions() {
     return [
-      // Consumed by AcmeRequester, the null-appended ViewStream that performs
+      // Consumed by AcmeRequesterNullView, the null-appended ViewStream that performs
       // the actual fetch. Views do not listen for this.
       'CHANNEL_ACME_AUTH_REQUEST_EVENT',
 

@@ -11,7 +11,7 @@ export class FormLoginTraits extends SpyneTrait {
    *
    * The credentials go straight to CHANNEL_FETCH_ACME_AUTH rather than through
    * ChannelAcmeAuth. A ChannelFetch request has to originate from a ViewStream —
-   * that is the whole reason AcmeRequester exists — and this form *is* a
+   * that is the whole reason AcmeRequesterNullView exists — and this form *is* a
    * ViewStream, so it can send directly. Routing it through the channel first
    * would mean publishing the password onto CHANNEL_ACME_AUTH just to have the
    * requester hand it back to the same fetch channel.

@@ -1,5 +1,5 @@
 import { Channel } from 'spyne';
-import { AcmeDataChannelTraits } from 'traits/acme-data-channel-traits.js';
+import { AcmeDataChannelTraits } from 'traits/acme/acme-data-channel-traits.js';
 
 /**
  * Every read and write of Acme business data.
@@ -41,7 +41,7 @@ export class ChannelAcmeData extends Channel {
 
   addRegisteredActions() {
     return [
-      // Consumed by AcmeRequester. Views do not listen for this.
+      // Consumed by AcmeRequesterNullView. Views do not listen for this.
       'CHANNEL_ACME_DATA_REQUEST_EVENT',
       'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT',
 

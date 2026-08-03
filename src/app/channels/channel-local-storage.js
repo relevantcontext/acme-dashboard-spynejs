@@ -1,5 +1,5 @@
 import { Channel } from 'spyne';
-import { AppLocalStorageTraits } from 'traits/app-local-storage-traits.js';
+import { AppLocalStorageTraits } from 'traits/shell/app-local-storage-traits.js';
 
 export class ChannelLocalStorage extends Channel {
   constructor(name, props = {}) {
