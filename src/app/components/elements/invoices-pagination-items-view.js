@@ -1,13 +1,39 @@
 import { ViewStream } from 'spyne';
-import { PaginationViewFactoryTraits } from 'traits/ui/pagination-view-factory-traits.js';
 import InvoicesPaginationItemsTmpl from './templates/invoices-pagination-items-view.tmpl.html';
 
 /**
- * One rendered pagination-state subtree.
+ * One rendered pagination-state subtree: both arrows, the numbers and any
+ * ellipses, in a single template.
  *
- * It skips the replayed event that created it, then disposes on the next list or
- * channel-confirmed page transition. The persistent container only adds; each
- * replaced child terminates itself. [single-active-child]
+ * ── Why the controls are markup and not modules ─────────────────────────────
+ *
+ * The arrow, number and ellipsis were three ViewStream modules, and none of the
+ * three declared a connection — no broadcastEvents, no listener, no channel, no
+ * trait. Every one was a constructor computing a class string around a template
+ * of `{{svgArrow}}`, `{{pageNumber}}` or a literal ellipsis. A module boundary
+ * that asserts nothing about the system's connections is not spec; markup that
+ * only displays belongs to the nearest template.
+ * [mint-module-by-declared-connection]
+ *
+ * The connections this module DOES declare are all real: the channel it listens
+ * to, the two actions that end its life, and the one binding that turns a page
+ * click into a CHANNEL_UI broadcast.
+ *
+ * ── Why the fold is safe here ───────────────────────────────────────────────
+ *
+ * broadcastEvents binds snapshot-direct — the selector runs against this view's
+ * root at ITS render, once. Folding markup into a parent is therefore only safe
+ * when that markup exists by then, and the page numbers change on every list.
+ * This view is single-active-child: it skips the replayed event that created it
+ * and disposes on the next list or channel-confirmed transition, so a new
+ * instance renders and rebinds per state. Its rebirth is what makes a static
+ * binding correct over changing content. [single-active-child]
+ * [skip-replayed-birth-event] [dynamic-children-ingress recipe 1]
+ *
+ * The data arrives template-ready from invoicesPagination$ShapeItems — exactly
+ * one of `isCurrent` / `isLink` / `isEllipsis` is present per entry, so the
+ * template needs no conditional syntax it does not have.
+ * [shape-data-for-logicless-template] [conditional-via-object-section]
  */
 export class InvoicesPaginationItemsView extends ViewStream {
   constructor(props = {}) {
@@ -15,7 +41,6 @@ export class InvoicesPaginationItemsView extends ViewStream {
     props.class = 'inline-flex';
     props.template = InvoicesPaginationItemsTmpl;
     props.channels = [['CHANNEL_ACME_INVOICES', true]];
-    props.traits = [PaginationViewFactoryTraits];
 
     super(props);
   }
@@ -28,13 +53,11 @@ export class InvoicesPaginationItemsView extends ViewStream {
   }
 
   broadcastEvents() {
-    // Child controls exist by the end of onRendered, before Spyne initializes
-    // this declared broadcaster, so one lifecycle-owned declaration binds all
-    // enabled buttons in the freshly built subtree.
+    // Every enabled control in this subtree, bound once at render. Disabled
+    // arrows and the current page render as divs by construction, so they
+    // cannot be matched and need no guard.
     return [['button', 'click']];
   }
 
-  onRendered() {
-    this.paginationViewFactory$Render();
-  }
+  onRendered() {}
 }

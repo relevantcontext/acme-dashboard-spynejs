@@ -1,3 +1,56 @@
-<div data-slot="arrow-left"></div>
-<div class="flex -space-x-px" data-slot="numbers"></div>
-<div data-slot="arrow-right"></div>
+{{#prevDisabled}}
+<div class="{{attrClass}}" aria-label="{{attrAriaLabel}}">{{svgArrow}}</div>
+{{/prevDisabled}}
+{{#prevLink}}
+<button
+  type="button"
+  class="{{attrClass}}"
+  aria-label="{{attrAriaLabel}}"
+  data-event-type="acmeInvoices"
+  data-btn-type="pagination"
+  data-page-number="{{attrPageNumber}}"
+>
+  {{svgArrow}}
+</button>
+{{/prevLink}}
+
+<div class="flex -space-x-px">
+  {{#pages}}
+  {{#isCurrent}}
+  <div class="{{attrClass}}" aria-current="page" aria-label="{{attrAriaLabel}}">
+    {{pageNumber}}
+  </div>
+  {{/isCurrent}}
+  {{#isLink}}
+  <button
+    type="button"
+    class="{{attrClass}}"
+    aria-label="{{attrAriaLabel}}"
+    data-event-type="acmeInvoices"
+    data-btn-type="pagination"
+    data-page-number="{{attrPageNumber}}"
+  >
+    {{pageNumber}}
+  </button>
+  {{/isLink}}
+  {{#isEllipsis}}
+  <div class="{{attrClass}}" aria-hidden="true">&hellip;</div>
+  {{/isEllipsis}}
+  {{/pages}}
+</div>
+
+{{#nextDisabled}}
+<div class="{{attrClass}}" aria-label="{{attrAriaLabel}}">{{svgArrow}}</div>
+{{/nextDisabled}}
+{{#nextLink}}
+<button
+  type="button"
+  class="{{attrClass}}"
+  aria-label="{{attrAriaLabel}}"
+  data-event-type="acmeInvoices"
+  data-btn-type="pagination"
+  data-page-number="{{attrPageNumber}}"
+>
+  {{svgArrow}}
+</button>
+{{/nextLink}}

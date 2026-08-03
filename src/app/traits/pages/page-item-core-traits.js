@@ -23,10 +23,7 @@ import { InvoicesCreateFormView } from 'components/page-items/invoices-create-fo
 import { InvoicesCustomerOptionView } from 'components/elements/invoices-customer-option-view.js';
 import { InvoicesDeleteButtonView } from 'components/elements/invoices-delete-button-view.js';
 import { InvoicesEditFormView } from 'components/page-items/invoices-edit-form-view.js';
-import { InvoicesPaginationArrowView } from 'components/elements/invoices-pagination-arrow-view.js';
-import { InvoicesPaginationEllipsisView } from 'components/elements/invoices-pagination-ellipsis-view.js';
 import { InvoicesPaginationItemsView } from 'components/elements/invoices-pagination-items-view.js';
-import { InvoicesPaginationNumberView } from 'components/elements/invoices-pagination-number-view.js';
 import { InvoicesPaginationContainer } from 'components/page-items/invoices-pagination-container.js';
 import { InvoicesStatusView } from 'components/elements/invoices-status-view.js';
 import { InvoicesTableRowView } from 'components/elements/invoices-table-row-view.js';
@@ -326,10 +323,7 @@ export class PageItemCoreTraits extends SpyneTrait {
       InvoicesCustomerOptionView,
       InvoicesDeleteButtonView,
       InvoicesEditFormView,
-      InvoicesPaginationArrowView,
-      InvoicesPaginationEllipsisView,
       InvoicesPaginationItemsView,
-      InvoicesPaginationNumberView,
       InvoicesPaginationContainer,
       InvoicesStatusView,
       InvoicesTableRowView,
