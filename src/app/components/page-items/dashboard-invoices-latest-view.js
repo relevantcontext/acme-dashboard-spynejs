@@ -1,27 +1,29 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
-import { DashboardInvoicesLatestTraits } from 'traits/dashboard/dashboard-invoices-latest-traits.js';
+import { buildLatestInvoiceRows } from 'utils/acme-dashboard-utils.js';
 import DashboardInvoicesLatestTmpl from './templates/dashboard-invoices-latest-view.tmpl.html';
 
 /**
  * Converted from app/ui/dashboard/latest-invoices.tsx (outer markup).
  *
- * The rows are DashboardInvoicesLatestRowView instances mounted into
- * [data-slot="invoice-rows"], from the latestInvoices slice of the
+ * The rows are a template section over the latestInvoices slice of the
  * /api/bootstrap dump.
  *
- * ── Why the rows are child views and not a template section ─────────────────
+ * ── Why the rows are markup and not modules ─────────────────────────────────
  *
- * A `{{#latestInvoices}}` array section in this template does render — but only
- * what the store holds when the constructor runs, and on a cold load that is
- * nothing. The dump is requested the moment auth resolves and the page mounts
- * while it is still in flight, so a template-rendered list comes out empty and
- * stays empty.
+ * DashboardInvoicesLatestRowView declared no connection: no broadcastEvents, no
+ * listener, no channel, no trait. A constructor resolving an image path and the
+ * source's `{ 'border-t': i !== 0 }` into a class, around markup that only
+ * displays. [mint-module-by-declared-connection]
  *
- * A DomElementTemplate renders once by design, so the rows have to be something
- * this view can throw away and rebuild. That is what child views give: on
- * DATA_LOADED they are disposed and re-appended against the data that just
- * arrived, and the same path covers DATA_UPDATED after a mutation.
+ * This file used to argue the opposite — that a template section would render
+ * whatever the store held at construction, which on a cold load was nothing.
+ * That was true of the design where page items mounted empty and filled in on a
+ * later event. It has not been true since page items began being CONSTRUCTED
+ * with the dump: PageAcmeView admits only a loaded payload and hands acmeData
+ * down in props, which is what the addActionListeners note below already says.
+ * The old comment outlived its architecture — recorded here rather than quietly
+ * deleted, because it nearly preserved four modules for a dead reason.
  */
 export class DashboardInvoicesLatestView extends ViewStream {
   constructor(props = {}) {
@@ -31,12 +33,12 @@ export class DashboardInvoicesLatestView extends ViewStream {
     props.tagName = 'div';
     props.class = 'flex w-full flex-col md:col-span-4';
     props.template = DashboardInvoicesLatestTmpl;
-    props.traits = [DashboardInvoicesLatestTraits];
     props.data = {
       ...props.data,
       heading,
       updatedText,
       svgArrowPath: withClass('arrowPath', 'h-5 w-5 text-gray-500'),
+      rows: buildLatestInvoiceRows(props.data?.acmeData),
     };
 
     super(props);
@@ -53,7 +55,5 @@ export class DashboardInvoicesLatestView extends ViewStream {
     return [];
   }
 
-  onRendered() {
-    this.dashboardInvoicesLatest$RenderRows();
-  }
+  onRendered() {}
 }

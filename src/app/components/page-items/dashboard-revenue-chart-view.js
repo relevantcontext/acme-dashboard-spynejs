@@ -1,18 +1,26 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
-import { DashboardRevenueTraits } from 'traits/dashboard/dashboard-revenue-traits.js';
+import { buildRevenueChart } from 'utils/acme-dashboard-utils.js';
 import DashboardRevenueChartTmpl from './templates/dashboard-revenue-chart-view.tmpl.html';
 
 /**
  * Converted from app/ui/dashboard/revenue-chart.tsx.
  *
- * The bars are DashboardRevenueBarView instances in [data-slot="bars"] and the
- * axis labels a single DashboardRevenueYAxisView in [data-slot="y-axis"], both
- * built from the revenue slice of the /api/bootstrap dump.
+ * The bars and the axis labels are template sections, both built from the
+ * revenue slice of the /api/bootstrap dump.
  *
- * Same reason as the latest-invoices list for building these as child views
- * rather than a template section: on a cold load the page mounts before the dump
- * lands, and a DomElementTemplate renders once.
+ * ── Why they are markup and not modules ─────────────────────────────────────
+ *
+ * DashboardRevenueBarView and DashboardRevenueYAxisView declared no connection
+ * between them: no broadcastEvents, no listener, no channel, no trait. Both
+ * also needed a `display: contents` root purely because a ViewStream must have
+ * a root element — so folding them removes a hack rather than adding one, and
+ * the <p>s and bar divs are now the direct grid children they were faking.
+ * [mint-module-by-declared-connection]
+ *
+ * Safe to fold because this view's lifetime IS the content's: PageAcmeView
+ * builds it with the dump already in props and disposes it with the page, so
+ * nothing arrives after the template has rendered.
  *
  * ── What is computed here ───────────────────────────────────────────────────
  *
@@ -21,13 +29,13 @@ import DashboardRevenueChartTmpl from './templates/dashboard-revenue-chart-view.
  *   generateYAxis(revenue)                      -> labels, and the top of scale
  *   (chartHeight / topLabel) * month.revenue    -> each bar's pixel height
  *
- * Both are ported verbatim in acme-chart-utils.js and resolved before the
- * children are constructed, so a bar receives a finished height and the template
- * stays free of arithmetic.
+ * Both are ported verbatim in acme-chart-utils.js and resolved by
+ * buildRevenueChart before super(), so a bar arrives with finished pixels and
+ * the template stays free of arithmetic.
  *
- * The source's `if (!revenue.length) return <p>No data available.</p>` cannot be
- * an early return here, since this view exists before its data does. It renders
- * as an empty chart frame that fills in when the dump lands.
+ * The source's `if (!revenue.length) return <p>No data available.</p>` is not an
+ * early return here: the frame renders from the template either way and simply
+ * gets no bars.
  *
  * @param {Object} props
  * @param {Object} props.data
@@ -46,18 +54,13 @@ export class DashboardRevenueChartView extends ViewStream {
     props.tagName = 'div';
     props.class = 'w-full md:col-span-4';
     props.template = DashboardRevenueChartTmpl;
-    props.traits = [DashboardRevenueTraits];
-
-    // On props, not on the instance: props has the framework's GC cleanup, and
-    // a trait method reading `props.chartHeight` has the same signature whether
-    // its context is a ViewStream or a Channel.
-    props.chartHeight = chartHeight;
     props.data = {
       ...props.data,
       heading,
       footerText,
       chartHeight: String(chartHeight),
       svgCalendar: withClass('calendar', 'h-5 w-5 text-gray-500'),
+      ...buildRevenueChart(props.data?.acmeData, chartHeight),
     };
 
     super(props);
@@ -74,7 +77,5 @@ export class DashboardRevenueChartView extends ViewStream {
     return [];
   }
 
-  onRendered() {
-    this.dashboardRevenue$RenderChart();
-  }
+  onRendered() {}
 }

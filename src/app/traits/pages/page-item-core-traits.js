@@ -6,12 +6,8 @@ import { SpyneTrait, ViewStream, SpyneAppProperties } from 'spyne';
 // (rows, bars, status pill, buttons, breadcrumb/nav items) so a container view
 // can look them up when composing its slots. Breadcrumbs are not here — the
 // app uses the native NavBreadcrumbView.
-import { DashboardInvoicesLatestRowView } from 'components/elements/dashboard-invoices-latest-row-view.js';
 import { DashboardInvoicesLatestView } from 'components/page-items/dashboard-invoices-latest-view.js';
-import { DashboardRevenueBarView } from 'components/elements/dashboard-revenue-bar-view.js';
-import { DashboardRevenueYAxisView } from 'components/elements/dashboard-revenue-y-axis-view.js';
 import { DashboardRevenueChartView } from 'components/page-items/dashboard-revenue-chart-view.js';
-import { DashboardStatCardView } from 'components/elements/dashboard-stat-card-view.js';
 import { DashboardStatsContainer } from 'components/page-items/dashboard-stats-container.js';
 import { HomeHeroView } from 'components/page-items/home-hero-view.js';
 import { HomeIntroView } from 'components/page-items/home-intro-view.js';
@@ -306,12 +302,8 @@ export class PageItemCoreTraits extends SpyneTrait {
     const classLookup = {
       // Keyed by the exported class name, so a pageItem's
       // `viewClass: "InvoicesTableView"` resolves to the class directly.
-      DashboardInvoicesLatestRowView,
       DashboardInvoicesLatestView,
-      DashboardRevenueBarView,
-      DashboardRevenueYAxisView,
       DashboardRevenueChartView,
-      DashboardStatCardView,
       DashboardStatsContainer,
       HomeHeroView,
       HomeIntroView,

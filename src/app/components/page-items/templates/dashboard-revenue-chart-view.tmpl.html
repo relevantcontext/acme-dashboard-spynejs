@@ -6,9 +6,20 @@
     <div
       class="mb-6 hidden flex-col justify-between text-sm text-gray-400 sm:flex"
       style="height: {{chartHeight}}px"
-      data-slot="y-axis"
-    ></div>
-    <div class="contents" data-slot="bars"></div>
+    >
+      {{#yAxisLabels}}
+      <p>{{.}}</p>
+      {{/yAxisLabels}}
+    </div>
+    {{#bars}}
+    <div class="flex flex-col items-center gap-2">
+      <div
+        class="w-full rounded-md bg-blue-300"
+        style="height: {{attrBarHeight}}px"
+      ></div>
+      <p class="-rotate-90 text-sm text-gray-400 sm:rotate-0">{{month}}</p>
+    </div>
+    {{/bars}}
   </div>
   <div class="flex items-center pb-2 pt-6">
     {{svgCalendar}}

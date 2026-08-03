@@ -1,5 +1,6 @@
 import { ViewStream } from 'spyne';
-import { DashboardStatsTraits } from 'traits/dashboard/dashboard-stats-traits.js';
+import { buildDashboardCards } from 'utils/acme-dashboard-utils.js';
+import DashboardStatsTmpl from './templates/dashboard-stats-container.tmpl.html';
 
 /**
  * Owns the dashboard's summary-stat row.
@@ -9,10 +10,21 @@ import { DashboardStatsTraits } from 'traits/dashboard/dashboard-stats-traits.js
  *
  *   <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
  *
- * That grid is this view's root, which is why the four cards need no wrapper of
- * their own — without a grid parent their col-span classes would do nothing and
- * they would stack. It also means the cards append straight into the root, so
- * this view needs no template of its own.
+ * That grid is this view's root, which is why the cards need no wrapper of
+ * their own — without a grid parent their col-span classes would do nothing.
+ *
+ * ── Why the cards are markup and not modules ────────────────────────────────
+ *
+ * DashboardStatCardView declared no connection: no broadcastEvents, no
+ * listener, no channel, no trait. A constructor that picked an icon and
+ * stringified a number, wrapped around a heading and a value. That is markup,
+ * and it belongs to the nearest template.
+ * [mint-module-by-declared-connection]
+ *
+ * Safe to fold because this view's lifetime IS the content's: it is built by
+ * PageAcmeView with the dump already in props, and disposed and rebuilt with
+ * the page. Nothing arrives after birth, so there is no later markup for a
+ * once-rendered template to miss.
  *
  * ── Where the content comes from ────────────────────────────────────────────
  *
@@ -23,11 +35,6 @@ import { DashboardStatsTraits } from 'traits/dashboard/dashboard-stats-traits.js
  *   props.data.acmeData.cards   the values. From the /api/bootstrap dump,
  *                               handed down by PageAcmeView at construction.
  *
- * This view has no channel and no listener. It is a pure function of its props:
- * given definitions and values, it renders a row. When the data changes,
- * PageAcmeView disposes it and builds a new one — which is also why the cards it
- * appends need no tracking of their own.
- *
  * @param {Object} props
  * @param {Object} props.data
  * @param {Array<{title: String, type: String}>} props.data.cards
@@ -37,10 +44,10 @@ export class DashboardStatsContainer extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
     props.class = 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4';
-    props.traits = [DashboardStatsTraits];
+    props.template = DashboardStatsTmpl;
     props.data = {
       ...props.data,
-      cards: props.data?.cards || [],
+      cards: buildDashboardCards(props.data?.cards, props.data?.acmeData),
     };
 
     super(props);
@@ -57,7 +64,5 @@ export class DashboardStatsContainer extends ViewStream {
     return [];
   }
 
-  onRendered() {
-    this.dashboardStats$RenderCards();
-  }
+  onRendered() {}
 }
