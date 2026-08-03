@@ -1,8 +1,8 @@
 import { SpyneTrait } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
 import { buildInvoiceRows } from 'utils/acme-invoice-utils.js';
-import { InvoicesTableRowView } from 'components/page-items/acme/invoices-table-row-view.js';
-import { InvoicesCardView } from 'components/page-items/acme/invoices-card-view.js';
+import { InvoicesTableRowView } from 'components/elements/invoices-table-row-view.js';
+import { InvoicesCardView } from 'components/elements/invoices-card-view.js';
 
 const ROWS_SELECTOR = '[data-slot="invoice-rows"]';
 const CARDS_SELECTOR = '[data-slot="invoice-cards"]';

@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
-import { UIAcmeLogoView } from 'components/page-items/acme/ui-acme-logo-view.js';
+import { UIAcmeLogoView } from 'components/page-items/ui-acme-logo-view.js';
 import UISideNavTmpl from './templates/ui-sidenav-view.tmpl.html';
 import { AcmeNavTraits } from 'traits/acme-nav-traits.js';
 

@@ -1,5 +1,5 @@
 import { SpyneTrait } from 'spyne';
-import { DashboardStatCardView } from 'components/page-items/acme/dashboard-stat-card-view.js';
+import { DashboardStatCardView } from 'components/elements/dashboard-stat-card-view.js';
 
 // Card type -> the field it reads out of the cards payload. The shape comes
 // straight from fetchCardData in queries.js, which is the verbatim port of the

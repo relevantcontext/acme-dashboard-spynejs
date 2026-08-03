@@ -1,5 +1,5 @@
 import { SpyneTrait } from 'spyne';
-import { InvoicesCustomerOptionView } from 'components/page-items/acme/invoices-customer-option-view.js';
+import { InvoicesCustomerOptionView } from 'components/elements/invoices-customer-option-view.js';
 
 const OPTIONS_SELECTOR = '[data-slot="customer-options"]';
 

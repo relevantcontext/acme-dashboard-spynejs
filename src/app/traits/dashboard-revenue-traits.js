@@ -1,6 +1,6 @@
 import { SpyneTrait } from 'spyne';
-import { DashboardRevenueBarView } from 'components/page-items/acme/dashboard-revenue-bar-view.js';
-import { DashboardRevenueYAxisView } from 'components/page-items/acme/dashboard-revenue-y-axis-view.js';
+import { DashboardRevenueBarView } from 'components/elements/dashboard-revenue-bar-view.js';
+import { DashboardRevenueYAxisView } from 'components/elements/dashboard-revenue-y-axis-view.js';
 import { generateYAxis, getBarHeight } from 'utils/acme-chart-utils.js';
 
 /**

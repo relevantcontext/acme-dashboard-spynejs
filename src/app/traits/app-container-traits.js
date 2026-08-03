@@ -1,8 +1,8 @@
 import { SpyneTrait } from 'spyne';
-import { StageContainer } from 'components/stage-container.js';
-import { UIContainer } from 'components/ui-container.js';
-import { LocalStorageNullView } from 'components/ui-elements/null-views/local-storage-null-view.js';
-import { AcmeQueryParamsNullView } from 'components/ui-elements/null-views/acme-query-params-null-view.js';
+import { StageContainer } from 'components/shell/stage-container.js';
+import { UIContainer } from 'components/shell/ui-container.js';
+import { LocalStorageNullView } from 'components/shell/null-views/local-storage-null-view.js';
+import { AcmeQueryParamsNullView } from 'components/shell/null-views/acme-query-params-null-view.js';
 
 export class AppContainerTraits extends SpyneTrait {
   constructor(context) {

@@ -1,5 +1,5 @@
 import { SpyneTrait } from 'spyne';
-import { UISearchView } from 'components/page-items/acme/ui-search-view.js';
+import { UISearchView } from 'components/page-items/ui-search-view.js';
 
 /**
  * Logic for CustomersTableView.

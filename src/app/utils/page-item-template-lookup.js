@@ -3,7 +3,7 @@
 // Every page-item template, keyed by filename, for model pageItems that name a
 // template with isPrototype false. Mirrors page-template-lookup.js.
 
-const ctx = import.meta.webpackContext('components/page-items/acme/templates', {
+const ctx = import.meta.webpackContext('components/page-items/templates', {
   recursive: true,
   regExp: /\.html$/,
 });

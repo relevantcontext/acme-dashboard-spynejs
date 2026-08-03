@@ -4,8 +4,12 @@ import { junitReporter } from '@web/test-runner-junit-reporter';
 export default {
   files: ['src/tests/unit-tests/**/*.test.js'],
   nodeResolve: true,
+  // Mirror webpack.config.js resolve.alias for the paths tests reach.
   alias: {
     components: '/src/app/components',
+    traits: '/src/app/traits',
+    utils: '/src/app/utils',
+    channels: '/src/app/channels',
   },
 
   testFramework: {

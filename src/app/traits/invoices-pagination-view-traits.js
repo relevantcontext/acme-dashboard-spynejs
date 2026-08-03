@@ -1,5 +1,5 @@
 import { SpyneTrait } from 'spyne';
-import { InvoicesPaginationItemsView } from 'components/page-items/acme/invoices-pagination-items-view.js';
+import { InvoicesPaginationItemsView } from 'components/elements/invoices-pagination-items-view.js';
 
 const ITEMS_SELECTOR = '[data-slot="pagination-items"]';
 

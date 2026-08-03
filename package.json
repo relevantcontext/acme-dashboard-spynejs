@@ -12,7 +12,8 @@
     "css:inspect": "tailwindcss -c tailwind.config.js -i src/scss/tailwind.scss -o dist/tailwind-inspect.css",
     "lint": "eslint --config eslint.config.js",
     "lint:fix": "eslint --config eslint.config.js --fix",
-    "format": "prettier --write 'src/**/*.{js,css,scss,html}'"
+    "format": "prettier --write 'src/**/*.{js,css,scss,html}'",
+    "test": "web-test-runner"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -33,6 +34,7 @@
     "@tailwindcss/forms": "^0.5.11",
     "@web/dev-server": "^0.4.6",
     "@web/dev-server-esbuild": "^2.0.0",
+    "@web/test-runner": "^1.0.0",
     "@web/test-runner-commands": "^0.9.0",
     "@web/test-runner-junit-reporter": "^0.7.2",
     "@web/test-runner-mocha": "^0.9.0",

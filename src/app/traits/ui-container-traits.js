@@ -1,5 +1,5 @@
 import { SpyneTrait } from 'spyne';
-import { UISideNavView } from 'components/page-items/acme/ui-sidenav-view.js';
+import { UISideNavView } from 'components/shell/ui-sidenav-view.js';
 
 
 /**

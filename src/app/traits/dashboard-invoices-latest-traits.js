@@ -1,5 +1,5 @@
 import { SpyneTrait } from 'spyne';
-import { DashboardInvoicesLatestRowView } from 'components/page-items/acme/dashboard-invoices-latest-row-view.js';
+import { DashboardInvoicesLatestRowView } from 'components/elements/dashboard-invoices-latest-row-view.js';
 
 /**
  * Logic for DashboardInvoicesLatestView.

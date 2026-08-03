@@ -1,7 +1,7 @@
 import { SpyneTrait, ViewStream } from 'spyne';
-import { InvoicesPaginationArrowView } from 'components/page-items/acme/invoices-pagination-arrow-view.js';
-import { InvoicesPaginationNumberView } from 'components/page-items/acme/invoices-pagination-number-view.js';
-import { InvoicesPaginationEllipsisView } from 'components/page-items/acme/invoices-pagination-ellipsis-view.js';
+import { InvoicesPaginationArrowView } from 'components/elements/invoices-pagination-arrow-view.js';
+import { InvoicesPaginationNumberView } from 'components/elements/invoices-pagination-number-view.js';
+import { InvoicesPaginationEllipsisView } from 'components/elements/invoices-pagination-ellipsis-view.js';
 
 const VIEW_LOOKUP = Object.freeze({
   previous: InvoicesPaginationArrowView,

@@ -1,5 +1,5 @@
 import { SpyneTrait } from 'spyne';
-import { UINavLinkView } from 'components/page-items/acme/ui-nav-link-view.js';
+import { UINavLinkView } from 'components/elements/ui-nav-link-view.js';
 import { withClass } from 'utils/svg-icons.js';
 
 const NAV_PRESENTATION = {

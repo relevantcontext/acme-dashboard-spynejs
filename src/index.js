@@ -17,7 +17,7 @@ import { ChannelAcmeCustomers } from 'channels/channel-acme-customers.js';
 //plugins
 
 // views
-import { AcmeRequester } from 'components/acme-requester.js';
+import { AcmeRequester } from 'components/shell/acme-requester.js';
 
 // traits
 import { AcmeDbConnectionsTraits } from 'traits/acme-db-connections-traits.js';
@@ -26,7 +26,7 @@ import { AcmeDbConnectionsTraits } from 'traits/acme-db-connections-traits.js';
 import AppModelURL from 'data/app.model.json';
 
 // initial view
-import { AppContainer } from './app/app-container.js';
+import { AppContainer } from './app/components/shell/app-container.js';
 
 import pageItemTemplateLookup from 'utils/page-item-template-lookup.js';
 import { INVOICE_PARAMS_EVENT } from 'utils/acme-invoice-utils.js';
