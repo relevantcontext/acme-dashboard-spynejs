@@ -1,5 +1,5 @@
 import { Channel } from 'spyne';
-import { AcmeAuthChannelTraits } from 'traits/acme/acme-auth-channel-traits.js';
+import { AcmeAuthChannelTraits } from 'traits/db/db-auth-channel-traits.js';
 
 /**
  * Who the user is, and everything that changes the answer.

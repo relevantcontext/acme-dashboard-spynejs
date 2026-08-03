@@ -1,5 +1,5 @@
 import { Channel } from 'spyne';
-import { AcmeDataChannelTraits } from 'traits/acme/acme-data-channel-traits.js';
+import { AcmeDataChannelTraits } from 'traits/db/db-data-channel-traits.js';
 
 /**
  * Every read and write of Acme business data.

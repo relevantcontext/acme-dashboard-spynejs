@@ -1,3 +1,22 @@
+/**
+ * Registers every ChannelFetch the app owns.
+ *
+ * ── Why traits/db/ ─────────────────────────────────────────────────────────
+ *
+ * This directory is the SpyneJS answer to what Next.js keeps on the server.
+ * The mapping is close to exact:
+ *
+ *   db-connections   the postgres client and its pool setup
+ *   db-endpoints     data.ts + actions.ts — the query and mutation surface
+ *   db-requester     the transport that issues a request
+ *   db-data-channel  the server-component cache
+ *   db-auth-channel  auth.ts
+ *
+ * Named for the boundary rather than for the app, so a reader coming from the
+ * Next.js side knows immediately that this is the tier they would have written
+ * behind `use server`, and so the eventual spynejs-plugin-sql extraction has a
+ * directory rather than a search to work from.
+ */
 import { SpyneTrait, ChannelFetch, SpyneApp } from 'spyne';
 
 /**

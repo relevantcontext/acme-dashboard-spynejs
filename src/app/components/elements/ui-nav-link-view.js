@@ -1,6 +1,6 @@
 import { ViewStream } from 'spyne';
 import UINavLinkTmpl from './templates/ui-nav-link-view.tmpl.html';
-import { AcmeNavLinkTraits } from 'traits/nav/acme-nav-link-traits.js';
+import { AcmeNavTraits } from 'traits/nav/acme-nav-traits.js';
 
 /**
  * Converted from app/ui/dashboard/nav-links.tsx.
@@ -32,7 +32,7 @@ export class UINavLinkView extends ViewStream {
       'flex grow flex-row justify-between space-x-2 md:flex-none md:flex-col md:space-x-0 md:space-y-2';
     props.template = UINavLinkTmpl;
     props.channels = ['CHANNEL_ROUTE'];
-    props.traits = [AcmeNavLinkTraits];
+    props.traits = [AcmeNavTraits];
     props.data = props.data || [];
 
     super(props);
@@ -40,8 +40,8 @@ export class UINavLinkView extends ViewStream {
 
   addActionListeners() {
     return [
-      ['CHANNEL_ROUTE_DEEPLINK_EVENT', 'acmeNavLink$OnRoute'],
-      ['CHANNEL_ROUTE_CHANGE_EVENT', 'acmeNavLink$OnRoute'],
+      ['CHANNEL_ROUTE_DEEPLINK_EVENT', 'acmeNav$OnLinkRoute'],
+      ['CHANNEL_ROUTE_CHANGE_EVENT', 'acmeNav$OnLinkRoute'],
     ];
   }
 

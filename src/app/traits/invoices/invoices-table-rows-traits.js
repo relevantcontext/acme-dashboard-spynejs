@@ -137,4 +137,23 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
       );
     });
   }
+
+  /**
+   * Disposes this row when its invoice is no longer in the set.
+   *
+   * No skip-first is needed even though the channel replays. A row is built from
+   * the same dump the channel holds, so its replayed birth payload always
+   * contains its own id — and if it somehow did not, disposing would be the
+   * correct response rather than the bug skip-first exists to prevent.
+   */
+  static invoicesTableRows$OnRowList(e, props = this.props) {
+    const allIds = e?.payload?.allIds;
+
+    // A payload without the list is not evidence of deletion — say nothing.
+    if (Array.isArray(allIds) === false) return;
+
+    if (allIds.includes(props.data?.attrInvoiceId) === true) return;
+
+    this.disposeViewStream();
+  }
 }

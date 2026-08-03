@@ -1,5 +1,5 @@
 import { Channel } from 'spyne';
-import { AcmeInvoicesChannelTraits } from 'traits/acme/acme-invoices-channel-traits.js';
+import { AcmeInvoicesChannelTraits } from 'traits/db/db-invoices-channel-traits.js';
 
 /**
  * Invoice matching and the message boundary for pagination requests/results.

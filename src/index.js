@@ -20,7 +20,7 @@ import { ChannelAcmeCustomers } from 'channels/channel-acme-customers.js';
 import { AcmeRequesterNullView } from 'components/shell/null-views/acme-requester-null-view.js';
 
 // traits
-import { AcmeDbConnectionsTraits } from 'traits/acme/acme-db-connections-traits.js';
+import { AcmeDbConnectionsTraits } from 'traits/db/db-connections-traits.js';
 
 //data fetch
 import AppModelURL from 'data/app.model.json';
@@ -120,7 +120,7 @@ SpyneApp.registerChannel(new ChannelLocalStorage());
 // Acme SQL connection. The ChannelFetch instances are registered from a trait
 // rather than inline, so every channel the app owns is still discoverable here
 // without this file carrying six instantiations. See
-// traits/acme/acme-db-connections-traits.js.
+// traits/db/db-connections-traits.js.
 AcmeDbConnectionsTraits.acmeDbConnections$RegisterChannels();
 
 // The two semantic channels between those fetch channels and the app. Auth is

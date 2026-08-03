@@ -11,25 +11,15 @@ import { DashboardRevenueChartView } from 'components/page-items/dashboard-reven
 import { DashboardStatsContainer } from 'components/page-items/dashboard-stats-container.js';
 import { HomeHeroView } from 'components/page-items/home-hero-view.js';
 import { HomeIntroView } from 'components/page-items/home-intro-view.js';
-import { CustomersCardView } from 'components/elements/customers-card-view.js';
 import { CustomersTableView } from 'components/page-items/customers-table-view.js';
-import { InvoicesCardView } from 'components/elements/invoices-card-view.js';
 import { InvoicesCreateButtonView } from 'components/page-items/invoices-create-button-view.js';
 import { InvoicesCreateFormView } from 'components/page-items/invoices-create-form-view.js';
-import { InvoicesCustomerOptionView } from 'components/elements/invoices-customer-option-view.js';
-import { InvoicesDeleteButtonView } from 'components/elements/invoices-delete-button-view.js';
 import { InvoicesEditFormView } from 'components/page-items/invoices-edit-form-view.js';
-import { InvoicesPaginationItemsView } from 'components/elements/invoices-pagination-items-view.js';
 import { InvoicesPaginationContainer } from 'components/page-items/invoices-pagination-container.js';
-import { InvoicesStatusView } from 'components/elements/invoices-status-view.js';
-import { InvoicesTableRowView } from 'components/elements/invoices-table-row-view.js';
 import { InvoicesTableView } from 'components/page-items/invoices-table-view.js';
-import { InvoicesUpdateButtonView } from 'components/elements/invoices-update-button-view.js';
 import { UIAcmeLogoView } from 'components/page-items/ui-acme-logo-view.js';
 import { LoginFormView } from 'components/page-items/login-form-view.js';
-import { UINavLinkView } from 'components/elements/ui-nav-link-view.js';
 import { UISearchView } from 'components/page-items/ui-search-view.js';
-import { UISideNavView } from 'components/shell/ui-sidenav-view.js';
 
 export class PageItemCoreTraits extends SpyneTrait {
   constructor(context) {
@@ -307,25 +297,15 @@ export class PageItemCoreTraits extends SpyneTrait {
       DashboardStatsContainer,
       HomeHeroView,
       HomeIntroView,
-      CustomersCardView,
       CustomersTableView,
-      InvoicesCardView,
       InvoicesCreateButtonView,
       InvoicesCreateFormView,
-      InvoicesCustomerOptionView,
-      InvoicesDeleteButtonView,
       InvoicesEditFormView,
-      InvoicesPaginationItemsView,
       InvoicesPaginationContainer,
-      InvoicesStatusView,
-      InvoicesTableRowView,
       InvoicesTableView,
-      InvoicesUpdateButtonView,
       LoginFormView,
       UIAcmeLogoView,
-      UINavLinkView,
       UISearchView,
-      UISideNavView,
     };
     return classLookup[viewClass] || ViewStream;
   }
