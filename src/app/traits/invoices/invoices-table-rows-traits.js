@@ -147,12 +147,17 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
    * correct response rather than the bug skip-first exists to prevent.
    */
   static invoicesTableRows$OnRowList(e, props = this.props) {
-    const allIds = e?.payload?.allIds;
+    const presentIds = e?.payload?.presentIds;
 
-    // A payload without the list is not evidence of deletion — say nothing.
-    if (Array.isArray(allIds) === false) return;
+    // A payload without the membership object is not evidence of deletion —
+    // say nothing.
+    if (presentIds == null || typeof presentIds !== 'object') return;
 
-    if (allIds.includes(props.data?.attrInvoiceId) === true) return;
+    // One property read against the shared frozen object every sibling also
+    // holds. Absence is still the whole test: the refreshed dump not naming
+    // this id is the server's answer, exactly as before — only the lookup
+    // changed, from a per-row scan of an id array to a key access.
+    if (presentIds[props.data?.attrInvoiceId] === true) return;
 
     this.disposeViewStream();
   }

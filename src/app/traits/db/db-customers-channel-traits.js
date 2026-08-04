@@ -92,7 +92,6 @@ export class AcmeCustomersChannelTraits extends SpyneTrait {
 
     this.sendChannelPayload('CHANNEL_ACME_CUSTOMERS_LIST_EVENT', {
       matchedIds: filtered.map(({ id }) => id),
-      allIds: customers.map(({ id }) => id),
       query,
       totalMatched: filtered.length,
     });

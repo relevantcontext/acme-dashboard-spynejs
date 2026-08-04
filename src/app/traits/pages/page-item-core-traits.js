@@ -173,22 +173,32 @@ export class PageItemCoreTraits extends SpyneTrait {
     const elementsArr = data.pageItems;
 
     const addElement = (obj) => {
-      const { props, container, viewClass, isPrototype } = obj;
+      const { props: spec = {}, container, viewClass, isPrototype } = obj;
 
-      props.template = this.pageItemCore$GetTemplate(props, isPrototype);
-      props.data = { ...props.data, acmeData, acmeStatus };
+      // Composed fresh, never written back onto the spec. The spec is a node
+      // of the app model, which arrives on a channel payload and is therefore
+      // frozen and SHARED — reference-by-wire means every consumer holds the
+      // same object, so a parent that wrote template or data onto it would be
+      // editing the model for the whole app. A new object per construction also
+      // matters because a ViewStream treats the props it is handed as its own:
+      // the constructor writes tagName, el and id onto it.
+      const childProps = {
+        ...spec,
+        template: this.pageItemCore$GetTemplate(spec, isPrototype),
+        data: { ...spec.data, acmeData, acmeStatus },
+      };
 
       const ViewClass = this.pageItemCore$GetViewClass(viewClass);
 
       const appendElSelector =
         this.pageItemCore$CheckToAddPageTraitContainer(container);
 
-      const view = new ViewClass(props);
+      const view = new ViewClass(childProps);
 
       this.appendView(view, appendElSelector);
 
-      if (props?.styles) {
-        PageItemCoreTraits.pageItemCore$AddStyles(view.props.el, props.styles);
+      if (spec.styles) {
+        PageItemCoreTraits.pageItemCore$AddStyles(view.props.el, spec.styles);
       }
     };
 
@@ -243,20 +253,26 @@ export class PageItemCoreTraits extends SpyneTrait {
 
   static pageItemCore$AddPageItems(elementsArr = this.props.data.pageItems) {
     const addElement = (obj) => {
-      const { props, container, viewClass, isPrototype } = obj;
-      props.template = this.pageItemCore$GetTemplate(props, isPrototype);
+      const { props: spec = {}, container, viewClass, isPrototype } = obj;
+
+      // Same composition as the dashboard path: the spec stays frozen and
+      // shared; the child gets its own object.
+      const childProps = {
+        ...spec,
+        template: this.pageItemCore$GetTemplate(spec, isPrototype),
+      };
 
       const ViewClass = this.pageItemCore$GetViewClass(viewClass);
 
       const appendElSelector =
         this.pageItemCore$CheckToAddPageTraitContainer(container);
 
-      const view = new ViewClass(props);
+      const view = new ViewClass(childProps);
 
       this.appendView(view, appendElSelector);
 
-      if (props?.styles) {
-        PageItemCoreTraits.pageItemCore$AddStyles(view.props.el, props.styles);
+      if (spec.styles) {
+        PageItemCoreTraits.pageItemCore$AddStyles(view.props.el, spec.styles);
       }
     };
 

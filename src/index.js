@@ -155,7 +155,7 @@ const registerCmsChannels = () => {
 // with `typeof process`: webpack replaces only this exact expression, leaving a
 // bare `process` undefined in the browser, so such a guard is always false and
 // silently disables the CMS.
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development6') {
   import('./dev-tools.js').then(({ devToolsReady }) => {
     devToolsReady.then(registerCmsChannels);
   });

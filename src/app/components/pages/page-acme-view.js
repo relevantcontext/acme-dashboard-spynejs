@@ -1,9 +1,4 @@
-import {
-  ViewStream,
-  safeClone,
-  SpyneAppProperties,
-  ChannelPayloadFilter,
-} from 'spyne';
+import { ViewStream, ChannelPayloadFilter } from 'spyne';
 import { PageItemCoreTraits } from 'traits/pages/page-item-core-traits.js';
 import { getPageTemplate } from 'utils/page-template-lookup.js';
 
@@ -39,8 +34,9 @@ export class PageAcmeView extends ViewStream {
     props.class = `page-view page-view-${props?.data?.pageId}`;
     props.channels = [['CHANNEL_ROUTE', true], 'CHANNEL_ACME_DATA'];
     props.traits = [PageItemCoreTraits];
-    props.data = safeClone(props.data);
-    props.data.href = SpyneAppProperties.getHrefFromData(props.data);
+    // props.data stays the shared, frozen model node — see PageGuestView for
+    // why no clone: the page writes nothing into it, and its items receive
+    // composed copies from pageItemCore rather than the node itself.
 
     props.acmeData = null;
     props.acmeStatus = null;

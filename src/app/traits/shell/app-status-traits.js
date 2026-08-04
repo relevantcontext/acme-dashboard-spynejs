@@ -1,4 +1,4 @@
-import { SpyneTrait, ChannelPayloadFilter, safeClone } from 'spyne';
+import { SpyneTrait, ChannelPayloadFilter } from 'spyne';
 
 export class AppStatusTraits extends SpyneTrait {
   constructor(context) {
@@ -93,13 +93,17 @@ export class AppStatusTraits extends SpyneTrait {
       : 'CHANNEL_APP_PAGE_DATA_EVENT';
 
     /**
-     * Normalize payload and attach explicit state flags.
+     * The payload is COMPOSED, not cloned-and-mutated. pageData is a node of
+     * the app model — frozen, shared by reference with every subscriber — so
+     * the flags ride a new envelope object while the content passes through by
+     * reference. Same result as the safeClone this replaces, without copying
+     * the subtree, and the payload's shape is now stated at the send site.
      */
-    const payload = safeClone(pageData);
-    payload.initData = initData;
-    payload.is404 = is404Route;
-
-    this.sendChannelPayload(action, payload);
+    this.sendChannelPayload(action, {
+      ...pageData,
+      initData,
+      is404: is404Route,
+    });
   }
 
 

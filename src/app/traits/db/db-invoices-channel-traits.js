@@ -196,9 +196,20 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     const invoices = this.props.invoices || [];
     const filtered = filterInvoices(invoices, query);
 
+    // presentIds is keyed by id, not a list of ids, because of who reads it:
+    // every row and card view answers "does my invoice still exist" on every
+    // emission. Payloads are reference-by-wire — all of those subscribers
+    // share this one frozen object — so the shape the channel emits IS the
+    // cost every subscriber pays. A keyed object makes the membership test a
+    // property read; the id ARRAY this replaces made it a linear scan, and
+    // the fan-out multiplied that scan into seconds at scale. The channel
+    // resolves once; views only read. [conform-incoming-data]
+    const presentIds = {};
+    for (const invoice of invoices) presentIds[invoice.id] = true;
+
     this.sendChannelPayload('CHANNEL_ACME_INVOICES_LIST_EVENT', {
       matchedIds: filtered.map((invoice) => invoice.id),
-      allIds: invoices.map((invoice) => invoice.id),
+      presentIds,
       query,
       totalMatched: filtered.length,
     });
