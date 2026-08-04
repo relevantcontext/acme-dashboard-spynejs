@@ -1,6 +1,7 @@
-import { ViewStream } from 'spyne';
+import { ViewStream, ChannelPayloadFilter } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
 import { buildDashboardCards } from 'utils/acme-utils.js';
+import { DashboardStatsTraits } from 'traits/dashboard/dashboard-stats-traits.js';
 import DashboardStatsTmpl from './templates/dashboard-stats-container.tmpl.html';
 
 // Card type -> icon, from the iconMap in app/ui/dashboard/cards.tsx. Built once
@@ -33,10 +34,12 @@ const CARD_ICONS = {
  * and it belongs to the nearest template.
  * [mint-module-by-declared-connection]
  *
- * Safe to fold because this view's lifetime IS the content's: it is built by
- * PageAcmeView with the dump already in props, and disposed and rebuilt with
- * the page. Nothing arrives after birth, so there is no later markup for a
- * once-rendered template to miss.
+ * Safe to fold because the cards' STRUCTURE never changes after birth: which
+ * cards exist, their titles and icons are settled at construction. The only
+ * thing that can move afterwards is the four values — a later dump repaints
+ * them in place through DashboardStatsTraits, addressing the
+ * [data-card-value] elements the template declares. No later MARKUP ever
+ * arrives for a once-rendered template to miss.
  *
  * ── Where the content comes from ────────────────────────────────────────────
  *
@@ -57,6 +60,8 @@ export class DashboardStatsContainer extends ViewStream {
     props.tagName = 'div';
     props.class = 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4';
     props.template = DashboardStatsTmpl;
+    props.channels = ['CHANNEL_ACME_DATA'];
+    props.traits = [DashboardStatsTraits];
     props.data = {
       ...props.data,
       cards: buildDashboardCards(
@@ -70,10 +75,29 @@ export class DashboardStatsContainer extends ViewStream {
   }
 
   addActionListeners() {
-    // No channel. This item is parent-governed: it is built by PageAcmeView with
-    // its data already in props, and it renders and disposes with the page.
-    // Nothing arrives after birth, so there is nothing to listen for.
-    return [];
+    // Birth data renders the cards; these two actions are the ONLY ways the
+    // held dump can change while this view is mounted (the authoritative
+    // refetch behind a mutation, and a rollback-carrying error), and each
+    // repaints the values in place. The isLoaded filter admits only payloads
+    // carrying a dump — which also excludes REQUEST_EVENT, whose payload is
+    // fetch config with no status at all. [admit-by-payload-filter]
+    const dumpIsLoaded = () =>
+      new ChannelPayloadFilter({
+        payload: (payload) => payload?.status?.isLoaded === true,
+      });
+
+    return [
+      [
+        'CHANNEL_ACME_DATA_UPDATED_EVENT',
+        'dashboardStats$OnAcmeData',
+        dumpIsLoaded(),
+      ],
+      [
+        'CHANNEL_ACME_DATA_ERROR_EVENT',
+        'dashboardStats$OnAcmeData',
+        dumpIsLoaded(),
+      ],
+    ];
   }
 
   broadcastEvents() {

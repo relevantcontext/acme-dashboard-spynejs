@@ -1,4 +1,4 @@
-import { ViewStream } from 'spyne';
+import { ViewStream, ChannelPayloadFilter } from 'spyne';
 import InvoicesTableTmpl from './templates/invoices-table-view.tmpl.html';
 import { InvoicesTableRowsTraits } from 'traits/invoices/invoices-table-rows-traits.js';
 
@@ -31,7 +31,7 @@ export class InvoicesTableView extends ViewStream {
     props.tagName = 'div';
     props.class = 'mt-6 flow-root';
     props.template = InvoicesTableTmpl;
-    props.channels = ['CHANNEL_ACME_INVOICES'];
+    props.channels = ['CHANNEL_ACME_INVOICES', 'CHANNEL_ACME_DATA'];
     props.traits = [InvoicesTableRowsTraits];
 
     super(props);
@@ -49,6 +49,20 @@ export class InvoicesTableView extends ViewStream {
       [
         'CHANNEL_ACME_INVOICES_DISPLAY_EVENT',
         'invoicesTableRows$OnDisplayMode',
+      ],
+      // Every landed dump — first load, mutation refresh, optimistic apply,
+      // rollback. The trait rebuilds the row-data map from it, so a row minted
+      // AFTER a mutation (paging back to a toggled invoice, a created invoice
+      // entering the page) renders current values rather than this view's
+      // birth data. The isLoaded filter admits only payloads that carry a
+      // dump — and thereby excludes REQUEST_EVENT, whose payload is fetch
+      // config with no status at all. [admit-by-payload-filter]
+      [
+        'CHANNEL_ACME_DATA_.*_EVENT',
+        'invoicesTableRows$OnAcmeData',
+        new ChannelPayloadFilter({
+          payload: (payload) => payload?.status?.isLoaded === true,
+        }),
       ],
     ];
   }

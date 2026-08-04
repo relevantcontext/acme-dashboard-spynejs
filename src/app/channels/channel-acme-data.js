@@ -32,6 +32,21 @@ export class ChannelAcmeData extends Channel {
     name = 'CHANNEL_ACME_DATA';
     props.replay = true;
     props.traits = [AcmeDataChannelTraits];
+
+    // Reconciliation state for optimistic mutations, owned here because the
+    // channel is the designed home for durable state. [state-machine-in-channel]
+    //
+    //   acmePendingMutations  in-flight mutation requests. While > 0, a landing
+    //                         bootstrap is STALE by construction — the pending
+    //                         mutation's own response will request a fresh one —
+    //                         and is discarded rather than applied.
+    //                         [select-concurrency-operator]
+    //   acmeStatusIntents     one entry per in-flight status toggle, carrying
+    //                         the inverse (prevStatus) recorded at apply time.
+    //                         [provisional-state-with-inverse]
+    props.acmePendingMutations = 0;
+    props.acmeStatusIntents = [];
+
     super(name, props);
   }
 

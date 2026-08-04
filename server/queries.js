@@ -226,3 +226,16 @@ export async function updateInvoice(id, { customerId, amount, status }) {
 export async function deleteInvoice(id) {
   await sql`DELETE FROM invoices WHERE id = ${id}`;
 }
+
+// ── SpyneJS-side addition (no Next.js counterpart) ───────────────────────────
+// The inline status toggle updates ONE column. Reusing updateInvoice would
+// force the client to resend amount and customer_id it has no business
+// restating, so the toggle gets its own single-column write.
+
+export async function updateInvoiceStatus(id, status) {
+  await sql`
+      UPDATE invoices
+      SET status = ${status}
+      WHERE id = ${id}
+    `;
+}

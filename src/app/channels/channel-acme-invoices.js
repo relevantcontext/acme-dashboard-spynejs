@@ -46,6 +46,13 @@ export class ChannelAcmeInvoices extends Channel {
 
       // Every invoice id matching the current query, plus the authoritative set.
       'CHANNEL_ACME_INVOICES_LIST_EVENT',
+
+      // One invoice's status changed in the held data — optimistic apply,
+      // rollback and authoritative refresh all arrive as this same action, so
+      // a mounted row repaints its pill by one path. Emitted synchronously
+      // BEFORE the LIST emission of the same data change, so the channel's
+      // replay cache never ends a turn holding this partial payload.
+      'CHANNEL_ACME_INVOICES_STATUS_EVENT',
       'CHANNEL_ACME_INVOICES_CREATE_EVENT',
       'CHANNEL_ACME_INVOICES_EDIT_EVENT',
       // A validated response to a pagination control's CHANNEL_UI request.

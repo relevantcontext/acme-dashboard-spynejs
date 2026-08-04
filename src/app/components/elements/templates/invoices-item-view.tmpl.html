@@ -12,10 +12,17 @@
 <p class="ii-amount" role="cell">{{amount}}</p>
 <p class="ii-date" role="cell">{{date}}</p>
 <div class="ii-status" role="cell">
-  <span class="{{attrStatusClass}}">
+  <button
+    type="button"
+    class="{{attrStatusClass}}"
+    data-event-type="acmeData"
+    data-btn-type="toggle-invoice-status"
+    data-invoice-id="{{attrInvoiceId}}"
+    title="Toggle paid / pending"
+  >
     {{#isPending}}{{label}}{{svgClock}}{{/isPending}}
     {{#isPaid}}{{label}}{{svgCheck}}{{/isPaid}}
-  </span>
+  </button>
 </div>
 <div class="ii-actions" role="cell">
   <a

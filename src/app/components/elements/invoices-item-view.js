@@ -1,5 +1,6 @@
 import { ViewStream, ChannelPayloadFilter } from 'spyne';
 import InvoicesItemTmpl from './templates/invoices-item-view.tmpl.html';
+import { InvoicesItemStatusTraits } from 'traits/invoices/invoices-item-status-traits.js';
 
 /**
  * One invoice on the current page — the ONLY presentation module. Desktop row
@@ -40,6 +41,7 @@ export class InvoicesItemView extends ViewStream {
     props.dataset = { invoiceId: props.data?.attrInvoiceId };
     props.template = InvoicesItemTmpl;
     props.channels = ['CHANNEL_ACME_INVOICES'];
+    props.traits = [InvoicesItemStatusTraits];
 
     super(props);
   }
@@ -59,11 +61,23 @@ export class InvoicesItemView extends ViewStream {
       },
     });
 
+    // The self-scope idiom: the channel fans STATUS_EVENT to every row, and
+    // each row reclaims only its own invoice by the id it was born with.
+    // [admit-by-payload-filter] [recognize-own-emission]
+    const statusIsMine = new ChannelPayloadFilter({
+      invoiceId: String(this.props.data?.attrInvoiceId),
+    });
+
     return [
       [
         'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT',
         'disposeViewStream',
         visibleSetExcludesMe,
+      ],
+      [
+        'CHANNEL_ACME_INVOICES_STATUS_EVENT',
+        'invoicesItemStatus$OnStatus',
+        statusIsMine,
       ],
     ];
   }

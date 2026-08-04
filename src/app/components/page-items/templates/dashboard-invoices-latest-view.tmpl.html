@@ -1,27 +1,9 @@
 <h2 class="font-lusitana mb-4 text-xl md:text-2xl">{{heading}}</h2>
 <div class="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
-  <div class="bg-white px-6">
-    {{#rows}}
-    <div class="{{attrRowClass}}">
-      <div class="flex items-center">
-        <img
-          src="{{attrImageSrc}}"
-          alt="{{attrImageAlt}}"
-          class="mr-4 rounded-full"
-          width="32"
-          height="32"
-        />
-        <div class="min-w-0">
-          <p class="truncate text-sm font-semibold md:text-base">{{name}}</p>
-          <p class="hidden text-sm text-gray-500 sm:block">{{email}}</p>
-        </div>
-      </div>
-      <p class="font-lusitana truncate text-sm font-medium md:text-base">
-        {{amount}}
-      </p>
-    </div>
-    {{/rows}}
-  </div>
+  <!-- Rows render into this slot from dashboard-invoices-latest-rows.tmpl.html
+       — once at onRendered from birth data, and again whenever a later dump
+       lands, so the list is never stale while mounted. -->
+  <div class="bg-white px-6" data-slot="latest-rows"></div>
 
   <div class="flex items-center pb-2 pt-6">
     {{svgArrowPath}}

@@ -24,10 +24,13 @@ import { getPageTemplate } from 'utils/page-template-lookup.js';
  *
  * ── Re-render ───────────────────────────────────────────────────────────────
  *
- * A mutation republishes the dump as DATA_UPDATED. Page items are disposed and
- * rebuilt from the new data — the single-active-child pattern — because a
- * DomElementTemplate renders once by design, so a view handed its data at
- * construction has no way to be told the data changed.
+ * A mutation republishes the dump as DATA_UPDATED. The PAGE does not rebuild:
+ * each data-bound item keeps itself fresh at its own tier — the stats cards
+ * and latest-invoices list repaint in place from their own CHANNEL_ACME_DATA
+ * listeners, and the invoices table re-syncs its rows through the invoices
+ * channel — so an item with live interaction state (the search box, the
+ * pagination page) is never torn down under the user. The page merely records
+ * the latest status (pageItemCore$OnAcmeDataAfterCompose).
  */
 export class PageAcmeView extends ViewStream {
   constructor(props = {}) {

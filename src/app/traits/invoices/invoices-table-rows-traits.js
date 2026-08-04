@@ -68,6 +68,35 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
     this.invoicesTableRows$ApplyLayout(e?.payload?.isMobile === true);
   }
 
+  /**
+   * A landed dump. The map every future row is minted from is rebuilt so it
+   * always reflects the channel's current truth, then the page is re-synced —
+   * within one data emission this listener runs AFTER the invoices channel's
+   * synchronous LIST -> pagination -> VISIBLE_IDS chain (it subscribed later),
+   * so the second SyncItems pass here is what builds any row the fresh
+   * VISIBLE_IDS named that the stale map could not supply (a just-created
+   * invoice entering the page).
+   *
+   * Existing row DOM is deliberately untouched: a changed status repaints via
+   * STATUS_EVENT, a departed id disposes via the row's own filter, and every
+   * other content change reaches a mounted table only through navigation,
+   * which rebuilds it.
+   */
+  static invoicesTableRows$OnAcmeData(e, props = this.props) {
+    const invoices = e?.payload?.data?.invoices;
+
+    if (Array.isArray(invoices) === false) return;
+
+    props.invoiceById = new Map(
+      buildInvoiceRows(invoices, ROW_ICONS).map((row) => [
+        String(row.attrInvoiceId),
+        row,
+      ]),
+    );
+
+    this.invoicesTableRows$SyncItems();
+  }
+
   static invoicesTableRows$ApplyLayout(isMobile) {
     this.props.el$().toggleClass('is-card-layout', isMobile === true);
   }
@@ -126,8 +155,10 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
         .els.map((el) => el.dataset.invoiceId),
     );
 
-    // The dump keyed by id, built once per table lifetime. The channel sends
-    // ids; the data every item renders from is this view's birth data.
+    // The dump keyed by id. Seeded lazily from birth data on a cold mount and
+    // REBUILT by OnAcmeData whenever a later dump lands, so a row minted after
+    // a mutation renders current values. The channel sends ids; the data every
+    // item renders from is this map.
     if (props.invoiceById == null) {
       props.invoiceById = new Map(
         buildInvoiceRows(props.data?.acmeData?.invoices || [], ROW_ICONS).map(

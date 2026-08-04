@@ -1,13 +1,17 @@
-import { ViewStream } from 'spyne';
+import { ViewStream, ChannelPayloadFilter } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
 import { buildLatestInvoiceRows } from 'utils/acme-utils.js';
+import { DashboardLatestTraits } from 'traits/dashboard/dashboard-latest-traits.js';
 import DashboardInvoicesLatestTmpl from './templates/dashboard-invoices-latest-view.tmpl.html';
 
 /**
  * Converted from app/ui/dashboard/latest-invoices.tsx (outer markup).
  *
  * The rows are a template section over the latestInvoices slice of the
- * /api/bootstrap dump.
+ * /api/bootstrap dump — held in their own partial
+ * (dashboard-invoices-latest-rows.tmpl.html) and rendered into the template's
+ * [data-slot="latest-rows"] region by DashboardLatestTraits, so the same
+ * markup serves the birth render and any post-birth refresh.
  *
  * ── Why the rows are markup and not modules ─────────────────────────────────
  *
@@ -33,6 +37,8 @@ export class DashboardInvoicesLatestView extends ViewStream {
     props.tagName = 'div';
     props.class = 'flex w-full flex-col md:col-span-4';
     props.template = DashboardInvoicesLatestTmpl;
+    props.channels = ['CHANNEL_ACME_DATA'];
+    props.traits = [DashboardLatestTraits];
     props.data = {
       ...props.data,
       heading,
@@ -45,15 +51,35 @@ export class DashboardInvoicesLatestView extends ViewStream {
   }
 
   addActionListeners() {
-    // No channel. This item is parent-governed: it is built by PageAcmeView with
-    // its data already in props, and it renders and disposes with the page.
-    // Nothing arrives after birth, so there is nothing to listen for.
-    return [];
+    // Birth data paints the first rows (in onRendered, into the template's
+    // slot); these two actions are the only ways the held dump can change
+    // while this view is mounted, and each repaints the rows from the same
+    // partial template. The isLoaded filter admits only payloads carrying a
+    // dump. [admit-by-payload-filter]
+    const dumpIsLoaded = () =>
+      new ChannelPayloadFilter({
+        payload: (payload) => payload?.status?.isLoaded === true,
+      });
+
+    return [
+      [
+        'CHANNEL_ACME_DATA_UPDATED_EVENT',
+        'dashboardLatest$OnAcmeData',
+        dumpIsLoaded(),
+      ],
+      [
+        'CHANNEL_ACME_DATA_ERROR_EVENT',
+        'dashboardLatest$OnAcmeData',
+        dumpIsLoaded(),
+      ],
+    ];
   }
 
   broadcastEvents() {
     return [];
   }
 
-  onRendered() {}
+  onRendered() {
+    this.dashboardLatest$OnRendered();
+  }
 }

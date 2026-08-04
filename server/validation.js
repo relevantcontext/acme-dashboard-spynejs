@@ -63,3 +63,13 @@ export const parseCreateInvoice = (body) =>
 
 export const parseUpdateInvoice = (body) =>
   parseWith(UpdateInvoice, body, 'Missing Fields. Failed to Update Invoice.');
+
+// ── SpyneJS-side addition (no Next.js counterpart) ───────────────────────────
+// The inline status toggle sends only { status }. The picked schema reuses the
+// same enum and invalid_type_error copy as the form schema, and zod strips the
+// keys it was not asked about, so parseWith serves this shape unchanged.
+
+const InvoiceStatus = FormSchema.pick({ status: true });
+
+export const parseInvoiceStatus = (body) =>
+  parseWith(InvoiceStatus, body, 'Invalid Status. Failed to Update Invoice.');

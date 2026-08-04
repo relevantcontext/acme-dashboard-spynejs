@@ -138,10 +138,47 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     );
   }
 
+  /**
+   * A full-state dump landed — first load, optimistic apply, rollback or
+   * authoritative refresh; this channel does not care which. It conforms the
+   * raw fact "the collection changed" into two domain vocabularies:
+   *
+   *   STATUS_EVENT  per invoice whose status differs from the previously held
+   *                 collection — the payload a mounted row repaints from.
+   *                 Emitted BEFORE PublishList, so the synchronous chain that
+   *                 follows (LIST -> pagination -> VISIBLE_IDS relay) is what
+   *                 the replay cache ends the turn holding — no subscriber can
+   *                 ever be born onto the partial STATUS payload.
+   *   LIST_EVENT    the recomputed match, flagged isDataRefresh so pagination
+   *                 keeps the current page rather than treating a data refresh
+   *                 like a new search. [acquire-and-conform]
+   */
   static acmeInvoices$OnData(e) {
-    this.props.invoices = e?.payload?.data?.invoices || [];
+    const prevInvoices = this.props.invoices;
+    const nextInvoices = e?.payload?.data?.invoices || [];
+
+    this.props.invoices = nextInvoices;
     this.props.customerOptions = e?.payload?.data?.customerOptions || [];
-    this.acmeInvoices$PublishList();
+
+    if (Array.isArray(prevInvoices) === true) {
+      const prevStatusById = new Map(
+        prevInvoices.map(({ id, status }) => [String(id), status]),
+      );
+
+      nextInvoices.forEach(({ id, status }) => {
+        const prevStatus = prevStatusById.get(String(id));
+
+        if (prevStatus === undefined || prevStatus === status) return;
+
+        this.sendChannelPayload('CHANNEL_ACME_INVOICES_STATUS_EVENT', {
+          invoiceId: String(id),
+          invoiceStatus: status,
+          isPaid: status === 'paid',
+        });
+      });
+    }
+
+    this.acmeInvoices$PublishList(true);
   }
 
   static acmeInvoices$OnFormNavigation(e) {
@@ -261,7 +298,7 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
    * page would order six rows against each other and nothing else. matchedIds
    * carries the order; pagination and the table never re-derive it.
    */
-  static acmeInvoices$PublishList() {
+  static acmeInvoices$PublishList(isDataRefresh = false) {
     const { query, sortKey, sortDir } = readInvoiceParams(
       window.location.search,
     );
@@ -276,6 +313,10 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     // sortKey/sortDir ride for the same reason: a late-born table must paint
     // its header indicator from whatever payload it replays.
     // [active-child-on-custom-channel]
+    // isDataRefresh distinguishes "the DATA changed under the same view" (a
+    // mutation landed — pagination should hold its page) from "the VIEW of the
+    // data changed" (search/sort/route — pagination restarts at page one, as
+    // it always has).
     this.sendChannelPayload('CHANNEL_ACME_INVOICES_LIST_EVENT', {
       matchedIds: ordered.map((invoice) => invoice.id),
       query,
@@ -283,6 +324,7 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
       isMobile: this.props.isMobile === true,
       sortKey,
       sortDir,
+      isDataRefresh: isDataRefresh === true,
     });
   }
 

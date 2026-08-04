@@ -122,6 +122,17 @@ const VALUE_BY_TYPE = {
   customers: 'numberOfCustomers',
 };
 
+/**
+ * One card's display value from the dump's cards object — the same read
+ * buildDashboardCards performs, exported so a mounted stats view can repaint
+ * its values from a later dump without re-shaping whole cards.
+ */
+export const getDashboardCardValue = (values, type) => {
+  const value = values ? values[VALUE_BY_TYPE[type]] : undefined;
+
+  return value === undefined || value === null ? '' : String(value);
+};
+
 const LATEST_ROW_BASE = 'flex flex-row items-center justify-between py-4';
 
 /**
@@ -143,15 +154,14 @@ const LATEST_ROW_BASE = 'flex flex-row items-center justify-between py-4';
 export const buildDashboardCards = (cards = [], acmeData, icons = {}) => {
   const values = acmeData?.cards;
 
-  return cards.map((card) => {
-    const value = values ? values[VALUE_BY_TYPE[card.type]] : undefined;
-
-    return {
-      ...card,
-      value: value === undefined || value === null ? '' : String(value),
-      svgIcon: icons[card.type] || '',
-    };
-  });
+  return cards.map((card) => ({
+    ...card,
+    value: getDashboardCardValue(values, card.type),
+    // The value element carries its card type as a dataset role, so a later
+    // dump can repaint values in place by addressing [data-card-value].
+    attrCardType: card.type,
+    svgIcon: icons[card.type] || '',
+  }));
 };
 
 /**

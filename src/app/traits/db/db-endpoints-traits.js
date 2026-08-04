@@ -89,6 +89,19 @@ export const ACME_ENDPOINTS = {
     mapFn: tag('mutation'),
   },
 
+  // The inline row toggle. `status` is the ABSOLUTE value to set, computed by
+  // ChannelAcmeData from the state it holds — never a server-side flip. Under
+  // rapid clicks the requests may land in any order, and absolute writes make
+  // the last one authoritative where flips would compound.
+  'toggle-invoice-status': {
+    toRequest: ({ invoiceId, status }) => ({
+      url: `/api/invoices/${invoiceId}/status`,
+      method: 'PATCH',
+      ...jsonBody({ status }),
+    }),
+    mapFn: tag('mutation'),
+  },
+
   // The key is `invoiceId`, matching the row's data-invoice-id and the route
   // key of the same name — domain nouns rather than a bare `id`, which would
   // also collide with ViewStream's own element id in any props that carried it.

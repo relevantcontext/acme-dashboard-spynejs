@@ -210,6 +210,25 @@ export class PaginationTraits extends SpyneTrait {
     return props.paginationState;
   }
 
+  /**
+   * Replaces the collection while HOLDING the current page — the transition
+   * for "the data changed under the same view" (a mutation refreshed the
+   * collection), where pagination$SetItems is for "a different view of the
+   * data" (new search/sort) and restarts at page one. pagination$CreateState
+   * clamps the held index, so a page that no longer exists resolves to the
+   * last page rather than an empty slice.
+   */
+  static pagination$SyncItems(items = [], props = this.props) {
+    props.paginationItems = Array.isArray(items) ? [...items] : [];
+    props.paginationState = PaginationTraits.pagination$CreateState({
+      items: props.paginationItems,
+      currentPageIndex: props.paginationState?.currentPageIndex ?? 0,
+      config: props.paginationConfig,
+    });
+
+    return props.paginationState;
+  }
+
   static pagination$SetCurrentPageNumber(pageNumber, props = this.props) {
     const requestedPageNumber = Number(pageNumber);
 

@@ -4,7 +4,11 @@
 import { Router } from 'express';
 
 import * as q from './queries.js';
-import { parseCreateInvoice, parseUpdateInvoice } from './validation.js';
+import {
+  parseCreateInvoice,
+  parseUpdateInvoice,
+  parseInvoiceStatus,
+} from './validation.js';
 import {
   verifyCredentials,
   issueSession,
@@ -203,6 +207,25 @@ export function buildRouter() {
           .json({ message: 'Database Error: Failed to Update Invoice.' });
       }
       res.json({ message: 'Invoice updated.' });
+    }),
+  );
+
+  // SpyneJS-side addition: the invoices table's inline status toggle. A
+  // single-column write, so the client does not restate amount or customer.
+  router.patch(
+    '/invoices/:id/status',
+    h(async (req, res) => {
+      const parsed = parseInvoiceStatus(req.body ?? {});
+      if (parsed.errors) return res.status(400).json(parsed);
+
+      try {
+        await q.updateInvoiceStatus(req.params.id, parsed.data.status);
+      } catch {
+        return res
+          .status(500)
+          .json({ message: 'Database Error: Failed to Update Invoice.' });
+      }
+      res.json({ message: 'Invoice status updated.' });
     }),
   );
 

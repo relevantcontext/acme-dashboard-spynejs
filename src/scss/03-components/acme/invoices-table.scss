@@ -113,6 +113,13 @@ $invoice-columns: minmax(0, 2.2fr) minmax(0, 2fr) minmax(0, 1.1fr)
 
 .ii-status {
   @apply whitespace-nowrap px-3 py-3;
+
+  // The pill is a toggle button. Its pill classes come from
+  // getInvoiceStatusClass — shared with the form's pill rendering — so the
+  // affordance lives on the cell's button rather than in the class string.
+  button {
+    @apply cursor-pointer transition-opacity hover:opacity-75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600;
+  }
 }
 
 .ii-actions {

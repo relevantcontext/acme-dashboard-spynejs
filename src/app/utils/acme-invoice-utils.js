@@ -206,6 +206,31 @@ const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
 export const formatInvoiceAmount = (amount) =>
   CURRENCY_FORMATTER.format(Number(amount) / 100);
 
+/**
+ * The two dashboard card sums, recomputed client-side from the held invoices.
+ *
+ * Mirrors fetchCardData's SUM(CASE WHEN status = ...) so an optimistic status
+ * toggle can keep the cards true before the authoritative dump returns. Output
+ * format is byte-identical to the server's formatCurrency: both are
+ * en-US/USD currency formatting of cents/100.
+ *
+ * Pure register: input to output, no framework. [author-in-correct-register]
+ */
+export const computeInvoiceStatusTotals = (invoices = []) => {
+  let paidCents = 0;
+  let pendingCents = 0;
+
+  invoices.forEach((invoice) => {
+    if (invoice.status === 'paid') paidCents += Number(invoice.amount);
+    if (invoice.status === 'pending') pendingCents += Number(invoice.amount);
+  });
+
+  return {
+    totalPaidInvoices: formatInvoiceAmount(paidCents),
+    totalPendingInvoices: formatInvoiceAmount(pendingCents),
+  };
+};
+
 export const formatInvoiceDate = (dateStr) =>
   DATE_FORMATTER.format(new Date(dateStr));
 

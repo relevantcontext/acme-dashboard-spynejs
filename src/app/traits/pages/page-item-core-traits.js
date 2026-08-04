@@ -240,11 +240,13 @@ export class PageItemCoreTraits extends SpyneTrait {
    * Surfacing the message needs an error region the acme pages do not have yet;
    * this is where that goes.
    *
-   * Otherwise it is a refreshed dump, and the page deliberately does not rebuild.
-   * That matches next-learn: its dashboard has no revalidation at all, and only
-   * `/dashboard/invoices` is revalidated — after a delete, which is the one
-   * mutation there that does not redirect. In-place refresh belongs to that
-   * table, at the row, not to every page.
+   * Otherwise it is a refreshed dump, and the page deliberately does not
+   * rebuild. Freshness is item-local: every data-bound item listens for the
+   * refreshed dump itself and repaints its own region (the stats values, the
+   * latest-invoices rows, the table's row map), which is what lets items with
+   * live interaction state — the search box, the pagination page — survive a
+   * mutation untouched. A page-level rebuild here would tear all of that down
+   * to fix what each item already fixes in place.
    */
   static pageItemCore$OnAcmeDataAfterCompose(e, props = this.props) {
     const { status } = e?.payload ?? {};

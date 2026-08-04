@@ -39,7 +39,15 @@ export class InvoicesPaginationViewTraits extends SpyneTrait {
 
     if (Array.isArray(matchedIds) === false) return;
 
-    const state = this.pagination$SetItems(matchedIds);
+    // A data refresh (create/edit/delete/toggle landed) holds the current
+    // page — a toggle on page five must not throw the user back to page one.
+    // A changed VIEW of the data (search/sort/route) restarts at page one,
+    // exactly as before.
+    const state =
+      e?.payload?.isDataRefresh === true
+        ? this.pagination$SyncItems(matchedIds)
+        : this.pagination$SetItems(matchedIds);
+
     this.invoicesPagination$RenderAndPublish(state);
   }
 
