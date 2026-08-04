@@ -131,9 +131,16 @@ export default (env = { mode: 'development' }) => {
       // in EVERY mode. webpack derives this from `mode` by default, which means
       // mode 'none' (the test build) leaves the expression untouched and it
       // throws in the browser — src/index.js reads it to decide whether to load
-      // the CMS. For development and production this matches the default
-      // exactly, so only the test build changes.
-      nodeEnv: isTest ? 'test' : mode,
+      // the CMS.
+      //
+      // isProduction is checked EXPLICITLY. The CLI's `--mode production` does
+      // NOT populate env.mode — those are different webpack namespaces — so
+      // `mode` here stays 'development' on a production build, and the old
+      // `isTest ? 'test' : mode` shipped NODE_ENV='development' to production.
+      // That loaded the dev-tools chunk — the CMS and channel console — on the
+      // live site. Masked for one deploy by an unrelated edit that broke the
+      // dev-branch string match; surfaced the moment it was restored.
+      nodeEnv: isTest ? 'test' : isProduction ? 'production' : 'development',
 
       // Split everything from node_modules into a single long-lived vendor chunk.
       splitChunks: {
