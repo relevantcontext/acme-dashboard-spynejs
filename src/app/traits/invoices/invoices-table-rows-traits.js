@@ -73,6 +73,25 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
   }
 
   /**
+   * Paints the active column and direction onto the header. aria-sort is the
+   * single authority: the trait sets it from the payload, and the CSS renders
+   * the arrow from the attribute — no second flag to fall out of step, and
+   * assistive tech reads the same fact the arrow shows. [live-mirror-via-el$]
+   */
+  static invoicesTableRows$ApplySortIndicator(sortKey, sortDir) {
+    this.props.el$('[data-sort-col]').els.forEach((el) => {
+      const isActive = el.dataset.sortCol === sortKey;
+      const ariaSort = isActive
+        ? sortDir === 'desc'
+          ? 'descending'
+          : 'ascending'
+        : 'none';
+
+      el.setAttribute('aria-sort', ariaSort);
+    });
+  }
+
+  /**
    * Reconciles the DOM against the visible page.
    *
    * Survivors persist — a delete disposes one item and pulls one in; the other
@@ -93,6 +112,10 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
     const visibleIds = payload.visibleIds || [];
 
     this.invoicesTableRows$ApplyLayout(payload.isMobile === true);
+    this.invoicesTableRows$ApplySortIndicator(
+      payload.sortKey ?? null,
+      payload.sortDir ?? null,
+    );
 
     const container = props.el$(ITEMS_SELECTOR).el;
     if (container == null) return;

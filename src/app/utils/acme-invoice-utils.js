@@ -54,19 +54,94 @@ export const filterInvoices = (invoices = [], query = '') => {
   );
 };
 
+// ── Sorting ─────────────────────────────────────────────────────────────────
+//
+// The sortable columns and the value each one orders by. `customer` sorts the
+// visible name, not the email; `date` compares the ISO string, which orders
+// chronologically without constructing Dates; `amount` is numeric CENTS (see
+// filterInvoices). Status is the two literals 'paid'/'pending', so a plain
+// string compare is a real ordering: ascending puts paid first.
+const SORT_VALUE_BY_KEY = {
+  customer: (invoice) => String(invoice.name).toLowerCase(),
+  amount: (invoice) => Number(invoice.amount),
+  date: (invoice) => String(invoice.date),
+  status: (invoice) => String(invoice.status).toLowerCase(),
+};
+
+const SORT_DIRS = ['asc', 'desc'];
+
+export const isValidInvoiceSortKey = (key) =>
+  Object.hasOwn(SORT_VALUE_BY_KEY, key);
+
 /**
- * Reads the invoice search term off a query string.
+ * Orders a copy of the collection by one of the four sortable columns.
  *
- * The channel never holds it. window.location is the state, so this runs on
+ * A null/unknown key returns the input untouched — the server's newest-first
+ * order (`ORDER BY invoices.date DESC, invoices.id DESC`) is the default and
+ * this function must not disturb it. Array.prototype.sort is stable, so rows
+ * that compare equal (two invoices on the same date, two 'paid' rows) keep
+ * that newest-first order among themselves.
+ */
+export const sortInvoices = (
+  invoices = [],
+  sortKey = null,
+  sortDir = 'asc',
+) => {
+  const getValue = SORT_VALUE_BY_KEY[sortKey];
+
+  if (getValue == null) return invoices;
+
+  const direction = sortDir === 'desc' ? -1 : 1;
+
+  return [...invoices].sort((a, b) => {
+    const aVal = getValue(a);
+    const bVal = getValue(b);
+
+    if (aVal < bVal) return -direction;
+    if (aVal > bVal) return direction;
+    return 0;
+  });
+};
+
+/**
+ * The next `sort` param value after a header click: same column flips the
+ * direction, a new column starts ascending. Returns the `<key>-<dir>` string
+ * buildAcmeSearch writes, or '' (delete the key) for an invalid column.
+ */
+export const nextInvoiceSortValue = (currentKey, currentDir, clickedKey) => {
+  if (isValidInvoiceSortKey(clickedKey) === false) return '';
+
+  const dir =
+    clickedKey === currentKey && currentDir === 'asc' ? 'desc' : 'asc';
+
+  return `${clickedKey}-${dir}`;
+};
+
+/**
+ * Reads the invoice search term and sort off a query string.
+ *
+ * The channel never holds them. window.location is the state, so this runs on
  * every params event and the answer is always current — there is no cached copy
  * to fall out of step, and a deeplink is indistinguishable from an edit, which
  * is the point of the loop.
+ *
+ * `sort` is one param, `<key>-<dir>` (e.g. `sort=amount-desc`), because the
+ * two halves are one fact — a direction without a column is meaningless — and
+ * one key merges/deletes atomically through buildAcmeSearch. Anything
+ * malformed reads as no sort at all: sortKey/sortDir null, default order.
  */
 export const readInvoiceParams = (search = '') => {
   const params = new URLSearchParams(search);
+  const [sortKey = '', sortDir = ''] = String(params.get('sort') || '').split(
+    '-',
+  );
+  const isValidSort =
+    isValidInvoiceSortKey(sortKey) && SORT_DIRS.includes(sortDir);
 
   return {
     query: params.get('query') || '',
+    sortKey: isValidSort ? sortKey : null,
+    sortDir: isValidSort ? sortDir : null,
   };
 };
 

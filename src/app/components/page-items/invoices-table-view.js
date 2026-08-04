@@ -54,7 +54,11 @@ export class InvoicesTableView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [];
+    // The sortable column headers, part of this view's own template. Each
+    // button's dataset (eventType/btnType/sortKey) IS the payload; the
+    // invoices channel narrows on it and answers with a params update.
+    // [declare-broadcast-events] [dataset-as-payload]
+    return [['.invoice-grid-header button', 'click']];
   }
 
   onRendered() {

@@ -32,6 +32,48 @@ $invoice-columns: minmax(0, 2.2fr) minmax(0, 2fr) minmax(0, 1.1fr)
   > span:first-child {
     @apply pl-6;
   }
+
+  // ── Sortable headers ──────────────────────────────────────────────────────
+  //
+  // The trait writes aria-sort from the channel payload; the arrow renders
+  // from that attribute alone, so the accessible fact and the visible fact
+  // cannot disagree. Inactive columns reserve the arrow's width with an
+  // invisible glyph so activating a sort shifts nothing.
+
+  button {
+    @apply inline-flex items-center gap-1 font-medium text-gray-900 hover:text-blue-600;
+  }
+
+  .sort-arrow {
+    @apply text-xs;
+
+    &::after {
+      content: '\25B2'; // ▲ placeholder reserving width
+      visibility: hidden;
+    }
+  }
+
+  [aria-sort='ascending'] {
+    button {
+      @apply text-blue-600;
+    }
+
+    .sort-arrow::after {
+      content: '\25B2'; // ▲
+      visibility: visible;
+    }
+  }
+
+  [aria-sort='descending'] {
+    button {
+      @apply text-blue-600;
+    }
+
+    .sort-arrow::after {
+      content: '\25BC'; // ▼
+      visibility: visible;
+    }
+  }
 }
 
 .invoice-grid-body {

@@ -1,11 +1,55 @@
-<div class="rounded-lg bg-gray-50 p-2 md:pt-0" role="table" aria-label="Invoices">
+<div
+  class="rounded-lg bg-gray-50 p-2 md:pt-0"
+  role="table"
+  aria-label="Invoices"
+>
   <div class="invoice-grid-header" role="row">
-    <span role="columnheader">Customer</span>
+    <span role="columnheader" aria-sort="none" data-sort-col="customer">
+      <button
+        type="button"
+        data-event-type="acmeInvoices"
+        data-btn-type="sort"
+        data-sort-key="customer"
+      >
+        Customer<span class="sort-arrow" aria-hidden="true"></span>
+      </button>
+    </span>
     <span role="columnheader">Email</span>
-    <span role="columnheader">Amount</span>
-    <span role="columnheader">Date</span>
-    <span role="columnheader">Status</span>
+    <span role="columnheader" aria-sort="none" data-sort-col="amount">
+      <button
+        type="button"
+        data-event-type="acmeInvoices"
+        data-btn-type="sort"
+        data-sort-key="amount"
+      >
+        Amount<span class="sort-arrow" aria-hidden="true"></span>
+      </button>
+    </span>
+    <span role="columnheader" aria-sort="none" data-sort-col="date">
+      <button
+        type="button"
+        data-event-type="acmeInvoices"
+        data-btn-type="sort"
+        data-sort-key="date"
+      >
+        Date<span class="sort-arrow" aria-hidden="true"></span>
+      </button>
+    </span>
+    <span role="columnheader" aria-sort="none" data-sort-col="status">
+      <button
+        type="button"
+        data-event-type="acmeInvoices"
+        data-btn-type="sort"
+        data-sort-key="status"
+      >
+        Status<span class="sort-arrow" aria-hidden="true"></span>
+      </button>
+    </span>
     <span role="columnheader" class="sr-only">Edit</span>
   </div>
-  <div class="invoice-grid-body" role="rowgroup" data-slot="invoice-items"></div>
+  <div
+    class="invoice-grid-body"
+    role="rowgroup"
+    data-slot="invoice-items"
+  ></div>
 </div>

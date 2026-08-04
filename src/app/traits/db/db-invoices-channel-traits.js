@@ -1,6 +1,8 @@
 import { SpyneTrait, ChannelPayloadFilter } from 'spyne';
 import {
   filterInvoices,
+  sortInvoices,
+  nextInvoiceSortValue,
   readInvoiceParams,
   INVOICE_PARAMS_EVENT,
   INVOICE_MOBILE_QUERY,
@@ -71,6 +73,15 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
 
     this.getChannel('CHANNEL_UI', paginationFilter).subscribe(
       this.acmeInvoices$OnPaginationRequest.bind(this),
+    );
+
+    const sortFilter = new ChannelPayloadFilter({
+      eventType: 'acmeInvoices',
+      btnType: 'sort',
+    });
+
+    this.getChannel('CHANNEL_UI', sortFilter).subscribe(
+      this.acmeInvoices$OnSortRequest.bind(this),
     );
 
     const formNavigationFilter = new ChannelPayloadFilter({
@@ -203,6 +214,25 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
   }
 
   /**
+   * A header click asks for a sort; the current sort lives in the URL, so the
+   * transition is computed from there rather than from held state — same
+   * column flips direction, a new column starts ascending.
+   *
+   * Pushed rather than replaced: each sort is a distinct view of the list the
+   * back button should return through, where keystrokes are amendments to one
+   * search. The popstate listener above already closes that loop.
+   */
+  static acmeInvoices$OnSortRequest(e) {
+    const clickedKey = e?.payload?.sortKey;
+    const { sortKey, sortDir } = readInvoiceParams(window.location.search);
+    const sort = nextInvoiceSortValue(sortKey, sortDir, clickedKey);
+
+    if (sort === '') return;
+
+    this.acmeInvoices$PublishParams({ sort }, 'push');
+  }
+
+  /**
    * A control can request a page but cannot change one. The declared channel
    * action below is the only event the pagination ViewStream treats as a page
    * transition.
@@ -217,28 +247,42 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     });
   }
 
-  static acmeInvoices$PublishParams(params) {
+  static acmeInvoices$PublishParams(params, historyMode = 'replace') {
     this.sendChannelPayload('CHANNEL_ACME_INVOICES_UPDATE_PARAMS_EVENT', {
       params,
+      historyMode,
     });
   }
 
-  /** Emits all ordered matches; the local pagination trait slices them. */
+  /**
+   * Emits all ordered matches; the local pagination trait slices them.
+   *
+   * The sort executes HERE, on the full match set before the slice — sorting a
+   * page would order six rows against each other and nothing else. matchedIds
+   * carries the order; pagination and the table never re-derive it.
+   */
   static acmeInvoices$PublishList() {
-    const { query } = readInvoiceParams(window.location.search);
+    const { query, sortKey, sortDir } = readInvoiceParams(
+      window.location.search,
+    );
     const invoices = this.props.invoices || [];
     const filtered = filterInvoices(invoices, query);
+    const ordered = sortInvoices(filtered, sortKey, sortDir);
 
     // isMobile rides EVERY emission, not only DISPLAY_EVENT. The channel
     // replays one payload, so a table born after the last breakpoint crossing
     // must find the current mode in whatever payload it replays — complete
     // state on every action, or a late subscriber renders the wrong layout.
+    // sortKey/sortDir ride for the same reason: a late-born table must paint
+    // its header indicator from whatever payload it replays.
     // [active-child-on-custom-channel]
     this.sendChannelPayload('CHANNEL_ACME_INVOICES_LIST_EVENT', {
-      matchedIds: filtered.map((invoice) => invoice.id),
+      matchedIds: ordered.map((invoice) => invoice.id),
       query,
-      totalMatched: filtered.length,
+      totalMatched: ordered.length,
       isMobile: this.props.isMobile === true,
+      sortKey,
+      sortDir,
     });
   }
 
@@ -254,9 +298,17 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
 
     if (action !== 'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT') return;
 
+    // Sort joins the relay the same way isMobile does — read live from the
+    // URL, the one authority PublishList also reads, so the two payloads
+    // cannot disagree. The table paints order and indicator from this one
+    // envelope.
+    const { sortKey, sortDir } = readInvoiceParams(window.location.search);
+
     this.sendChannelPayload(action, {
       ...payload,
       isMobile: this.props.isMobile === true,
+      sortKey,
+      sortDir,
     });
   }
 }
