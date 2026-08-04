@@ -59,20 +59,20 @@ Resources:
           PG_POOL_MAX: '1'
           PG_IDLE_TIMEOUT: '20'
       FunctionUrlConfig:
-        # IAM-signed, not public: the URL is reachable only by CloudFront through
-        # the OAC below. A NONE auth type would leave the API addressable
-        # directly, bypassing the distribution and its cookie-carrying origin.
-        AuthType: AWS_IAM
+        # NONE, deliberately — and this replaced an OAC + AWS_IAM design that
+        # was measured to fail. With OAC, CloudFront SigV4-signs origin
+        # requests, and for POST/PUT to a Lambda Function URL the signature
+        # must cover the payload — which requires the VIEWER to send
+        # x-amz-content-sha256. Browsers never will, so every login POST died
+        # as a 403 that the SPA error rewrite then masked as index.html/200.
+        # GETs signed fine, which made it look like a cookie bug.
+        #
+        # The API's real gate is its own session auth, same as everywhere
+        # else. Cost of NONE: the Function URL is directly addressable,
+        # bypassing CloudFront; acceptable here, note for hardening (secret
+        # origin header + WAF) if this ever fronts something real.
+        AuthType: NONE
         InvokeMode: BUFFERED
-
-  ApiFunctionUrlPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref ApiFunction
-      Action: lambda:InvokeFunctionUrl
-      Principal: cloudfront.amazonaws.com
-      FunctionUrlAuthType: AWS_IAM
-      SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}
 
   # ── Static bundle ─────────────────────────────────────────────────────────
   SiteBucket:
@@ -108,15 +108,6 @@ Resources:
       OriginAccessControlConfig:
         Name: !Sub ${AWS::StackName}-s3-oac
         OriginAccessControlOriginType: s3
-        SigningBehavior: always
-        SigningProtocol: sigv4
-
-  ApiOac:
-    Type: AWS::CloudFront::OriginAccessControl
-    Properties:
-      OriginAccessControlConfig:
-        Name: !Sub ${AWS::StackName}-lambda-oac
-        OriginAccessControlOriginType: lambda
         SigningBehavior: always
         SigningProtocol: sigv4
 
@@ -157,7 +148,6 @@ Resources:
             # The Function URL host, with the scheme stripped — CloudFront wants
             # a bare domain and !GetAtt returns https://<id>.lambda-url...
             DomainName: !Select [2, !Split ['/', !GetAtt ApiFunctionUrl.FunctionUrl]]
-            OriginAccessControlId: !GetAtt ApiOac.Id
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols: [TLSv1.2]
