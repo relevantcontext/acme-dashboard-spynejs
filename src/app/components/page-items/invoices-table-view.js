@@ -5,26 +5,26 @@ import { InvoicesTableRowsTraits } from 'traits/invoices/invoices-table-rows-tra
 /**
  * Converted from app/ui/invoices/table.tsx (outer markup).
  *
- * The source renders the same invoices twice — a stack of cards below `md` and
- * a real table at `md` and up. Both presentations are ViewStreams because both
- * carry edit/delete behavior and invoice lifecycle.
+ * The source renders the same invoices TWICE — a card stack below `md` and a
+ * table above it — and the first port copied that: a row ViewStream and a card
+ * ViewStream per invoice, duplicated DOM switched by CSS. Both halves of that
+ * are the smell this version removes. One InvoicesItemView per VISIBLE
+ * invoice, one set of content nodes, and the desktop/mobile difference is two
+ * grid layouts on the same DOM, switched by `is-card-layout` on this view's
+ * container.
  *
  * ── What this view owns ─────────────────────────────────────────────────────
  *
- * The table chrome, and the set. It builds a row view per invoice — every
- * invoice, once — and then answers each resolved list by showing the rows on
- * that page and hiding the rest. Rows own their own two controls and nothing
- * else; the set-level facts (on this page? first or last VISIBLE?) live here,
- * because no row can work them out alone.
+ * The grid chrome, the set, and the layout flag. It builds an item view when
+ * an id enters the visible page and keeps the DOM in payload order; each item
+ * disposes ITSELF when its id leaves, through a declared filter. Set-level
+ * facts live here because no item can compute them alone; existence is the
+ * item's own one fact. [cap-viewstream-instance-count]
+ * [dispose-by-predicate-filter]
  *
- * InvoicesTableRowsTraits owns visibility for both presentations. URL writes
- * live in the app-persistent AcmeQueryParamsNullView rather than in this
- * route-owned table lifecycle. [slice-traits-by-concern]
- *
- * No skip-first on CHANNEL_ACME_INVOICES: the channel replays, and the replayed
- * LIST payload is exactly what this view needs to show the right page on mount.
- * That is the opposite of the null view's case, which must ignore its birth
- * slot. [choose-replay-semantics]
+ * No skip-first on CHANNEL_ACME_INVOICES: the channel replays, and the
+ * replayed VISIBLE_IDS payload is exactly what this view needs to build the
+ * right page on mount. [choose-replay-semantics]
  */
 export class InvoicesTableView extends ViewStream {
   constructor(props = {}) {
@@ -43,6 +43,13 @@ export class InvoicesTableView extends ViewStream {
         'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT',
         'invoicesTableRows$OnVisibleIds',
       ],
+      // Live breakpoint crossings while mounted. The flag also rides every
+      // VISIBLE_IDS payload, which is how a table born after the last crossing
+      // starts in the right layout.
+      [
+        'CHANNEL_ACME_INVOICES_DISPLAY_EVENT',
+        'invoicesTableRows$OnDisplayMode',
+      ],
     ];
   }
 
@@ -51,6 +58,8 @@ export class InvoicesTableView extends ViewStream {
   }
 
   onRendered() {
-    this.invoicesTableRows$RenderRows();
+    // The replayed payload usually lands before this does — SyncItems is
+    // called from both sides and whichever runs second builds the page.
+    this.invoicesTableRows$SyncItems();
   }
 }

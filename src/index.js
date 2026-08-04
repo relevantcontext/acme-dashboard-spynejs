@@ -29,7 +29,10 @@ import AppModelURL from 'data/app.model.json';
 import { AppContainer } from 'components/shell/app-container.js';
 
 import pageItemTemplateLookup from 'utils/page-item-template-lookup.js';
-import { INVOICE_PARAMS_EVENT } from 'utils/acme-invoice-utils.js';
+import {
+  INVOICE_PARAMS_EVENT,
+  INVOICE_MOBILE_QUERY,
+} from 'utils/acme-invoice-utils.js';
 import { CUSTOMER_PARAMS_EVENT } from 'utils/acme-utils.js';
 
 const config = {
@@ -66,6 +69,13 @@ const config = {
       add404s: true,
     },
     WINDOW: {
+      // Emits CHANNEL_WINDOW_MEDIA_QUERY_EVENT with {mediaQueryName: 'mobile',
+      // matches} on every CROSSING of the breakpoint — never at registration,
+      // so consumers seed their own initial value (the invoices channel reads
+      // matchMedia once in onRegistered). [discretize-continuous-input-at-source]
+      mediaQueries: {
+        mobile: INVOICE_MOBILE_QUERY,
+      },
       events: [
         'click',
         'mouseover',
@@ -155,7 +165,7 @@ const registerCmsChannels = () => {
 // with `typeof process`: webpack replaces only this exact expression, leaving a
 // bare `process` undefined in the browser, so such a guard is always false and
 // silently disables the CMS.
-if (process.env.NODE_ENV === 'development6') {
+if (process.env.NODE_ENV === 'development') {
   import('./dev-tools.js').then(({ devToolsReady }) => {
     devToolsReady.then(registerCmsChannels);
   });

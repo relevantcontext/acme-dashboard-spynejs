@@ -52,6 +52,11 @@ export class ChannelAcmeInvoices extends Channel {
       'CHANNEL_ACME_INVOICES_PAGINATION_EVENT',
       // A pagination ViewStream result relayed for the isolated table view.
       'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT',
+
+      // The row/card breakpoint, conformed from the WINDOW mediaQuery. The
+      // flag also rides every LIST and VISIBLE_IDS payload; this action exists
+      // for LIVE crossings while a table is already mounted.
+      'CHANNEL_ACME_INVOICES_DISPLAY_EVENT',
     ];
   }
 

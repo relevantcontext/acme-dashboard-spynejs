@@ -3,6 +3,7 @@ import {
   filterInvoices,
   readInvoiceParams,
   INVOICE_PARAMS_EVENT,
+  INVOICE_MOBILE_QUERY,
 } from 'utils/acme-invoice-utils.js';
 
 const PARAMS_CHANGED_ACTION = `CHANNEL_WINDOW_${INVOICE_PARAMS_EVENT.toUpperCase()}_EVENT`;
@@ -29,10 +30,18 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
   }
 
   static acmeInvoices$OnRegistered() {
+    // Seeded from a direct read, not from the channel: the WINDOW mediaQuery
+    // observable is fromEventPattern over matchMedia's change listener, so it
+    // emits on CROSSINGS only — a page loaded at mobile width would otherwise
+    // wait for a resize to learn what it is. Same precedent as reading
+    // location.search: the browser holds the state, the channel conforms it.
+    this.props.isMobile = window.matchMedia(INVOICE_MOBILE_QUERY).matches;
+
     this.acmeInvoices$ListenToData();
     this.acmeInvoices$ListenToUiEvents();
     this.acmeInvoices$ListenToParams();
     this.acmeInvoices$ListenToRoute();
+    this.acmeInvoices$ListenToMediaQuery();
   }
 
   static acmeInvoices$ListenToData() {
@@ -82,6 +91,30 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     this.getChannel('CHANNEL_WINDOW', paramsActionsPayloadFilter).subscribe(
       this.acmeInvoices$OnParamsChanged.bind(this),
     );
+  }
+
+  /**
+   * The raw window fact becomes domain vocabulary here: mediaQueryName
+   * 'mobile' arrives as {matches}, leaves as DISPLAY_EVENT {isMobile}. One
+   * subscriber conforms; everything downstream speaks invoices, not viewports.
+   * [acquire-and-conform]
+   */
+  static acmeInvoices$ListenToMediaQuery() {
+    const mobileQueryFilter = new ChannelPayloadFilter({
+      mediaQueryName: 'mobile',
+    });
+
+    this.getChannel('CHANNEL_WINDOW', mobileQueryFilter).subscribe(
+      this.acmeInvoices$OnMediaQuery.bind(this),
+    );
+  }
+
+  static acmeInvoices$OnMediaQuery(e) {
+    this.props.isMobile = e?.payload?.matches === true;
+
+    this.sendChannelPayload('CHANNEL_ACME_INVOICES_DISPLAY_EVENT', {
+      isMobile: this.props.isMobile,
+    });
   }
 
   static acmeInvoices$ListenToRoute() {
@@ -196,31 +229,34 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     const invoices = this.props.invoices || [];
     const filtered = filterInvoices(invoices, query);
 
-    // presentIds is keyed by id, not a list of ids, because of who reads it:
-    // every row and card view answers "does my invoice still exist" on every
-    // emission. Payloads are reference-by-wire — all of those subscribers
-    // share this one frozen object — so the shape the channel emits IS the
-    // cost every subscriber pays. A keyed object makes the membership test a
-    // property read; the id ARRAY this replaces made it a linear scan, and
-    // the fan-out multiplied that scan into seconds at scale. The channel
-    // resolves once; views only read. [conform-incoming-data]
-    const presentIds = {};
-    for (const invoice of invoices) presentIds[invoice.id] = true;
-
+    // isMobile rides EVERY emission, not only DISPLAY_EVENT. The channel
+    // replays one payload, so a table born after the last breakpoint crossing
+    // must find the current mode in whatever payload it replays — complete
+    // state on every action, or a late subscriber renders the wrong layout.
+    // [active-child-on-custom-channel]
     this.sendChannelPayload('CHANNEL_ACME_INVOICES_LIST_EVENT', {
       matchedIds: filtered.map((invoice) => invoice.id),
-      presentIds,
       query,
       totalMatched: filtered.length,
+      isMobile: this.props.isMobile === true,
     });
   }
 
-  /** Relays a view result without storing or interpreting pagination state. */
+  /**
+   * Relays a view result without storing or interpreting pagination state.
+   * Composed, not mutated: the display mode joins the pagination view's frozen
+   * payload on a new envelope, so the relay also satisfies the complete-state
+   * rule for the payload the table actually consumes.
+   * [compose-payload-at-send]
+   */
   static acmeInvoices$OnViewStreamInfo(e) {
     const { action, payload } = e || {};
 
     if (action !== 'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT') return;
 
-    this.sendChannelPayload(action, payload);
+    this.sendChannelPayload(action, {
+      ...payload,
+      isMobile: this.props.isMobile === true,
+    });
   }
 }

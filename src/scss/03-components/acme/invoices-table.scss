@@ -1,67 +1,139 @@
 // ---------------------------------------------
-// Invoices table — the markup that repeats per row
+// Invoices — one DOM, two grid layouts
 // ---------------------------------------------
 //
-// Ported from the utility strings in app/ui/invoices/table.tsx. Same rendered
-// result; the utilities are resolved here through @apply rather than written
-// out on every row.
+// The desktop "table" and the mobile "card" are the SAME six content nodes per
+// invoice; only grid-template changes between them. `is-card-layout` on the
+// grid root — toggled by InvoicesTableRowsTraits from the channel's conformed
+// mediaQuery flag — is the single switch. No media queries here on purpose:
+// the JS flag is the source of truth, so CSS keying off viewport width would
+// be a second authority that could disagree with it.
 //
-// Three reasons this is a stylesheet and not an inline class list:
+// Positional CSS is back, deliberately. The previous design hid off-page rows,
+// so :first-child counted hidden children and first/last-visible had to be
+// computed in JS. Now only the visible page exists in the DOM, so
+// :last-of-type means what it says. Existence equals visibility.
 //
-//   1. The positional rules were arbitrary-variant Tailwind
-//      (`[&:first-child>td:first-child]:rounded-tl-lg`) — CSS in a costume, and
-//      unreadable at the call site.
-//   2. `:first-child` counts DOM children, not VISIBLE ones. With rows shown
-//      and hidden rather than re-rendered, the rounded corners would land on a
-//      hidden row. The visible edges are resolved in JavaScript and land here
-//      as `.is-first` / `.is-last`, which is a thing CSS cannot ask for.
-//   3. The row's class attribute was ~230 characters. Trivial at 12 rows;
-//      over a megabyte of repeated class strings at the scale the bulk-render
-//      version is meant for.
-//
-// SPECIFICITY: flat single-class selectors only, never nested under `main#app`.
-// See the note in app.scss — design-system rules scoped that way carried (1,1,2)
-// against Tailwind's (0,1,0) and silently beat the utility actually written in
-// the markup. Nothing here outranks a utility on the same element.
+// SPECIFICITY: flat selectors, never nested under `main#app` — see app.scss.
 
-.invoice-row {
-  @apply w-full border-b py-3 text-sm;
+$invoice-columns: minmax(0, 2.2fr) minmax(0, 2fr) minmax(0, 1.1fr)
+  minmax(0, 1.2fr) minmax(0, 1.2fr) auto;
+
+.invoice-grid-header {
+  @apply text-left text-sm font-normal text-gray-900;
+  display: grid;
+  grid-template-columns: $invoice-columns;
+  align-items: center;
+
+  > span {
+    @apply px-3 py-5 font-medium;
+  }
+
+  > span:first-child {
+    @apply pl-6;
+  }
 }
 
-// Set by InvoicesTableRowsTraits from the channel's page ids — "first/last of
-// what is currently shown", which is why these are classes and not :first-child.
-.invoice-row.is-first > td:first-child {
-  @apply rounded-tl-lg;
+.invoice-grid-body {
+  @apply rounded-lg bg-white text-sm text-gray-900;
 }
 
-.invoice-row.is-first > td:last-child {
-  @apply rounded-tr-lg;
+// ── The shared cells ────────────────────────────────────────────────────────
+
+.invoice-item {
+  @apply border-b py-3;
+  display: grid;
+  grid-template-columns: $invoice-columns;
+  align-items: center;
+
+  &:last-of-type {
+    @apply border-none;
+  }
 }
 
-.invoice-row.is-last > td:first-child {
-  @apply rounded-bl-lg;
+.ii-customer {
+  @apply flex items-center gap-3 whitespace-nowrap py-3 pl-6 pr-3;
+
+  > p {
+    @apply truncate;
+  }
 }
 
-.invoice-row.is-last > td:last-child {
-  @apply rounded-br-lg;
+.ii-email,
+.ii-amount,
+.ii-date {
+  // truncate, because grid minmax(0, nfr) tracks CAN shrink below content —
+  // that is what minmax(0,…) is for — where the old <table> auto-sized its
+  // columns to content and never clipped. Without it a long email overflows
+  // into the amount column.
+  @apply truncate px-3 py-3;
 }
 
-.invoice-row.is-last {
-  @apply border-none;
-}
-
-// Search and pagination hide rows rather than discarding them: every invoice is
-// rendered once, and the current page is a visibility pass. Safe only because
-// the set arrives ordered date DESC, so hiding never reorders anything.
-.invoice-row.is-hidden {
-  @apply hidden;
-}
-
-.invoice-cell {
+.ii-status {
   @apply whitespace-nowrap px-3 py-3;
 }
 
-// The gutter cells — customer at the head of the row, actions at its tail.
-.invoice-cell--edge {
-  @apply whitespace-nowrap py-3 pl-6 pr-3;
+.ii-actions {
+  @apply flex justify-end gap-3 whitespace-nowrap py-3 pl-6 pr-3;
+}
+
+// ── Card layout: same nodes, different template ─────────────────────────────
+//
+// Matches next-learn's below-md card: avatar+name and status on the top line,
+// email under the name, a divider, then amount over date on the left with the
+// actions right. All of it is grid-area assignment — nothing about the
+// children changes.
+
+.is-card-layout {
+  .invoice-grid-header {
+    display: none;
+  }
+
+  .invoice-grid-body {
+    @apply bg-transparent;
+  }
+
+  .invoice-item {
+    @apply mb-2 w-full rounded-md border-0 bg-white p-4;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'customer status'
+      'email    status'
+      'amount   actions'
+      'date     actions';
+  }
+
+  .ii-customer {
+    grid-area: customer;
+    @apply p-0 pb-1;
+  }
+
+  .ii-email {
+    grid-area: email;
+    @apply border-b p-0 pb-4 text-sm text-gray-500;
+  }
+
+  .ii-status {
+    grid-area: status;
+    @apply self-start border-b p-0 pb-4 text-right;
+
+    // The divider must span the full row, so both top-line cells carry it and
+    // the status stretches to the item edge.
+    height: 100%;
+  }
+
+  .ii-amount {
+    grid-area: amount;
+    @apply p-0 pt-4 text-xl font-medium;
+  }
+
+  .ii-date {
+    grid-area: date;
+    @apply p-0 pt-1;
+  }
+
+  .ii-actions {
+    grid-area: actions;
+    @apply gap-2 self-end p-0 pt-4;
+  }
 }

@@ -99,6 +99,15 @@ export const buildInvoiceSearch = buildAcmeSearch;
 export const INVOICE_PARAMS_EVENT = 'acme_invoices_params_changed';
 
 /**
+ * The row/card breakpoint, matching next-learn's `md`. One definition: index.js
+ * registers it under config.channels.WINDOW.mediaQueries, and the invoices
+ * channel seeds its own display state from the same string — matchMedia only
+ * reports CHANGES, so the boot value has to be read once, and reading a
+ * different string than the one registered would let the two drift.
+ */
+export const INVOICE_MOBILE_QUERY = '(max-width: 768px)';
+
+/**
  * formatCurrency and formatDateToLocal from the Next.js app's lib/utils.ts.
  *
  * The source builds a new Intl formatter on every call — `toLocaleString` does

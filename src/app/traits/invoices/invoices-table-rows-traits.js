@@ -1,19 +1,15 @@
 import { SpyneTrait } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
 import { buildInvoiceRows } from 'utils/acme-invoice-utils.js';
-import { InvoicesTableRowView } from 'components/elements/invoices-table-row-view.js';
-import { InvoicesCardView } from 'components/elements/invoices-card-view.js';
+import { InvoicesItemView } from 'components/elements/invoices-item-view.js';
 
-const ROWS_SELECTOR = '[data-slot="invoice-rows"]';
-const CARDS_SELECTOR = '[data-slot="invoice-cards"]';
+const ITEMS_SELECTOR = '[data-slot="invoice-items"]';
 
 /**
- * The four icons every row needs, built ONCE at module load.
- *
- * withClass() does string work, so calling it per row would repeat the same
- * four results for the length of the table. Rows reference these; they do not
- * rebuild them. (Passing them once at the ROOT of the template data does not
- * work — see buildInvoiceRows for what was measured.)
+ * The four icons every item needs, built ONCE at module load. Items reference
+ * these; they do not rebuild them. (Passing them once at the ROOT of the
+ * template data does not work — outer-scope keys do not reach inside a
+ * section; see buildInvoiceRows.)
  */
 const ROW_ICONS = {
   svgClock: withClass('clock', 'ml-1 w-4 text-gray-500'),
@@ -23,26 +19,25 @@ const ROW_ICONS = {
 };
 
 /**
- * The invoices table's rows: building them once, then showing the current page.
+ * The invoices table: minting the VISIBLE page, not the dataset.
  *
- * ── Every invoice is rendered, once ─────────────────────────────────────────
+ * ── The split with the item views ───────────────────────────────────────────
  *
- * Search and pagination are a VISIBILITY pass over rows that already exist, not
- * a re-render. next-learn re-queries SQL per keystroke and per page click and
- * renders only the six rows it asked for; here the whole set is in hand, so a
- * keystroke costs a loop over twelve elements and no DOM construction at all.
+ * The table owns set-level work: which ids are on the page, in what order, and
+ * which layout the container is in. An item owns exactly one fact — whether
+ * the current page still includes it — and acts on that fact by disposing,
+ * because a parent never holds a child reference, so disposal can only
+ * originate in the child. Birth here, death there.
  *
- * This is only safe because the set arrives ordered date DESC from SQL — hiding
- * rows never reorders the ones left, so the visible sequence always matches the
- * page next-learn would have rendered.
+ * ── Why there is no visibility pass anymore ─────────────────────────────────
  *
- * ── Why the table owns this and the rows do not ─────────────────────────────
- *
- * A row could subscribe and hide itself. It could not work out that it is the
- * FIRST VISIBLE row, because that is a fact about the set, and the rounded
- * corners depend on it. One subscriber holding the whole set beats twelve
- * subscribers that each need the others' answers. Rows keep what is genuinely
- * theirs — their own two controls. [wiring-surface-only-on-viewstream]
+ * The previous design rendered every invoice once and treated the page as an
+ * is-hidden sweep. That capped out exactly as the instance-count operation
+ * predicts, and it also forced first/last-visible to be computed in JS,
+ * because :first-child counts hidden children. With only the visible page in
+ * the DOM, positional CSS is simply CORRECT again — the container rounds its
+ * own corners and :last-of-type drops the final border. Existence equals
+ * visibility, and a whole layer of machinery goes with it.
  */
 export class InvoicesTableRowsTraits extends SpyneTrait {
   constructor(context) {
@@ -51,114 +46,88 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
   }
 
   /**
-   * Builds one row view per invoice, from the full dump handed down at
-   * construction — not from the channel. The channel decides what is VISIBLE;
-   * the page decides what EXISTS.
+   * The resolved page arrives: visibleIds in display order, plus the display
+   * mode riding the payload (complete state — a replayed payload must carry
+   * everything a late-born table needs).
    *
-   * The element list is cached because it is walked on every keystroke, and it
-   * is scoped to the tbody: an unscoped `tr` also matches the `<thead>` row, and
-   * the first thing the visibility pass would hide is the column headings.
-   */
-  static invoicesTableRows$RenderRows(props = this.props) {
-    const invoices = props.data?.acmeData?.invoices || [];
-
-    buildInvoiceRows(invoices, ROW_ICONS).forEach((data) => {
-      this.appendView(new InvoicesTableRowView({ data }), ROWS_SELECTOR);
-      this.appendView(new InvoicesCardView({ data }), CARDS_SELECTOR);
-    });
-
-    props.invoiceEls$ = props.el$(`${ROWS_SELECTOR} tr`).els;
-    props.invoiceCardEls$ = props.el$(`${CARDS_SELECTOR} .invoice-card`).els;
-
-    // The list may already have arrived — see the note on ordering below.
-    this.invoicesTableRows$ApplyVisibility();
-  }
-
-  /**
-   * The visible page IDs, calculated by the pagination ViewStream and relayed by
-   * the invoices channel.
-   *
-   * The payload is kept rather than acted on directly, because this fires BEFORE
-   * the rows exist on a cold mount. CHANNEL_ACME_INVOICES replays, so the
-   * subscription made in the constructor delivers the current list immediately,
-   * while onRendered — and therefore the rows — is still to come. Holding the
-   * payload lets whichever happens second do the work.
+   * Held rather than acted on directly: on a cold mount the replayed payload
+   * lands before onRendered has produced an element to build into. Whichever
+   * of the two runs second does the work.
    */
   static invoicesTableRows$OnVisibleIds(e, props = this.props) {
     props.listPayload = e?.payload ?? null;
 
-    this.invoicesTableRows$ApplyVisibility();
+    this.invoicesTableRows$SyncItems();
   }
 
   /**
-   * Shows the current page and marks its visible edges.
-   *
-   * `visibleIds` is the paginator's answer — already sliced
-   * to the page — so this is a Set membership test per row rather than a search.
-   *
-   * `is-first` / `is-last` exist because CSS cannot express "first visible":
-   * :first-child counts DOM children, and the hidden rows are still children.
+   * A live breakpoint crossing while the table is mounted. Same class, same
+   * CSS; the six items relayout without a single re-render.
    */
-  static invoicesTableRows$ApplyVisibility(props = this.props) {
+  static invoicesTableRows$OnDisplayMode(e) {
+    this.invoicesTableRows$ApplyLayout(e?.payload?.isMobile === true);
+  }
+
+  static invoicesTableRows$ApplyLayout(isMobile) {
+    this.props.el$().toggleClass('is-card-layout', isMobile === true);
+  }
+
+  /**
+   * Reconciles the DOM against the visible page.
+   *
+   * Survivors persist — a delete disposes one item and pulls one in; the other
+   * five are untouched. The table finds what already exists by querying its
+   * own region rather than holding references [address-region-by-el$], builds
+   * only the missing ids from the dump it was constructed with, and then walks
+   * visibleIds appending each element in order. appendChild MOVES a node that
+   * is already a child, so that one pass is both the insertion and the sort —
+   * newcomers can land BETWEEN survivors (a narrowed search interleaves new
+   * matches with old), and an ordering that trusted append-at-end would be
+   * silently wrong exactly there.
+   */
+  static invoicesTableRows$SyncItems(props = this.props) {
     const payload = props.listPayload;
 
-    if (!props.invoiceEls$ || !payload) return;
-
-    // A deleted row disposes ITSELF — the table cannot, since it holds no
-    // reference to it — so the cache is pruned rather than rebuilt. Order does
-    // not matter: a row that has gone is dropped here, and one that goes a
-    // moment later is dropped on the next list. isConnected is the only test
-    // that works either way.
-    const els = props.invoiceEls$.filter((el) => el.isConnected === true);
-    props.invoiceEls$ = els;
+    if (props.el == null || payload == null) return;
 
     const visibleIds = payload.visibleIds || [];
-    const onThisPage = new Set(visibleIds);
-    const firstId = payload.firstVisibleId ?? visibleIds[0];
-    const lastId = payload.lastVisibleId ?? visibleIds[visibleIds.length - 1];
 
-    els.forEach((el) => {
-      const { invoiceId } = el.dataset;
+    this.invoicesTableRows$ApplyLayout(payload.isMobile === true);
 
-      el.classList.toggle('is-hidden', onThisPage.has(invoiceId) === false);
-      el.classList.toggle('is-first', invoiceId === firstId);
-      el.classList.toggle('is-last', invoiceId === lastId);
-    });
+    const container = props.el$(ITEMS_SELECTOR).el;
+    if (container == null) return;
 
-    const cardEls = (props.invoiceCardEls$ || []).filter(
-      (el) => el.isConnected === true,
+    const existingIds = new Set(
+      props
+        .el$(`${ITEMS_SELECTOR} [data-invoice-id]`)
+        .els.map((el) => el.dataset.invoiceId),
     );
-    props.invoiceCardEls$ = cardEls;
 
-    cardEls.forEach((el) => {
-      el.classList.toggle(
-        'hidden',
-        onThisPage.has(el.dataset.invoiceId) === false,
+    // The dump keyed by id, built once per table lifetime. The channel sends
+    // ids; the data every item renders from is this view's birth data.
+    if (props.invoiceById == null) {
+      props.invoiceById = new Map(
+        buildInvoiceRows(props.data?.acmeData?.invoices || [], ROW_ICONS).map(
+          (row) => [String(row.attrInvoiceId), row],
+        ),
       );
+    }
+
+    visibleIds.forEach((id) => {
+      if (existingIds.has(String(id)) === true) return;
+
+      const data = props.invoiceById.get(String(id));
+      if (data == null) return;
+
+      this.appendView(new InvoicesItemView({ data }), ITEMS_SELECTOR);
     });
-  }
 
-  /**
-   * Disposes this row when its invoice is no longer in the set.
-   *
-   * No skip-first is needed even though the channel replays. A row is built from
-   * the same dump the channel holds, so its replayed birth payload always
-   * contains its own id — and if it somehow did not, disposing would be the
-   * correct response rather than the bug skip-first exists to prevent.
-   */
-  static invoicesTableRows$OnRowList(e, props = this.props) {
-    const presentIds = e?.payload?.presentIds;
-
-    // A payload without the membership object is not evidence of deletion —
-    // say nothing.
-    if (presentIds == null || typeof presentIds !== 'object') return;
-
-    // One property read against the shared frozen object every sibling also
-    // holds. Absence is still the whole test: the refreshed dump not naming
-    // this id is the server's answer, exactly as before — only the lookup
-    // changed, from a per-row scan of an id array to a key access.
-    if (presentIds[props.data?.attrInvoiceId] === true) return;
-
-    this.disposeViewStream();
+    // One ordering pass over at most a page of nodes. Items disposed by their
+    // own filter may still be mid-teardown on this same emission; moving only
+    // the ids the payload names sidesteps any ordering with the dying.
+    visibleIds.forEach((id) => {
+      const el = container.querySelector(`[data-invoice-id="${id}"]`);
+      if (el != null) container.appendChild(el);
+    });
   }
 }
