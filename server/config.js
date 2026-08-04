@@ -14,6 +14,16 @@ export const PORT = Number(process.env.API_PORT || 8090);
 // local and Neon differ by this value alone and no connection code branches.
 export const POSTGRES_URL = process.env.POSTGRES_URL;
 
+// Connection pool shape, stated by the host rather than inferred from it.
+//
+// The defaults are the long-running server's: a modest pool, connections kept
+// warm. Lambda overrides both in template.yaml — one connection, released
+// quickly — because a function container serves one request at a time and a
+// larger pool there is just connections held open against Neon's limit while
+// concurrent cold starts multiply them.
+export const PG_POOL_MAX = Number(process.env.PG_POOL_MAX || 10);
+export const PG_IDLE_TIMEOUT = Number(process.env.PG_IDLE_TIMEOUT || 0) || undefined;
+
 // Signs the session cookie. Same value as the Next.js app's AUTH_SECRET, so the
 // comparison setup has one session secret rather than two to keep in sync.
 export const AUTH_SECRET = process.env.AUTH_SECRET;

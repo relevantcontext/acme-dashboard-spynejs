@@ -1,0 +1,22 @@
+version = 0.1
+
+# CloudFront only accepts certificates from us-east-1, and the stack creates its
+# own certificate — so the whole stack lives there. The database is in Neon, not
+# AWS, so nothing else is region-bound.
+
+[default.global.parameters]
+stack_name = "acme-dashboard-spynejs"
+region = "us-east-1"
+
+[default.build.parameters]
+# bcrypt is a native module: it must be compiled for the Lambda runtime, not for
+# the developer's Mac. Without this the build silently ships a darwin binary and
+# the function fails at import with a cryptic ELF error.
+use_container = true
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+confirm_changeset = true
+# POSTGRES_URL and AUTH_SECRET are NoEcho and deliberately absent here — this
+# file is committed. Pass them with --parameter-overrides, or let sam prompt.

@@ -21,3 +21,6 @@ src/scss/scripts/*
 *.pem
 *.key
 *.crt
+
+# SAM build artifacts
+.aws-sam/

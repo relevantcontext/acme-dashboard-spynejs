@@ -1,0 +1,14 @@
+{
+  "name": "acme-api",
+  "type": "module",
+  "description": "API tier for the SpyneJS Acme dashboard. Self-contained so SAM can install it for the Lambda runtime; server/*.js import nothing outside this directory.",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cookie-parser": "^1.4.7",
+    "postgres": "^3.4.9",
+    "bcrypt": "^6.0.0",
+    "zod": "^3.25.76",
+    "serverless-http": "^4.0.0"
+  },
+  "version": "1.0.0"
+}
