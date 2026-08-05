@@ -16,8 +16,14 @@
 //
 // SPECIFICITY: flat selectors, never nested under `main#app` — see app.scss.
 
+// The last track was `auto`, which sizes to CONTENT — 124px in a row (two
+// action buttons) but ~0 in the header (empty cell), so the header's fr
+// tracks absorbed the difference and every label drifted right of its
+// column, worse toward the end. Header and rows are separate grids sharing
+// this template; only a content-independent track keeps them aligned.
+$invoice-actions-track: 7.75rem; // = the measured 124px actions cell
 $invoice-columns: minmax(0, 2.2fr) minmax(0, 2fr) minmax(0, 1.1fr)
-  minmax(0, 1.2fr) minmax(0, 1.2fr) auto;
+  minmax(0, 1.2fr) minmax(0, 1.2fr) $invoice-actions-track;
 
 .invoice-grid-header {
   @apply text-left text-sm font-normal text-gray-900;
