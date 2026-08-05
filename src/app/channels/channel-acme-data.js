@@ -47,6 +47,25 @@ export class ChannelAcmeData extends Channel {
     props.acmePendingMutations = 0;
     props.acmeStatusIntents = [];
 
+    // Live payment activity, owned here for the same reason. The API tier
+    // simulates continuous events while a user is signed in; this channel
+    // polls it, patches the held dump, and republishes.
+    // [record:live-polling-updates]
+    //
+    //   acmeLiveTickSub       the raw-RxJS interval subscription driving the
+    //                         polls; null while signed out. Started when the
+    //                         first dump lands, stopped by ClearData.
+    //   acmeLiveTickInFlight  exhaust latch — a new tick is skipped, never
+    //                         queued, while one is outstanding.
+    //   acmeLiveFeed          the rolling conformed activity feed (newest
+    //                         first, capped), riding every published payload.
+    //   acmeLiveJournal       recent raw events, re-applied over a landing
+    //                         bootstrap whose snapshot predates them.
+    props.acmeLiveTickSub = null;
+    props.acmeLiveTickInFlight = false;
+    props.acmeLiveFeed = [];
+    props.acmeLiveJournal = [];
+
     super(name, props);
   }
 
@@ -61,9 +80,10 @@ export class ChannelAcmeData extends Channel {
       'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT',
 
       // The dump landed. LOADED is the first one after authentication; UPDATED
-      // is every refresh after a mutation. Split so a view can render on first
-      // load and re-render on change without inspecting a flag — the same split
-      // as the auth channel's INIT / CHANGED.
+      // is every refresh after a mutation AND every live-tick merge (external
+      // payment activity patching the held dump). Split so a view can render on
+      // first load and re-render on change without inspecting a flag — the same
+      // split as the auth channel's INIT / CHANGED.
       'CHANNEL_ACME_DATA_LOADED_EVENT',
       'CHANNEL_ACME_DATA_UPDATED_EVENT',
 

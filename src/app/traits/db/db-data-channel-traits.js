@@ -1,12 +1,38 @@
 import { SpyneTrait, ChannelPayloadFilter } from 'spyne';
+// Raw RxJS for the tick clock only: an interval is timing the declared idioms
+// cannot express, and the escape stays inside this channel trait.
+// [escape-to-raw-rxjs] [record:live-polling-updates]
+import { interval } from 'rxjs';
 import { AcmeAuthStateTraits } from 'traits/shell/acme-auth-state-traits.js';
 import { AcmeEndpointsTraits } from 'traits/db/db-endpoints-traits.js';
-import { computeInvoiceStatusTotals } from 'utils/acme-invoice-utils.js';
+import {
+  computeInvoiceStatusTotals,
+  applyLiveInvoiceEvents,
+  buildLiveFeedEvents,
+} from 'utils/acme-invoice-utils.js';
 
 // The toggle endpoint's URL, recognized on ERROR payloads — error payloads are
 // built from real request metadata, so this is the one reliable way to map a
 // failed request back to its intent. [action-reconciliation-identity]
 const TOGGLE_URL_RE = /\/api\/invoices\/([^/]+)\/status/;
+
+// The live-tick endpoint, recognized the same way on ERROR payloads.
+const LIVE_TICK_URL = '/events/tick';
+
+// The poll cadence. Each tick both advances the simulation server-side and
+// returns what happened, so this is also the event rate the feed shows and
+// the worst-case latency between an event and every surface reflecting it.
+const LIVE_TICK_MS = 2500;
+
+// How many conformed events the rolling feed retains (newest first).
+const LIVE_FEED_MAX = 30;
+
+// How long a live event stays re-appliable over a landing bootstrap. The race
+// it closes: a tick's DB write commits AFTER a bootstrap's SELECT ran but its
+// response lands BEFORE the (much heavier) bootstrap response does — applying
+// that dump verbatim would silently un-happen the event until the next reload.
+// Entries older than this are certainly reflected in any dump and age out.
+const LIVE_JOURNAL_MS = 20000;
 
 /**
  * The shape every payload carries, whether or not anything has loaded. A view
@@ -285,6 +311,173 @@ export class AcmeDataChannelTraits extends SpyneTrait {
     });
   }
 
+  // ── Live payment activity ─────────────────────────────────────────────────
+  //
+  // While a user is signed in, the API tier simulates continuous payment
+  // activity: each poll both ADVANCES the simulation (the server commits this
+  // tick's events) and returns what happened, with the full joined row for
+  // every touched invoice. The clock is a raw RxJS interval held here — the
+  // sanctioned escape for timing the idioms cannot express, kept inside the
+  // channel [escape-to-raw-rxjs] — started when the first dump lands and
+  // stopped by acmeData$ClearData, so its lifetime is exactly "signed in with
+  // data". [record:live-polling-updates]
+  //
+  // Each tick's request rides the same path as every other request: a
+  // REQUEST_EVENT the null requester ViewStream forwards to the fetch channel
+  // — a Channel cannot fetch for itself. [bridge-channel-output-to-transmit]
+
+  static acmeData$StartLiveTicks() {
+    if (this.props.acmeLiveTickSub != null) return;
+
+    this.props.acmeLiveTickSub = interval(LIVE_TICK_MS).subscribe(() =>
+      this.acmeData$RequestLiveTick(),
+    );
+  }
+
+  /**
+   * The structural teardown for the one long-lived subscription this channel
+   * owns. Called from ClearData (sign-out, session expiry) and on a tick 401.
+   * [no-leaked-subscription]
+   */
+  static acmeData$StopLiveTicks() {
+    if (this.props.acmeLiveTickSub != null) {
+      this.props.acmeLiveTickSub.unsubscribe();
+      this.props.acmeLiveTickSub = null;
+    }
+
+    this.props.acmeLiveTickInFlight = false;
+  }
+
+  /**
+   * One poll. The in-flight latch is exhaust semantics by hand — a new tick is
+   * SKIPPED, not queued, while one is outstanding, so a slow response never
+   * stacks requests. Hand-rolled because the request completes on a different
+   * channel than it starts (REQUEST_EVENT out, fetch payload back), which is a
+   * seam no single RxJS operator spans. [select-concurrency-operator]
+   *
+   * Deliberately NOT acmeData$Request: a tick is not a client mutation. It
+   * must not raise acmePendingMutations — its response carries its own patch,
+   * so it never invalidates the dump, and counting it would make the
+   * stale-bootstrap guard discard authoritative refetches forever.
+   */
+  static acmeData$RequestLiveTick() {
+    if (this.props.acmeLiveTickInFlight === true) return;
+    if (this.props.acmeIsLoaded !== true) return;
+
+    this.props.acmeLiveTickInFlight = true;
+
+    const fetchProps = AcmeEndpointsTraits.acmeEndpoints$Resolve('live-tick');
+
+    if (fetchProps === null) return;
+
+    this.acmeData$SendToChannel('CHANNEL_FETCH_ACME_API', fetchProps);
+  }
+
+  /**
+   * A tick landed. External events reconcile with the user's own in-flight
+   * work by two rules:
+   *
+   *   skip what an intent owns   an invoice with an in-flight optimistic
+   *                              toggle is left to that toggle's own typed
+   *                              reconciliation (confirm / rollback /
+   *                              supersede) — an external patch would race the
+   *                              inverse. The toggle's authoritative refetch
+   *                              settles it. [typed-reconciliation-outcome]
+   *   patch, never replace       the merge writes only what the events name,
+   *                              onto whatever provisional state is held, so a
+   *                              tick landing mid-mutation cannot clobber the
+   *                              optimistic values the way a stale bootstrap
+   *                              would (which is why ticks bypass the
+   *                              pending-mutations guard entirely).
+   *
+   * The merged state is published as a normal full-state UPDATED — the same
+   * emission a mutation's refetch produces — so every surface (cards, table,
+   * pagination, quick-search, a page composed later from replay) refreshes by
+   * the one path it already has, and none of them re-render wholesale: each
+   * repaints in place by its own established freshness mechanism.
+   */
+  static acmeData$OnLiveTickReturned(data = {}) {
+    this.props.acmeLiveTickInFlight = false;
+
+    // Signed out while the request was in flight: the data was dropped and
+    // nothing may be published for an identity that no longer holds it.
+    if (this.props.acmeIsLoaded !== true) return;
+
+    const events = Array.isArray(data.events) ? data.events : [];
+    const rows = Array.isArray(data.invoices) ? data.invoices : [];
+
+    // A quiet tick (nothing was pending to pay, odds rolled no create):
+    // nothing changed, so nothing is published and no surface repaints.
+    if (events.length === 0) return;
+
+    const skipIds = new Set(
+      this.props.acmeStatusIntents.map(({ invoiceId }) => String(invoiceId)),
+    );
+
+    const { data: nextData, changed } = applyLiveInvoiceEvents(
+      this.acmeData$GetData(),
+      events,
+      rows,
+      skipIds,
+    );
+
+    if (changed === true) this.props.acmeData = nextData;
+
+    // Journal the raw events so a bootstrap whose snapshot predates them can
+    // re-apply them when it lands — see LIVE_JOURNAL_MS.
+    const now = Date.now();
+    this.props.acmeLiveJournal = [
+      ...this.props.acmeLiveJournal.filter(
+        (entry) => now - entry.at < LIVE_JOURNAL_MS,
+      ),
+      ...events.map((event) => ({
+        type: event.type,
+        invoiceId: event.invoiceId,
+        row: rows.find(({ id }) => String(id) === String(event.invoiceId)),
+        at: now,
+      })),
+    ];
+
+    // The feed line is composed here, channel-side, so every payload already
+    // carries msg and the feed view only renders. The rolling list (newest
+    // first, capped) is durable state and lives on this channel — riding
+    // every publish, it also reaches a feed view born later via replay.
+    // [record:derived-activity-log] [state-machine-in-channel]
+    this.props.acmeLiveFeed = [
+      ...buildLiveFeedEvents(events, rows).reverse(),
+      ...this.props.acmeLiveFeed,
+    ].slice(0, LIVE_FEED_MAX);
+
+    this.acmeData$Publish('CHANNEL_ACME_DATA_UPDATED_EVENT');
+  }
+
+  /**
+   * A bootstrap landed; re-apply any journaled live event its snapshot missed.
+   * The merge is idempotent (an already-present created row and an
+   * already-paid invoice both no-op), so re-applying an event the dump DOES
+   * reflect costs nothing. Entries age out rather than being tracked
+   * per-dump; within the window they simply keep the dump from un-happening a
+   * committed event.
+   */
+  static acmeData$ReplayLiveJournal() {
+    const now = Date.now();
+
+    this.props.acmeLiveJournal = this.props.acmeLiveJournal.filter(
+      (entry) => now - entry.at < LIVE_JOURNAL_MS && entry.row != null,
+    );
+
+    if (this.props.acmeLiveJournal.length === 0) return;
+
+    const { data: nextData, changed } = applyLiveInvoiceEvents(
+      this.acmeData$GetData(),
+      this.props.acmeLiveJournal,
+      this.props.acmeLiveJournal.map(({ row }) => row),
+      new Set(),
+    );
+
+    if (changed === true) this.props.acmeData = nextData;
+  }
+
   // ── State ─────────────────────────────────────────────────────────────────
   //
   // The data lives on the channel. There is no SpyneAppProperties slot for it:
@@ -313,10 +506,16 @@ export class AcmeDataChannelTraits extends SpyneTrait {
    * already under way.
    */
   static acmeData$ClearData() {
+    // The stream stops with the identity: no session, no ticks. This is the
+    // single funnel every "no longer signed in" path already runs through.
+    this.acmeData$StopLiveTicks();
+
     this.props.acmeData = { ...EMPTY_DATA };
     this.props.acmeIsLoaded = false;
     this.props.acmePendingMutations = 0;
     this.props.acmeStatusIntents = [];
+    this.props.acmeLiveFeed = [];
+    this.props.acmeLiveJournal = [];
   }
 
   // ── Outbound: response -> semantic action ─────────────────────────────────
@@ -351,6 +550,11 @@ export class AcmeDataChannelTraits extends SpyneTrait {
         message: null,
         ...status,
       },
+      // The rolling live-activity feed (conformed entries, newest first).
+      // Rides EVERY emission for the same complete-state reason as the rest:
+      // the channel replays one payload, so a feed view born after the last
+      // tick must find the current feed in whatever payload it replays.
+      liveFeed: this.props.acmeLiveFeed || [],
       isAuthenticated: AcmeAuthStateTraits.acmeAuthState$IsAuthenticated(),
     });
   }
@@ -366,10 +570,30 @@ export class AcmeDataChannelTraits extends SpyneTrait {
     if (payload.isChannelFetchError === true) {
       const failedUrl = String(payload.url || '');
 
+      // A failed tick releases the in-flight latch and is otherwise silent:
+      // publishing an ERROR payload every 2.5s while the API tier hiccups
+      // would repaint every surface into an error state for a background
+      // request the user never issued. A 401 additionally stops the clock —
+      // the session is gone, and ChannelAcmeAuth (which sees this same fetch
+      // payload) owns announcing that.
+      if (failedUrl.includes(LIVE_TICK_URL) === true) {
+        this.props.acmeLiveTickInFlight = false;
+
+        if (payload.status === 401) this.acmeData$StopLiveTicks();
+
+        console.warn(
+          'Spyne Warning: live tick request failed',
+          payload.status,
+          payload.message,
+        );
+        return;
+      }
+
       // A failed request was still an in-flight mutation; the counter must
       // come down or the bootstrap guard below would starve forever. Only
       // bootstrap is not a mutation, and it never errors silently into this
-      // count because it never incremented it.
+      // count because it never incremented it. (The live tick is excluded
+      // above — it never counts as a mutation either.)
       if (failedUrl.includes('/bootstrap') === false) {
         this.props.acmePendingMutations = Math.max(
           0,
@@ -422,11 +646,25 @@ export class AcmeDataChannelTraits extends SpyneTrait {
       // than the previous state.
       const { wasLoaded } = this.acmeData$SetData(data);
 
+      // Re-apply any recent live event this snapshot predates — see
+      // LIVE_JOURNAL_MS. Runs between SetData and Publish so the emission
+      // carries the reconciled state.
+      this.acmeData$ReplayLiveJournal();
+
       this.acmeData$Publish(
         wasLoaded
           ? 'CHANNEL_ACME_DATA_UPDATED_EVENT'
           : 'CHANNEL_ACME_DATA_LOADED_EVENT',
       );
+
+      // Data exists, so payment activity begins (idempotent — a mutation's
+      // refetched dump lands here too, with the clock already running).
+      this.acmeData$StartLiveTicks();
+      return;
+    }
+
+    if (dataKey === 'liveTick') {
+      this.acmeData$OnLiveTickReturned(data);
       return;
     }
 

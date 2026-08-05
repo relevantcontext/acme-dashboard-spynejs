@@ -234,6 +234,245 @@ export const computeInvoiceStatusTotals = (invoices = []) => {
 export const formatInvoiceDate = (dateStr) =>
   DATE_FORMATTER.format(new Date(dateStr));
 
+// ── Live events ─────────────────────────────────────────────────────────────
+//
+// The client-side half of the live payment simulator. The server commits this
+// tick's events and reports them with the full joined row for every touched
+// invoice; these functions patch the held dump and recompute every derived
+// slice from the patched collection, so one merge keeps the whole dump
+// internally consistent — the same recompute-with-the-fact discipline the
+// optimistic toggle established in acmeData$ApplyInvoiceStatus.
+//
+// Pure register throughout: input to output, no framework, independently
+// testable. [author-in-correct-register]
+
+const TIME_FORMATTER = new Intl.DateTimeFormat('en-US', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+});
+
+/**
+ * The server's collection order — ORDER BY invoices.date DESC, invoices.id
+ * DESC — as a comparator, so a live-created invoice can be spliced into the
+ * held dump at the position a re-fetched dump would give it. The id tiebreak
+ * is a plain string compare, matching Postgres's text ordering closely enough
+ * for uuids that only ever tie within a single date.
+ */
+export const compareInvoicesNewestFirst = (a, b) => {
+  const aDate = String(a.date);
+  const bDate = String(b.date);
+
+  if (aDate !== bDate) return aDate < bDate ? 1 : -1;
+
+  const aId = String(a.id);
+  const bId = String(b.id);
+
+  if (aId === bId) return 0;
+  return aId < bId ? 1 : -1;
+};
+
+/**
+ * The latest-invoices slice, recomputed from the held collection — the same
+ * five rows fetchLatestInvoices would return (the collection is kept in that
+ * query's exact order), with the same server-side currency formatting.
+ */
+const computeLatestInvoices = (invoices = []) =>
+  invoices.slice(0, 5).map(({ id, name, email, image_url, amount }) => ({
+    id,
+    name,
+    email,
+    image_url,
+    amount: formatInvoiceAmount(amount),
+  }));
+
+/**
+ * Recomputes the customers-table aggregates for the given customer ids from
+ * the held invoices — the client-side mirror of fetchFilteredCustomers's
+ * COUNT/SUM, with identical currency formatting. Only touched customers are
+ * rebuilt; everyone else keeps their server-computed row.
+ */
+const patchCustomerAggregates = (
+  customers = [],
+  invoices = [],
+  customerIds,
+) => {
+  if (customerIds.size === 0) return customers;
+
+  return customers.map((customer) => {
+    if (customerIds.has(String(customer.id)) === false) return customer;
+
+    let totalInvoices = 0;
+    let pendingCents = 0;
+    let paidCents = 0;
+
+    invoices.forEach((invoice) => {
+      if (String(invoice.customer_id) !== String(customer.id)) return;
+
+      totalInvoices += 1;
+      if (invoice.status === 'pending') pendingCents += Number(invoice.amount);
+      if (invoice.status === 'paid') paidCents += Number(invoice.amount);
+    });
+
+    return {
+      ...customer,
+      total_invoices: totalInvoices,
+      total_pending: formatInvoiceAmount(pendingCents),
+      total_paid: formatInvoiceAmount(paidCents),
+    };
+  });
+};
+
+/**
+ * Applies one tick's events to the held dump, immutably.
+ *
+ *   invoice-paid     the held row takes the server row's status — unless the
+ *                    invoice has an in-flight optimistic toggle (skipIds): the
+ *                    user's own intent owns that invoice's reconciliation, and
+ *                    the toggle's authoritative refetch will settle it.
+ *   invoice-created  the server row is spliced in at collection order, unless
+ *                    the id is already held (a replayed or journal-reapplied
+ *                    event) — the merge is idempotent by construction.
+ *
+ * Every derived slice then moves WITH the facts: the card sums and counts,
+ * the latest-invoices five, the page count, and the touched customers'
+ * aggregates are all recomputed from the patched collection.
+ *
+ * @param {Object} data      the held dump (acmeData$GetData shape)
+ * @param {Array}  events    [{ type, invoiceId }]
+ * @param {Array}  rows      full joined rows for every invoiceId in events
+ * @param {Set}    skipIds   invoice ids with an in-flight optimistic toggle
+ * @returns {{ data: Object, changed: Boolean }}
+ */
+export const applyLiveInvoiceEvents = (
+  data,
+  events = [],
+  rows = [],
+  skipIds = new Set(),
+) => {
+  const rowById = new Map(rows.map((row) => [String(row.id), row]));
+  const touchedCustomerIds = new Set();
+
+  let invoices = data.invoices || [];
+  let changed = false;
+
+  events.forEach((event) => {
+    const id = String(event.invoiceId);
+    const row = rowById.get(id);
+
+    if (row == null) return;
+
+    if (event.type === 'invoice-created') {
+      if (invoices.some((invoice) => String(invoice.id) === id)) return;
+
+      invoices = [...invoices, row].sort(compareInvoicesNewestFirst);
+      touchedCustomerIds.add(String(row.customer_id));
+      changed = true;
+      return;
+    }
+
+    if (event.type === 'invoice-paid') {
+      if (skipIds.has(id) === true) return;
+
+      const held = invoices.find((invoice) => String(invoice.id) === id);
+
+      if (held == null || held.status === row.status) return;
+
+      invoices = invoices.map((invoice) =>
+        String(invoice.id) === id
+          ? { ...invoice, status: row.status }
+          : invoice,
+      );
+      touchedCustomerIds.add(String(row.customer_id));
+      changed = true;
+    }
+  });
+
+  if (changed === false) return { data, changed: false };
+
+  return {
+    changed: true,
+    data: {
+      ...data,
+      invoices,
+      cards: {
+        ...data.cards,
+        ...computeInvoiceStatusTotals(invoices),
+        numberOfInvoices: invoices.length,
+      },
+      latestInvoices: computeLatestInvoices(invoices),
+      totalPages: Math.ceil(invoices.length / ITEMS_PER_PAGE),
+      customers: patchCustomerAggregates(
+        data.customers,
+        invoices,
+        touchedCustomerIds,
+      ),
+    },
+  };
+};
+
+/**
+ * Conforms one tick's raw events into feed entries. The human-readable line is
+ * composed HERE, channel-side, so every payload the feed view receives already
+ * carries its msg — the view only renders. [record:derived-activity-log]
+ */
+export const buildLiveFeedEvents = (events = [], rows = []) => {
+  const rowById = new Map(rows.map((row) => [String(row.id), row]));
+
+  return events
+    .map((event) => {
+      const row = rowById.get(String(event.invoiceId));
+
+      if (row == null) return null;
+
+      const amount = formatInvoiceAmount(row.amount);
+      const isPaid = event.type === 'invoice-paid';
+
+      return {
+        eventId: event.id,
+        type: event.type,
+        invoiceId: String(event.invoiceId),
+        msg: isPaid
+          ? `${row.name} paid ${amount}`
+          : `New invoice for ${row.name} — ${amount}`,
+        time: TIME_FORMATTER.format(new Date(event.at)),
+        name: row.name,
+        image_url: row.image_url,
+      };
+    })
+    .filter((entry) => entry !== null);
+};
+
+const FEED_ROW_BASE = 'flex flex-row items-center justify-between py-3';
+
+const FEED_PILL_BY_TYPE = {
+  'invoice-paid': { label: 'Paid', variant: 'bg-green-500 text-white' },
+  'invoice-created': { label: 'New', variant: 'bg-gray-100 text-gray-500' },
+};
+
+/**
+ * Shapes conformed feed entries into what the activity-feed row template
+ * renders — the same finished-array discipline as buildInvoiceRows: image
+ * path, alt text, pill classes and the border class are all decided here.
+ * [shape-data-for-logicless-template]
+ */
+export const buildActivityFeedRows = (feedEvents = []) =>
+  feedEvents.map((event, i) => {
+    const pill =
+      FEED_PILL_BY_TYPE[event.type] ?? FEED_PILL_BY_TYPE['invoice-created'];
+
+    return {
+      attrEventId: event.eventId,
+      attrRowClass: i === 0 ? FEED_ROW_BASE : `${FEED_ROW_BASE} border-t`,
+      attrImageSrc: 'imgs' + event.image_url,
+      attrImageAlt: `${event.name}'s profile picture`,
+      msg: event.msg,
+      time: event.time,
+      pillLabel: pill.label,
+      attrPillClass: `${STATUS_PILL_BASE} ${pill.variant}`,
+    };
+  });
+
 const STATUS_PILL_BASE =
   'inline-flex items-center rounded-full px-2 py-1 text-xs';
 

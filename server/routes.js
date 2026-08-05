@@ -4,6 +4,7 @@
 import { Router } from 'express';
 
 import * as q from './queries.js';
+import { performLiveTick } from './live-events.js';
 import {
   parseCreateInvoice,
   parseUpdateInvoice,
@@ -146,7 +147,8 @@ export function buildRouter() {
     '/invoices/:id',
     h(async (req, res) => {
       const invoice = await q.fetchInvoiceById(req.params.id);
-      if (!invoice) return res.status(404).json({ message: 'Invoice not found.' });
+      if (!invoice)
+        return res.status(404).json({ message: 'Invoice not found.' });
       res.json(invoice);
     }),
   );
@@ -227,6 +229,16 @@ export function buildRouter() {
       }
       res.json({ message: 'Invoice status updated.' });
     }),
+  );
+
+  // SpyneJS-side addition: the live payment simulator's poll-and-advance
+  // endpoint. POST because it mutates — each call commits this tick's events
+  // (an invoice paid, occasionally one created) and reports them. Generation
+  // is lazy per request so the same code runs on the local Express server and
+  // on the buffered Lambda Function URL — see live-events.js.
+  router.post(
+    '/events/tick',
+    h(async (_req, res) => res.json(await performLiveTick())),
   );
 
   router.delete(

@@ -102,6 +102,19 @@ export const ACME_ENDPOINTS = {
     mapFn: tag('mutation'),
   },
 
+  // ── Live tick ─────────────────────────────────────────────────────────────
+  //
+  // The live payment simulator's poll-and-advance request. A POST because the
+  // server commits this tick's events before reporting them, but NOT routed
+  // through acmeData$Request: it must not count as a pending mutation — a tick
+  // never invalidates the dump wholesale (its response carries its own patch),
+  // so it must not cause a landing bootstrap to be discarded as stale. It has
+  // its own send path, acmeData$RequestLiveTick.
+  'live-tick': {
+    toRequest: () => ({ url: '/api/events/tick', method: 'POST' }),
+    mapFn: tag('liveTick'),
+  },
+
   // The key is `invoiceId`, matching the row's data-invoice-id and the route
   // key of the same name — domain nouns rather than a bare `id`, which would
   // also collide with ViewStream's own element id in any props that carried it.

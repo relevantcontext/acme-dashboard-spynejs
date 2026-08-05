@@ -1,0 +1,16 @@
+<h2 class="font-lusitana mb-4 text-xl md:text-2xl">{{heading}}</h2>
+<div class="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
+  <!-- Rows render into this slot from dashboard-activity-feed-rows.tmpl.html
+       whenever the channel's rolling feed changes — same slot discipline as
+       the latest-invoices list. The empty hint hides once activity exists. -->
+  <div class="bg-white px-6" data-slot="feed-items">
+    <p class="py-4 text-sm text-gray-500" data-slot="feed-empty">
+      {{emptyText}}
+    </p>
+  </div>
+
+  <div class="flex items-center pb-2 pt-6">
+    {{svgClock}}
+    <h3 class="ml-2 text-sm text-gray-500">{{footerText}}</h3>
+  </div>
+</div>
