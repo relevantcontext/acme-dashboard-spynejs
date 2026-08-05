@@ -1,0 +1,33 @@
+<a
+  class="qs-row-main"
+  href="{{attrEditHref}}"
+  data-event-type="acmeInvoices"
+  data-btn-type="edit"
+  data-invoice-id="{{attrInvoiceId}}"
+  data-event-prevent-default="true"
+>
+  <img
+    src="{{attrImageSrc}}"
+    class="rounded-full"
+    width="24"
+    height="24"
+    alt="{{attrImageAlt}}"
+  />
+  <span class="qs-name">{{name}}</span>
+  <span class="qs-email">{{email}}</span>
+  <span class="qs-amount">{{amount}}</span>
+  <span class="qs-date">{{date}}</span>
+</a>
+<div class="ii-status">
+  <button
+    type="button"
+    class="{{attrStatusClass}}"
+    data-event-type="acmeData"
+    data-btn-type="toggle-invoice-status"
+    data-invoice-id="{{attrInvoiceId}}"
+    title="Toggle paid / pending"
+  >
+    {{#isPending}}{{label}}{{svgClock}}{{/isPending}}
+    {{#isPaid}}{{label}}{{svgCheck}}{{/isPaid}}
+  </button>
+</div>

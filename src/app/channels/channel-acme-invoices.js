@@ -55,6 +55,11 @@ export class ChannelAcmeInvoices extends Channel {
       'CHANNEL_ACME_INVOICES_STATUS_EVENT',
       'CHANNEL_ACME_INVOICES_CREATE_EVENT',
       'CHANNEL_ACME_INVOICES_EDIT_EVENT',
+      // Transmitted by a view that needs this channel's form navigation
+      // performed without a click — the quick-search overlay's Enter
+      // activation. Relayed in onViewStreamInfo to the same handler the
+      // CHANNEL_UI clicks reach, so both paths stay one code path.
+      'CHANNEL_ACME_INVOICES_NAVIGATE_EVENT',
       // A validated response to a pagination control's CHANNEL_UI request.
       'CHANNEL_ACME_INVOICES_PAGINATION_EVENT',
       // A pagination ViewStream result relayed for the isolated table view.

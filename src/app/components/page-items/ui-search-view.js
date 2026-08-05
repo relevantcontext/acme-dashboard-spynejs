@@ -1,6 +1,20 @@
 import { ViewStream } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
 import UISearchTmpl from './templates/ui-search-view.tmpl.html';
+import { UISearchTraits } from 'traits/ui/ui-search-traits.js';
+
+// Which domain channel resolves this instance's query, by what it filters.
+// The LIST payload of either carries the resolved `query` the input mirrors.
+const LIST_ACTION_BY_BTN_TYPE = {
+  'filter-invoices': [
+    'CHANNEL_ACME_INVOICES',
+    'CHANNEL_ACME_INVOICES_LIST_EVENT',
+  ],
+  'filter-customers': [
+    'CHANNEL_ACME_CUSTOMERS',
+    'CHANNEL_ACME_CUSTOMERS_LIST_EVENT',
+  ],
+};
 
 /**
  * Converted from app/ui/search.tsx.
@@ -43,6 +57,14 @@ export class UISearchView extends ViewStream {
     props.tagName = 'div';
     props.class = 'relative flex flex-1 flex-shrink-0';
     props.template = UISearchTmpl;
+    // The domain channel whose LIST resolves this instance's query — the
+    // input mirrors its payload so a query written WITHOUT a keystroke here
+    // (quick-search customer selection, back/forward between searches) still
+    // shows in the box. An unknown btnType simply listens to nothing.
+    props.channels = LIST_ACTION_BY_BTN_TYPE[btnType]
+      ? [LIST_ACTION_BY_BTN_TYPE[btnType][0]]
+      : [];
+    props.traits = [UISearchTraits];
     props.data = {
       ...props.data,
       inputId,
@@ -60,7 +82,9 @@ export class UISearchView extends ViewStream {
   }
 
   addActionListeners() {
-    return [];
+    const mapping = LIST_ACTION_BY_BTN_TYPE[this.props.data?.btnType];
+
+    return mapping ? [[mapping[1], 'uiSearch$OnList']] : [];
   }
 
   broadcastEvents() {

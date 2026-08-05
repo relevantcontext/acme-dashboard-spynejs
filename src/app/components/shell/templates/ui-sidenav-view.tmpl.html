@@ -8,6 +8,18 @@
   class="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2"
 >
   <div data-slot="nav-links" class="contents"></div>
+  <button
+    type="button"
+    id="quick-search-open"
+    data-event-type="acmeSearch"
+    data-btn-type="open-quick-search"
+    title="Quick search ({{kbdHint}})"
+    class="flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
+  >
+    {{svgMagnifyingGlass}}
+    <span class="hidden md:block">Search</span>
+    <span class="qs-kbd-hint hidden md:block">{{kbdHint}}</span>
+  </button>
   <div class="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
   <form>
     <button

@@ -29,6 +29,10 @@ export class UISideNavView extends ViewStream {
       ...props.data,
       signOutText,
       svgPower: withClass('power', 'w-6'),
+      svgMagnifyingGlass: withClass('magnifyingGlass', 'w-6'),
+      // The visible affordance advertises the shortcut the search channel
+      // listens for; the string is display-only.
+      kbdHint: /Mac/.test(window.navigator.platform) ? '⌘K' : 'Ctrl K',
     };
 
     super(props);
@@ -39,7 +43,12 @@ export class UISideNavView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [['button#sign-out', 'click']];
+    return [
+      ['button#sign-out', 'click'],
+      // The quick-search affordance; its dataset routes the click to
+      // CHANNEL_ACME_SEARCH. [dataset-as-payload]
+      ['button#quick-search-open', 'click'],
+    ];
   }
 
   onRendered() {

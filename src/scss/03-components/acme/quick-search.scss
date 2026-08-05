@@ -1,0 +1,132 @@
+// ---------------------------------------------
+// Quick search — the Cmd/Ctrl-K overlay
+// ---------------------------------------------
+//
+// Backdrop and panel are SIBLINGS (see quick-search-overlay-view.js): the
+// backdrop dismisses, the panel does not, and a broadcast click reports the
+// bound element — so the panel must not live inside the dismissing surface.
+//
+// The keyboard highlight is `is-highlighted`, toggled by the overlay trait
+// from its entry list. Hover styling is deliberately weaker than the
+// highlight, so the mouse never visually competes with the keyboard position.
+//
+// SPECIFICITY: flat selectors, never nested under `main#app` — see app.scss.
+
+.quick-search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.qs-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.4);
+}
+
+.qs-panel {
+  position: relative;
+  margin: 10vh auto 0;
+  width: min(680px, calc(100vw - 2rem));
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  @apply rounded-lg bg-white shadow-2xl;
+}
+
+.qs-input-row {
+  @apply flex items-center gap-3 border-b border-gray-200 px-4 py-3;
+
+  input {
+    @apply w-full border-0 bg-transparent p-0 text-sm text-gray-900;
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.qs-esc-btn {
+  @apply rounded border border-gray-200 px-1.5 py-0.5 text-xs text-gray-500 hover:bg-gray-100;
+}
+
+// The one scroll container: dozens of rows scroll here, inside the capped
+// panel height.
+.qs-results {
+  overflow-y: auto;
+  @apply px-2 py-1;
+}
+
+.qs-group-title {
+  @apply px-2 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-gray-500;
+
+  span {
+    @apply ml-1 font-normal text-gray-400;
+  }
+}
+
+.qs-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-radius: 0.375rem;
+
+  &:hover {
+    @apply bg-gray-50;
+  }
+
+  &.is-highlighted {
+    @apply bg-sky-100;
+    outline: 2px solid #2f6feb;
+    outline-offset: -2px;
+  }
+
+  .ii-status {
+    @apply pr-2;
+  }
+}
+
+.qs-row-main {
+  @apply flex w-full items-center gap-2 px-2 py-2 text-left text-sm text-gray-900;
+  min-width: 0;
+
+  .qs-name {
+    @apply font-medium;
+    white-space: nowrap;
+  }
+
+  .qs-email {
+    @apply min-w-0 flex-1 truncate text-gray-500;
+  }
+
+  .qs-amount {
+    @apply font-medium;
+    white-space: nowrap;
+  }
+
+  .qs-date,
+  .qs-meta {
+    @apply text-gray-500;
+    white-space: nowrap;
+  }
+}
+
+.qs-empty {
+  @apply px-3 py-8 text-center text-sm text-gray-500;
+}
+
+.qs-truncated {
+  @apply px-2 py-1 text-xs text-gray-400;
+}
+
+.qs-footer {
+  @apply flex items-center gap-4 border-t border-gray-200 px-4 py-2 text-xs text-gray-500;
+
+  kbd {
+    @apply mr-1 rounded border border-gray-200 bg-gray-50 px-1;
+  }
+}
+
+// The sidenav affordance's shortcut hint.
+.qs-kbd-hint {
+  @apply ml-auto rounded border border-gray-200 bg-white px-1.5 py-0.5 text-xs text-gray-500;
+}

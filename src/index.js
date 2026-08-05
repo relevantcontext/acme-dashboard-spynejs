@@ -14,6 +14,7 @@ import { ChannelAcmeAuth } from 'channels/channel-acme-auth.js';
 import { ChannelAcmeData } from 'channels/channel-acme-data.js';
 import { ChannelAcmeInvoices } from 'channels/channel-acme-invoices.js';
 import { ChannelAcmeCustomers } from 'channels/channel-acme-customers.js';
+import { ChannelAcmeSearch } from 'channels/channel-acme-search.js';
 //plugins
 
 // views
@@ -143,6 +144,11 @@ SpyneApp.registerChannel(new ChannelAcmeData());
 // resolve against.
 SpyneApp.registerChannel(new ChannelAcmeInvoices());
 SpyneApp.registerChannel(new ChannelAcmeCustomers());
+
+// The global quick-search overlay's state machine: open/close, the live
+// cross-collection match, and result activation. Registered after the data
+// channel it resolves against, like the two projections above.
+SpyneApp.registerChannel(new ChannelAcmeSearch());
 
 // A ChannelFetch request can only be sent from a ViewStream, so this null-
 // appended view listens to both channels and performs them. It renders nothing

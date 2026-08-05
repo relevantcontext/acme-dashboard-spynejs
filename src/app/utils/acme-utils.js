@@ -64,6 +64,36 @@ export const readCustomerParams = (search = '') => {
   return { query: params.get('query') || '' };
 };
 
+// ── Quick search ───────────────────────────────────────────────────────────
+//
+// The overlay's per-group render cap. Dozens of matches all render; a broad
+// query matching hundreds is cut here so the panel never mints an unbounded
+// number of row ViewStreams — the same instance-count concern that shaped the
+// invoices table, applied at a much higher bound because the overlay has no
+// pagination. The uncapped totals still ride the payload so the panel can say
+// "Showing first N of M".
+export const QUICK_SEARCH_MAX_PER_GROUP = 100;
+
+/**
+ * Shapes matched customers into what the quick-search customer row template
+ * renders. Same image-path convention as the customers table: the seed stores
+ * `/customers/<name>.png`, resolved against IMG_PATH via the `imgs` prefix.
+ *
+ * Pure register: input to output, no framework. [author-in-correct-register]
+ */
+export const buildQuickSearchCustomerRows = (customers = []) =>
+  customers.map((customer) => ({
+    attrCustomerId: customer.id,
+    // The row's activation carries the name because the invoices page filters
+    // by free-text query — filtering "to a customer" IS searching their name,
+    // the same ILIKE semantics both apps share.
+    attrCustomerName: customer.name,
+    name: customer.name,
+    email: customer.email,
+    attrImageSrc: 'imgs' + customer.image_url,
+    attrImageAlt: `${customer.name}'s profile picture`,
+  }));
+
 // ── Revenue chart ──────────────────────────────────────────────────────────
 
 /**

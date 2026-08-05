@@ -338,6 +338,14 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
   static acmeInvoices$OnViewStreamInfo(e) {
     const { action, payload } = e || {};
 
+    // A transmitted navigation request (the quick-search overlay's Enter)
+    // rides the same handler as the CHANNEL_UI form-navigation clicks — one
+    // code path emits EDIT/CREATE and moves the route, however it was asked.
+    if (action === 'CHANNEL_ACME_INVOICES_NAVIGATE_EVENT') {
+      this.acmeInvoices$OnFormNavigation({ payload });
+      return;
+    }
+
     if (action !== 'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT') return;
 
     // Sort joins the relay the same way isMobile does — read live from the

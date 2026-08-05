@@ -6,6 +6,10 @@ import { buildAcmeSearch } from 'utils/acme-utils.js';
 const CHANGE_EVENT_BY_ACTION = {
   CHANNEL_ACME_INVOICES_UPDATE_PARAMS_EVENT: INVOICE_PARAMS_EVENT,
   CHANNEL_ACME_CUSTOMERS_UPDATE_PARAMS_EVENT: CUSTOMER_PARAMS_EVENT,
+  // The quick-search overlay's customer selection writes the INVOICES query —
+  // the search channel cannot push into the invoices channel, so its params
+  // action joins this map and the announced write is the meeting point.
+  CHANNEL_ACME_SEARCH_UPDATE_INVOICE_PARAMS_EVENT: INVOICE_PARAMS_EVENT,
 };
 
 export class AcmeQueryParamsTraits extends SpyneTrait {

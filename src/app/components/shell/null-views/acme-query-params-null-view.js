@@ -3,7 +3,11 @@ import { AcmeQueryParamsTraits } from 'traits/ui/acme-query-params-traits.js';
 
 export class AcmeQueryParamsNullView extends ViewStream {
   constructor(props = {}) {
-    props.channels = ['CHANNEL_ACME_INVOICES', 'CHANNEL_ACME_CUSTOMERS'];
+    props.channels = [
+      'CHANNEL_ACME_INVOICES',
+      'CHANNEL_ACME_CUSTOMERS',
+      'CHANNEL_ACME_SEARCH',
+    ];
     props.traits = [AcmeQueryParamsTraits];
 
     super(props);
@@ -14,6 +18,10 @@ export class AcmeQueryParamsNullView extends ViewStream {
       ['CHANNEL_ACME_INVOICES_UPDATE_PARAMS_EVENT', 'acmeQueryParams$OnUpdate'],
       [
         'CHANNEL_ACME_CUSTOMERS_UPDATE_PARAMS_EVENT',
+        'acmeQueryParams$OnUpdate',
+      ],
+      [
+        'CHANNEL_ACME_SEARCH_UPDATE_INVOICE_PARAMS_EVENT',
         'acmeQueryParams$OnUpdate',
       ],
     ];

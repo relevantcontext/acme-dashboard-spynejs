@@ -1,0 +1,50 @@
+<div class="qs-backdrop" data-qs-dismiss="true"
+  data-event-type="acmeSearch" data-btn-type="close-quick-search"></div>
+<div class="qs-panel" role="dialog" aria-modal="true" aria-label="Quick search">
+  <div class="qs-input-row">
+    {{svgMagnifyingGlass}}
+    <input
+      id="quick-search-input"
+      type="text"
+      autocomplete="off"
+      placeholder="{{attrPlaceholder}}"
+      data-event-type="acmeSearch"
+      data-btn-type="quick-search"
+    />
+    <button
+      type="button"
+      class="qs-esc-btn"
+      data-qs-dismiss="true"
+      data-event-type="acmeSearch"
+      data-btn-type="close-quick-search"
+      title="Close quick search"
+    >
+      esc
+    </button>
+  </div>
+  <div class="qs-results">
+    <p class="qs-empty" data-qs-state="hint">
+      Type to search invoices and customers.
+    </p>
+    <p class="qs-empty hidden" data-qs-state="no-results">No matches.</p>
+    <div class="qs-group hidden" data-qs-group="customers">
+      <h3 class="qs-group-title">
+        Customers <span data-qs-count="customers"></span>
+      </h3>
+      <div data-slot="qs-customers"></div>
+      <p class="qs-truncated hidden" data-qs-truncated="customers"></p>
+    </div>
+    <div class="qs-group hidden" data-qs-group="invoices">
+      <h3 class="qs-group-title">
+        Invoices <span data-qs-count="invoices"></span>
+      </h3>
+      <div data-slot="qs-invoices"></div>
+      <p class="qs-truncated hidden" data-qs-truncated="invoices"></p>
+    </div>
+  </div>
+  <div class="qs-footer">
+    <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+    <span><kbd>&crarr;</kbd> open</span>
+    <span><kbd>esc</kbd> close</span>
+  </div>
+</div>
