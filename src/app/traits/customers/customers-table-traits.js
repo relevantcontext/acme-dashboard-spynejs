@@ -48,20 +48,26 @@ export class CustomersTableTraits extends SpyneTrait {
     this.customersTable$ApplyVisibility();
   }
 
-  static customersTable$OnList(e, props = this.props) {
-    props.customerListPayload = e?.payload || null;
+  /**
+   * The relayed page slice — the pagination ViewStream's answer to the
+   * current URL's query AND page. Every row outside it hides; the totals a
+   * visible row shows are untouched, because they arrive computed over ALL of
+   * that customer's invoices in the dump, not over what is on screen.
+   */
+  static customersTable$OnVisibleIds(e, props = this.props) {
+    props.customerVisiblePayload = e?.payload || null;
     this.customersTable$ApplyVisibility();
   }
 
   static customersTable$ApplyVisibility(props = this.props) {
-    if (!props.customerEls$ || !props.customerListPayload) return;
+    if (!props.customerEls$ || !props.customerVisiblePayload) return;
 
-    const matchedIds = new Set(props.customerListPayload.matchedIds || []);
+    const visibleIds = new Set(props.customerVisiblePayload.visibleIds || []);
 
     props.customerEls$.forEach((el) => {
       el.classList.toggle(
         'hidden',
-        matchedIds.has(el.dataset.customerId) === false,
+        visibleIds.has(el.dataset.customerId) === false,
       );
     });
   }

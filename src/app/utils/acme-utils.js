@@ -58,10 +58,26 @@ export const filterCustomers = (customers = [], query = '') => {
   );
 };
 
+/**
+ * Reads the customer search term and page off a query string.
+ *
+ * The channel never holds them. window.location is the state, so this runs on
+ * every params event and the answer is always current — a deeplink, a back
+ * button and a keystroke are indistinguishable, which is the point of the
+ * loop. Same discipline as readInvoiceParams.
+ *
+ * `page` is a positive integer or 1: an absent, malformed or non-positive
+ * value reads as the first page, so a hand-edited URL can never produce a
+ * nonsense page state.
+ */
 export const readCustomerParams = (search = '') => {
   const params = new URLSearchParams(search);
+  const pageNumber = Number(params.get('page'));
 
-  return { query: params.get('query') || '' };
+  return {
+    query: params.get('query') || '',
+    page: Number.isInteger(pageNumber) && pageNumber > 0 ? pageNumber : 1,
+  };
 };
 
 // ── Quick search ───────────────────────────────────────────────────────────

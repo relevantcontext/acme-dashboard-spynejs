@@ -12,6 +12,7 @@ import { DashboardRevenueChartView } from 'components/page-items/dashboard-reven
 import { DashboardStatsContainer } from 'components/page-items/dashboard-stats-container.js';
 import { HomeHeroView } from 'components/page-items/home-hero-view.js';
 import { HomeIntroView } from 'components/page-items/home-intro-view.js';
+import { CustomersPaginationContainer } from 'components/page-items/customers-pagination-container.js';
 import { CustomersTableView } from 'components/page-items/customers-table-view.js';
 import { InvoicesCreateButtonView } from 'components/page-items/invoices-create-button-view.js';
 import { InvoicesCreateFormView } from 'components/page-items/invoices-create-form-view.js';
@@ -317,6 +318,7 @@ export class PageItemCoreTraits extends SpyneTrait {
       DashboardStatsContainer,
       HomeHeroView,
       HomeIntroView,
+      CustomersPaginationContainer,
       CustomersTableView,
       InvoicesCreateButtonView,
       InvoicesCreateFormView,

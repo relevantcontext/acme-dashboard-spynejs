@@ -49,7 +49,17 @@ export class CustomersTableView extends ViewStream {
   }
 
   addActionListeners() {
-    return [['CHANNEL_ACME_CUSTOMERS_LIST_EVENT', 'customersTable$OnList']];
+    // The table shows the current PAGE of the current match, so it follows
+    // the relayed VISIBLE_IDS action — the pagination ViewStream's slice —
+    // rather than the raw LIST. The channel replays, and the relay is emitted
+    // synchronously after every LIST, so the payload a late-born table
+    // replays is exactly the page it should show.
+    return [
+      [
+        'CHANNEL_ACME_CUSTOMERS_VISIBLE_IDS_EVENT',
+        'customersTable$OnVisibleIds',
+      ],
+    ];
   }
 
   broadcastEvents() {
