@@ -55,9 +55,108 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#ffffff" />
     -->
+
+    <!--
+      Cold-load splash styles. Inline rather than in the bundle CSS on purpose:
+      the splash exists to cover the window BEFORE the bundle arrives, so its
+      styling cannot ride the thing it is waiting for. Pure-prior CSS; the
+      matching markup is #app-loading at the end of <body>, and the AppLoadingView
+      that adopts it removes both together on dispose.
+    -->
+    <style>
+      #app-loading {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        opacity: 1;
+        transition: opacity 200ms ease-out;
+      }
+      #app-loading.is-leaving {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .app-loading-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        width: min(280px, 80vw);
+        text-align: center;
+      }
+      .app-loading-brand {
+        margin: 0;
+        padding: 18px 26px;
+        border-radius: 12px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      .app-loading-bar {
+        width: 100%;
+        height: 4px;
+        border-radius: 2px;
+        overflow: hidden;
+        background: #e5e7eb;
+      }
+      .app-loading-bar span {
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: 2px;
+        background: #2563eb;
+        animation: app-loading-slide 1.1s ease-in-out infinite;
+      }
+      [data-loading-status] {
+        margin: 0;
+        color: #6b7280;
+        font-size: 14px;
+      }
+      @keyframes app-loading-slide {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(250%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .app-loading-bar span {
+          animation: none;
+          width: 100%;
+        }
+      }
+    </style>
   </head>
   <body>
     <!-- NoScript Fallback -->
     <noscript> You need to enable JavaScript to run this app. </noscript>
+
+    <!--
+      Cold-load splash. Painted by the browser as soon as this document parses —
+      before the JS bundle has downloaded — so a cold load is never a blank
+      screen. Once the bundle boots, AppLoadingView adopts this element
+      ({ el }) and advances [data-loading-status] through the boot stages
+      (session check, data load), then disposes itself, which removes this
+      markup because adoption is ownership transfer.
+    -->
+    <div id="app-loading">
+      <div class="app-loading-panel" role="status" aria-live="polite">
+        <p class="app-loading-brand">Acme</p>
+        <div class="app-loading-bar"><span></span></div>
+        <p data-loading-status>Loading application&hellip;</p>
+      </div>
+    </div>
   </body>
 </html>

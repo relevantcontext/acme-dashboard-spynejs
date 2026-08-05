@@ -28,6 +28,7 @@ import AppModelURL from 'data/app.model.json';
 
 // initial view
 import { AppContainer } from 'components/shell/app-container.js';
+import { AppLoadingView } from 'components/shell/app-loading-view.js';
 
 import pageItemTemplateLookup from 'utils/page-item-template-lookup.js';
 import {
@@ -181,3 +182,13 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 new AppContainer().prependToDom(document.querySelector('body'));
+
+// The cold-load splash has been on screen since the document parsed — it is
+// static markup in index.tmpl.html, painted before this bundle arrived. Now
+// that the app is booting, a view ADOPTS it and owns it from here: the status
+// line advances through the boot stages, and the view disposes itself — which
+// removes the adopted markup — the moment the app is interactive.
+// [adopt-existing-element] The null guard is for the test runner, whose
+// document is not built from index.tmpl.html.
+const appLoadingEl = document.getElementById('app-loading');
+if (appLoadingEl !== null) new AppLoadingView({ el: appLoadingEl });
