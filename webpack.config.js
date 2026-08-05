@@ -195,6 +195,16 @@ export default (env = { mode: 'development' }) => {
                 additionalData: `$STATIC_DIR: ${JSON.stringify(sassStaticDir)};`,
                 sassOptions: {
                   includePaths: [`${assetsFolder}static/fonts/`],
+                  // Dart-sass prepends a U+FEFF BOM to compressed output that
+                  // contains non-ASCII (the sort arrows ▲▼) — and because the
+                  // Tailwind chunk concatenates AHEAD of the app chunk in
+                  // main.css, that BOM lands mid-file, fuses to the first
+                  // selector (.invoice-grid-header), and the browser drops
+                  // that one rule as invalid. Dev never shows it:
+                  // style-loader serves per-module sheets where a leading BOM
+                  // is legal. charset:false stops the BOM; the document is
+                  // UTF-8 so the arrows decode fine without it.
+                  charset: false,
                 },
               },
             },
