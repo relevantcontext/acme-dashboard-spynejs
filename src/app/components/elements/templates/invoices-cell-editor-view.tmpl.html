@@ -1,0 +1,36 @@
+{{#isAmount}}
+<input
+  type="number"
+  class="cell-editor-input"
+  step="0.01"
+  min="0.01"
+  value="{{value}}"
+  aria-label="Edit amount"
+  data-event-type="invoiceCellEditor"
+  data-editor-invoice-id="{{attrInvoiceId}}"
+  data-field="amount"
+/>
+{{/isAmount}}
+{{#isDate}}
+<input
+  type="date"
+  class="cell-editor-input"
+  value="{{value}}"
+  aria-label="Edit date"
+  data-event-type="invoiceCellEditor"
+  data-editor-invoice-id="{{attrInvoiceId}}"
+  data-field="date"
+/>
+{{/isDate}}
+{{#isStatus}}
+<select
+  class="cell-editor-input"
+  aria-label="Edit status"
+  data-event-type="invoiceCellEditor"
+  data-editor-invoice-id="{{attrInvoiceId}}"
+  data-field="status"
+>
+  <option value="pending">Pending</option>
+  <option value="paid">Paid</option>
+</select>
+{{/isStatus}}

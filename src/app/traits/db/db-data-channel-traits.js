@@ -19,6 +19,11 @@ const TOGGLE_URL_RE = /\/api\/invoices\/([^/]+)\/status/;
 // The live-tick endpoint, recognized the same way on ERROR payloads.
 const LIVE_TICK_URL = '/events/tick';
 
+// The batch-save endpoint, recognized the same way on ERROR payloads so a
+// failed Save All can release the saving latch without touching the drafts.
+// [action-reconciliation-identity]
+const BATCH_URL = '/api/invoices/batch';
+
 // The poll cadence. Each tick both advances the simulation server-side and
 // returns what happened, so this is also the event rate the feed shows and
 // the worst-case latency between an event and every surface reflecting it.
@@ -157,12 +162,40 @@ export class AcmeDataChannelTraits extends SpyneTrait {
       return;
     }
 
+    // The bulk-edit lifecycle buttons (save bar). Local state transitions,
+    // except SaveAll, which issues the one batch request.
+    if (payload.btnType === 'save-invoice-edits') {
+      this.acmeEdits$SaveAll();
+      return;
+    }
+    if (payload.btnType === 'discard-invoice-edits') {
+      this.acmeEdits$Discard();
+      return;
+    }
+    if (payload.btnType === 'edit-undo') {
+      this.acmeEdits$Undo();
+      return;
+    }
+    if (payload.btnType === 'edit-redo') {
+      this.acmeEdits$Redo();
+      return;
+    }
+
     this.acmeData$Request(payload.btnType, payload);
   }
 
   static acmeData$OnViewStreamInfo(e) {
-    if (e?.action !== 'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT') return;
     const payload = e?.payload || {};
+
+    // A table-side gesture's edits — a committed cell or a bulk range set —
+    // transmitted rather than clicked, because the values come from an editor
+    // control or a selection, not from a button's dataset.
+    if (e?.action === 'CHANNEL_ACME_DATA_EDIT_COMMIT_EVENT') {
+      this.acmeEdits$Commit(payload.edits);
+      return;
+    }
+
+    if (e?.action !== 'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT') return;
     this.acmeData$Request(payload.btnType, payload);
   }
 
@@ -516,6 +549,9 @@ export class AcmeDataChannelTraits extends SpyneTrait {
     this.props.acmeStatusIntents = [];
     this.props.acmeLiveFeed = [];
     this.props.acmeLiveJournal = [];
+
+    // Unsaved edits were edits OF this identity's data; they go with it.
+    this.acmeEdits$Reset();
   }
 
   // ── Outbound: response -> semantic action ─────────────────────────────────
@@ -555,6 +591,11 @@ export class AcmeDataChannelTraits extends SpyneTrait {
       // the channel replays one payload, so a feed view born after the last
       // tick must find the current feed in whatever payload it replays.
       liveFeed: this.props.acmeLiveFeed || [],
+      // The bulk-edit slice — drafts, counts, undo/redo availability, saving
+      // flag. Rides EVERY emission for the same complete-state reason: a save
+      // bar or a table born after the last edit must find the current overlay
+      // in whatever payload it replays.
+      edits: this.acmeEdits$GetPublicState(),
       isAuthenticated: AcmeAuthStateTraits.acmeAuthState$IsAuthenticated(),
     });
   }
@@ -607,6 +648,13 @@ export class AcmeDataChannelTraits extends SpyneTrait {
       const toggleMatch = failedUrl.match(TOGGLE_URL_RE);
       if (toggleMatch !== null) {
         this.acmeData$RollbackStatusIntent(toggleMatch[1]);
+      }
+
+      // A failed batch save releases the saving latch and nothing else —
+      // nothing persisted, so every draft and the whole history stand, and
+      // the ERROR publish below carries them for the save bar to re-arm from.
+      if (failedUrl.includes(BATCH_URL) === true) {
+        this.acmeEdits$OnSaveFailed();
       }
 
       // A 401 is also seen by ChannelAcmeAuth, which subscribes to this same
@@ -665,6 +713,27 @@ export class AcmeDataChannelTraits extends SpyneTrait {
 
     if (dataKey === 'liveTick') {
       this.acmeData$OnLiveTickReturned(data);
+      return;
+    }
+
+    if (dataKey === 'batchSave') {
+      this.props.acmePendingMutations = Math.max(
+        0,
+        this.props.acmePendingMutations - 1,
+      );
+
+      // Confirmation: the saved snapshot is folded into the held dump (every
+      // derived slice recomputed) and cleared from the overlay BEFORE
+      // publishing, so this emission already shows the saved values on every
+      // surface. The authoritative refetch then confirms them — and brings
+      // along whatever external activity landed on OTHER invoices meanwhile,
+      // which the batch deliberately never restated.
+      this.acmeEdits$OnSaveConfirmed();
+
+      this.acmeData$Publish('CHANNEL_ACME_DATA_MUTATION_EVENT', {
+        message: data?.message ?? null,
+      });
+      this.acmeData$FetchBootstrap();
       return;
     }
 

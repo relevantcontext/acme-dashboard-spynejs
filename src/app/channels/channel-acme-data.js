@@ -1,5 +1,6 @@
 import { Channel } from 'spyne';
 import { AcmeDataChannelTraits } from 'traits/db/db-data-channel-traits.js';
+import { AcmeEditsChannelTraits } from 'traits/db/db-edits-channel-traits.js';
 
 /**
  * Every read and write of Acme business data.
@@ -31,7 +32,7 @@ export class ChannelAcmeData extends Channel {
   constructor(name, props = {}) {
     name = 'CHANNEL_ACME_DATA';
     props.replay = true;
-    props.traits = [AcmeDataChannelTraits];
+    props.traits = [AcmeDataChannelTraits, AcmeEditsChannelTraits];
 
     // Reconciliation state for optimistic mutations, owned here because the
     // channel is the designed home for durable state. [state-machine-in-channel]
@@ -66,11 +67,27 @@ export class ChannelAcmeData extends Channel {
     props.acmeLiveFeed = [];
     props.acmeLiveJournal = [];
 
+    // Bulk-edit state, owned here for the same reason as the two blocks
+    // above: a draft's meaning is "differs from the held dump", so the dump's
+    // owner is the only home that never needs a second copy to answer it.
+    // [record:undo-redo] [state-machine-in-channel]
+    //
+    //   acmeEditDrafts  unsaved edits, invoiceId -> partial field overlay.
+    //   acmeEditUndo/   the local history — one entry per user gesture, each
+    //   acmeEditRedo    change carrying its draft-layer inverse.
+    //                   [provisional-state-with-inverse]
+    //   acmeEditSaving  the in-flight batch save's snapshot; null when idle.
+    props.acmeEditDrafts = {};
+    props.acmeEditUndo = [];
+    props.acmeEditRedo = [];
+    props.acmeEditSaving = null;
+
     super(name, props);
   }
 
   onRegistered() {
     this.acmeData$OnRegistered();
+    this.acmeEdits$OnRegistered();
   }
 
   addRegisteredActions() {
@@ -78,6 +95,16 @@ export class ChannelAcmeData extends Channel {
       // Consumed by AcmeRequesterNullView. Views do not listen for this.
       'CHANNEL_ACME_DATA_REQUEST_EVENT',
       'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT',
+
+      // Transmitted by table-side views: one user gesture's worth of in-place
+      // edits (a cell commit, or a bulk range-status set). Recorded as ONE
+      // undo entry; never a server request.
+      'CHANNEL_ACME_DATA_EDIT_COMMIT_EVENT',
+
+      // The unsaved-edit overlay changed — commit, bulk, undo, redo, discard,
+      // or a save starting/settling. Full-state like every other action; the
+      // `edits` slice riding every payload is what consumers read.
+      'CHANNEL_ACME_DATA_EDITS_EVENT',
 
       // The dump landed. LOADED is the first one after authentication; UPDATED
       // is every refresh after a mutation AND every live-tick merge (external

@@ -13,6 +13,7 @@ import { ChannelLocalStorage } from 'channels/channel-local-storage.js';
 import { ChannelAcmeAuth } from 'channels/channel-acme-auth.js';
 import { ChannelAcmeData } from 'channels/channel-acme-data.js';
 import { ChannelAcmeInvoices } from 'channels/channel-acme-invoices.js';
+import { ChannelAcmeEditSession } from 'channels/channel-acme-edit-session.js';
 import { ChannelAcmeCustomers } from 'channels/channel-acme-customers.js';
 import { ChannelAcmeSearch } from 'channels/channel-acme-search.js';
 //plugins
@@ -145,6 +146,11 @@ SpyneApp.registerChannel(new ChannelAcmeData());
 // resolve against.
 SpyneApp.registerChannel(new ChannelAcmeInvoices());
 SpyneApp.registerChannel(new ChannelAcmeCustomers());
+
+// The bulk-edit session's ephemeral coordination surface (cursor, selection,
+// editor open/close). No replay — these are events, not current values; see
+// the channel's own header for why.
+SpyneApp.registerChannel(new ChannelAcmeEditSession());
 
 // The global quick-search overlay's state machine: open/close, the live
 // cross-collection match, and result activation. Registered after the data

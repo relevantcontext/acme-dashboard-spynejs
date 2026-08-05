@@ -53,6 +53,14 @@ export class ChannelAcmeInvoices extends Channel {
       // BEFORE the LIST emission of the same data change, so the channel's
       // replay cache never ends a turn holding this partial payload.
       'CHANNEL_ACME_INVOICES_STATUS_EVENT',
+
+      // One invoice's DISPLAYED cell values changed because its unsaved-edit
+      // overlay did — a commit, an undo/redo, a discard, or a save settling.
+      // Same contract as STATUS_EVENT: per-invoice, consumed by the mounted
+      // row through its own-id filter, and emitted synchronously BEFORE the
+      // LIST emission of the same change so the replay cache never ends a
+      // turn holding this partial payload.
+      'CHANNEL_ACME_INVOICES_CELLS_EVENT',
       'CHANNEL_ACME_INVOICES_CREATE_EVENT',
       'CHANNEL_ACME_INVOICES_EDIT_EVENT',
       // Transmitted by a view that needs this channel's form navigation

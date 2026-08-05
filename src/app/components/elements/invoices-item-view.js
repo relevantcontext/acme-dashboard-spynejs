@@ -1,6 +1,7 @@
 import { ViewStream, ChannelPayloadFilter } from 'spyne';
 import InvoicesItemTmpl from './templates/invoices-item-view.tmpl.html';
 import { InvoicesItemStatusTraits } from 'traits/invoices/invoices-item-status-traits.js';
+import { InvoicesItemEditTraits } from 'traits/invoices/invoices-item-edit-traits.js';
 
 /**
  * One invoice on the current page — the ONLY presentation module. Desktop row
@@ -36,12 +37,23 @@ import { InvoicesItemStatusTraits } from 'traits/invoices/invoices-item-status-t
 export class InvoicesItemView extends ViewStream {
   constructor(props = {}) {
     props.tagName = 'div';
-    props.class = 'invoice-item';
+    // A row born with an unsaved draft (paging back to an edited invoice)
+    // carries the marker from birth — the same class OnCells toggles live.
+    props.class =
+      props.data?.isEdited === true ? 'invoice-item is-edited' : 'invoice-item';
     props.role = 'row';
     props.dataset = { invoiceId: props.data?.attrInvoiceId };
     props.template = InvoicesItemTmpl;
-    props.channels = ['CHANNEL_ACME_INVOICES'];
-    props.traits = [InvoicesItemStatusTraits];
+    props.channels = ['CHANNEL_ACME_INVOICES', 'CHANNEL_ACME_EDIT_SESSION'];
+    props.traits = [InvoicesItemStatusTraits, InvoicesItemEditTraits];
+
+    // The raw editable values this row is SHOWING — what an in-place editor
+    // seeds from. Kept current by every CELLS repaint.
+    props.cellValues = {
+      rawAmount: props.data?.rawAmount,
+      rawDate: props.data?.rawDate,
+      status: props.data?.status,
+    };
 
     super(props);
   }
@@ -68,6 +80,11 @@ export class InvoicesItemView extends ViewStream {
       invoiceId: String(this.props.data?.attrInvoiceId),
     });
 
+    // Reused for every per-invoice action this row reclaims as its own.
+    const cellsAreMine = new ChannelPayloadFilter({
+      invoiceId: String(this.props.data?.attrInvoiceId),
+    });
+
     return [
       [
         'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT',
@@ -79,16 +96,42 @@ export class InvoicesItemView extends ViewStream {
         'invoicesItemStatus$OnStatus',
         statusIsMine,
       ],
+      // The unsaved-edit overlay moved for THIS invoice — repaint cells,
+      // pill and the edited marker. Same self-scope idiom as STATUS.
+      [
+        'CHANNEL_ACME_INVOICES_CELLS_EVENT',
+        'invoicesItemEdit$OnCells',
+        cellsAreMine,
+      ],
+      // Cursor and selection are UNFILTERED on purpose: every row reacts —
+      // the named one paints, the rest clear. That mutual clearing is what
+      // keeps the cursor single without any row referencing another.
+      ['CHANNEL_ACME_EDIT_SESSION_CURSOR_EVENT', 'invoicesItemEdit$OnCursor'],
+      [
+        'CHANNEL_ACME_EDIT_SESSION_SELECTION_EVENT',
+        'invoicesItemEdit$OnSelection',
+      ],
+      [
+        'CHANNEL_ACME_EDIT_SESSION_EDIT_START_EVENT',
+        'invoicesItemEdit$OnEditStart',
+        cellsAreMine,
+      ],
+      [
+        'CHANNEL_ACME_EDIT_SESSION_EDIT_END_EVENT',
+        'invoicesItemEdit$OnEditEnd',
+        cellsAreMine,
+      ],
     ];
   }
 
   broadcastEvents() {
-    // Scoped to this item's own root: the edit anchor and the delete button.
-    // Each carries its own invoiceId, which is what reaches the channel as the
-    // payload. [dataset-as-payload]
+    // Scoped to this item's own root: the edit anchor, the delete/toggle
+    // buttons, and the three editable cells (whose datasets carry the field
+    // and invoice id the table's cursor logic routes on). [dataset-as-payload]
     return [
       ['a', 'click'],
       ['button', 'click'],
+      ['.ii-cell', 'click'],
     ];
   }
 

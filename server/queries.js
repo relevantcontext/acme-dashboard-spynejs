@@ -239,3 +239,23 @@ export async function updateInvoiceStatus(id, status) {
       WHERE id = ${id}
     `;
 }
+
+// ── SpyneJS-side addition (no Next.js counterpart) ───────────────────────────
+// The bulk-edit table's Save All. One transaction, one UPDATE per edited
+// invoice, writing ONLY the fields that invoice's edit named — COALESCE keeps
+// an untouched column at its current value, so a concurrent external change to
+// a column the user did not edit is never overwritten by a stale restatement.
+
+export async function updateInvoicesBatch(updates) {
+  await sql.begin(async (tx) => {
+    for (const { id, amountInCents, date, status } of updates) {
+      await tx`
+          UPDATE invoices
+          SET amount = COALESCE(${amountInCents ?? null}, amount),
+              date   = COALESCE(${date ?? null}, date),
+              status = COALESCE(${status ?? null}, status)
+          WHERE id = ${id}
+        `;
+    }
+  });
+}

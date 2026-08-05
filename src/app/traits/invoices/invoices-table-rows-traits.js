@@ -1,6 +1,9 @@
 import { SpyneTrait } from 'spyne';
 import { withClass } from 'utils/svg-icons.js';
-import { buildInvoiceRows } from 'utils/acme-invoice-utils.js';
+import {
+  buildInvoiceRows,
+  applyInvoiceDrafts,
+} from 'utils/acme-invoice-utils.js';
 import { InvoicesItemView } from 'components/elements/invoices-item-view.js';
 
 const ITEMS_SELECTOR = '[data-slot="invoice-items"]';
@@ -87,11 +90,17 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
 
     if (Array.isArray(invoices) === false) return;
 
+    // The unsaved-edit overlay composes ON TOP of whatever dump landed —
+    // which is exactly why an external live-tick merge can never clobber a
+    // draft: the tick patches the dump underneath, and the drafted fields
+    // re-overlay here. A row minted after any of it renders draft values and
+    // the edited flag from birth.
+    const draftsById = e?.payload?.edits?.draftsById || {};
+
     props.invoiceById = new Map(
-      buildInvoiceRows(invoices, ROW_ICONS).map((row) => [
-        String(row.attrInvoiceId),
-        row,
-      ]),
+      buildInvoiceRows(applyInvoiceDrafts(invoices, draftsById), ROW_ICONS).map(
+        (row) => [String(row.attrInvoiceId), row],
+      ),
     );
 
     this.invoicesTableRows$SyncItems();
@@ -149,9 +158,12 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
     const container = props.el$(ITEMS_SELECTOR).el;
     if (container == null) return;
 
+    // Scoped to the row ROOTS: the editable cells inside a row now carry
+    // data-invoice-id too (their click payloads need it), so a bare
+    // [data-invoice-id] here would sweep up cells as phantom rows.
     const existingIds = new Set(
       props
-        .el$(`${ITEMS_SELECTOR} [data-invoice-id]`)
+        .el$(`${ITEMS_SELECTOR} .invoice-item[data-invoice-id]`)
         .els.map((el) => el.dataset.invoiceId),
     );
 
@@ -179,9 +191,31 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
     // One ordering pass over at most a page of nodes. Items disposed by their
     // own filter may still be mid-teardown on this same emission; moving only
     // the ids the payload names sidesteps any ordering with the dying.
+    //
+    // A node is moved ONLY when it is out of place. Re-appending an already-
+    // ordered node is not free: a DOM move silently drops focus from anything
+    // inside it (no blur fires), which with an in-place cell editor open
+    // would kill the edit on every live tick. In-place rows are left alone;
+    // a genuinely displaced row still moves, and the editor's own re-focus
+    // listener (see InvoicesCellEditorView) recovers from that real case.
+    let orderedIndex = 0;
     visibleIds.forEach((id) => {
-      const el = container.querySelector(`[data-invoice-id="${id}"]`);
-      if (el != null) container.appendChild(el);
+      const el = container.querySelector(
+        `.invoice-item[data-invoice-id="${id}"]`,
+      );
+
+      if (el == null) return;
+
+      const expected = container.children[orderedIndex];
+
+      if (el !== expected) container.insertBefore(el, expected ?? null);
+
+      orderedIndex += 1;
     });
+
+    // The page's membership just settled: prune the cell cursor and row
+    // selection to it and re-broadcast, so rows minted this pass paint
+    // themselves — the session channel replays nothing by design.
+    this.invoicesTableEdit$SyncToVisible();
   }
 }

@@ -443,6 +443,112 @@ export const buildLiveFeedEvents = (events = [], rows = []) => {
     .filter((entry) => entry !== null);
 };
 
+// ── Bulk edit ───────────────────────────────────────────────────────────────
+//
+// The client-side half of the bulk-editable table. A draft is an UNSAVED local
+// edit: { amount? (cents), date? ('YYYY-MM-DD'), status? }, keyed by invoice
+// id, holding only the fields that differ from the held dump. Drafts are an
+// OVERLAY — the held dump stays the external truth (live ticks keep patching
+// it underneath), and these functions compose the two for display or fold a
+// confirmed save back into the dump.
+//
+// Pure register throughout: input to output, no framework, independently
+// testable. [author-in-correct-register]
+
+export const EDITABLE_INVOICE_FIELDS = ['amount', 'date', 'status'];
+
+/** The held dump's value for one editable field, in draft units. */
+export const readInvoiceField = (invoice, field) => {
+  if (invoice == null) return undefined;
+  if (field === 'amount') return Number(invoice.amount);
+  if (field === 'date') return String(invoice.date).slice(0, 10);
+  return invoice.status;
+};
+
+/**
+ * Overlays unsaved drafts onto a copy of the collection for DISPLAY — the
+ * table's row map renders from this, so a row minted mid-session shows the
+ * draft values. Untouched invoices pass through by reference; edited ones are
+ * rebuilt with the drafted fields and flagged isEdited. Search, sort and every
+ * derived slice keep reading the un-overlaid dump: an unsaved edit changes
+ * what the cells SHOW, never what the app has agreed is true.
+ */
+export const applyInvoiceDrafts = (invoices = [], draftsById = {}) =>
+  invoices.map((invoice) => {
+    const draft = draftsById[String(invoice.id)];
+
+    if (draft == null) return invoice;
+
+    return {
+      ...invoice,
+      ...(draft.amount !== undefined ? { amount: draft.amount } : {}),
+      ...(draft.date !== undefined
+        ? { date: `${draft.date}T00:00:00.000Z` }
+        : {}),
+      ...(draft.status !== undefined ? { status: draft.status } : {}),
+      isEdited: true,
+    };
+  });
+
+/**
+ * Folds a set of CONFIRMED field patches into the held dump — the moment a
+ * batch save returns, before the authoritative refetch lands. Same
+ * recompute-with-the-fact discipline as applyLiveInvoiceEvents: the collection
+ * is re-sorted (a changed date moves a row's collection position) and every
+ * derived slice moves with it, so the dump stays internally consistent for
+ * the window until the bootstrap confirms it.
+ *
+ * @param {Object} data     the held dump (acmeData$GetData shape)
+ * @param {Object} patches  invoiceId -> { amount? (cents), date? (YYYY-MM-DD),
+ *                          status? }
+ */
+export const applyInvoiceFieldPatches = (data, patches = {}) => {
+  const ids = Object.keys(patches);
+
+  if (ids.length === 0) return { data, changed: false };
+
+  const touchedCustomerIds = new Set();
+
+  const invoices = (data.invoices || [])
+    .map((invoice) => {
+      const patch = patches[String(invoice.id)];
+
+      if (patch == null) return invoice;
+
+      touchedCustomerIds.add(String(invoice.customer_id));
+
+      return {
+        ...invoice,
+        ...(patch.amount !== undefined ? { amount: patch.amount } : {}),
+        ...(patch.date !== undefined
+          ? { date: `${patch.date}T00:00:00.000Z` }
+          : {}),
+        ...(patch.status !== undefined ? { status: patch.status } : {}),
+      };
+    })
+    .sort(compareInvoicesNewestFirst);
+
+  return {
+    changed: true,
+    data: {
+      ...data,
+      invoices,
+      cards: {
+        ...data.cards,
+        ...computeInvoiceStatusTotals(invoices),
+        numberOfInvoices: invoices.length,
+      },
+      latestInvoices: computeLatestInvoices(invoices),
+      totalPages: Math.ceil(invoices.length / ITEMS_PER_PAGE),
+      customers: patchCustomerAggregates(
+        data.customers,
+        invoices,
+        touchedCustomerIds,
+      ),
+    },
+  };
+};
+
 const FEED_ROW_BASE = 'flex flex-row items-center justify-between py-3';
 
 const FEED_PILL_BY_TYPE = {
@@ -529,6 +635,14 @@ export const buildInvoiceRows = (invoices = [], icons = {}) =>
       email: invoice.email,
       amount: formatInvoiceAmount(invoice.amount),
       date: formatInvoiceDate(invoice.date),
+      // The raw editable values, riding the row so an in-place editor seeds
+      // itself from what the cell is showing — dollars for the amount input,
+      // the date input's own YYYY-MM-DD, the status literal — plus the
+      // unsaved-edit flag applyInvoiceDrafts stamped.
+      rawAmount: Number(invoice.amount) / 100,
+      rawDate: String(invoice.date).slice(0, 10),
+      status: invoice.status,
+      isEdited: invoice.isEdited === true,
       attrImageSrc: 'imgs' + invoice.image_url,
       attrImageAlt: `${invoice.name}'s profile picture`,
       attrInvoiceId: invoice.id,

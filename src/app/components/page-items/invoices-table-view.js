@@ -1,6 +1,7 @@
 import { ViewStream, ChannelPayloadFilter } from 'spyne';
 import InvoicesTableTmpl from './templates/invoices-table-view.tmpl.html';
 import { InvoicesTableRowsTraits } from 'traits/invoices/invoices-table-rows-traits.js';
+import { InvoicesTableEditTraits } from 'traits/invoices/invoices-table-edit-traits.js';
 
 /**
  * Converted from app/ui/invoices/table.tsx (outer markup).
@@ -31,8 +32,26 @@ export class InvoicesTableView extends ViewStream {
     props.tagName = 'div';
     props.class = 'mt-6 flow-root';
     props.template = InvoicesTableTmpl;
-    props.channels = ['CHANNEL_ACME_INVOICES', 'CHANNEL_ACME_DATA'];
-    props.traits = [InvoicesTableRowsTraits];
+    props.channels = [
+      'CHANNEL_ACME_INVOICES',
+      'CHANNEL_ACME_DATA',
+      // The bulk-edit session: cell clicks arrive through CHANNEL_UI, the
+      // cursor keys through CHANNEL_WINDOW, and the editor's close through
+      // the session channel — the cursor and selection are SET-level facts,
+      // so the table is the view that resolves them.
+      'CHANNEL_UI',
+      'CHANNEL_WINDOW',
+      'CHANNEL_ACME_EDIT_SESSION',
+    ];
+    props.traits = [InvoicesTableRowsTraits, InvoicesTableEditTraits];
+
+    // Bulk-edit session state — ephemeral display facts of this region,
+    // gone with the view on navigation. Durable edit state (drafts, undo
+    // history) lives on CHANNEL_ACME_DATA, never here.
+    props.editCursor = null;
+    props.editAnchorId = null;
+    props.editSelectionIds = [];
+    props.editingCell = null;
 
     super(props);
   }
@@ -63,6 +82,27 @@ export class InvoicesTableView extends ViewStream {
         new ChannelPayloadFilter({
           payload: (payload) => payload?.status?.isLoaded === true,
         }),
+      ],
+      // Cell clicks (declared per row) and the save bar's bulk-status
+      // buttons. ONE listener for this action name — a duplicate would
+      // clobber it — narrowed to the two eventTypes and dispatched inside.
+      // [admit-by-payload-filter]
+      [
+        'CHANNEL_UI_CLICK_EVENT',
+        'invoicesTableEdit$OnUiClick',
+        new ChannelPayloadFilter({
+          eventType: (t) => t === 'invoiceCell' || t === 'invoiceBulk',
+        }),
+      ],
+      // The cursor keys, Enter and Escape — global keyboard as channel
+      // payloads. The handler yields to any focused form control.
+      // [window-event-via-channel]
+      ['CHANNEL_WINDOW_KEYDOWN_EVENT', 'invoicesTableEdit$OnKeydown'],
+      // The in-place editor announcing it closed, releasing the one-editor
+      // latch the table holds as EDIT_START's only sender.
+      [
+        'CHANNEL_ACME_EDIT_SESSION_EDIT_END_EVENT',
+        'invoicesTableEdit$OnEditEnd',
       ],
     ];
   }

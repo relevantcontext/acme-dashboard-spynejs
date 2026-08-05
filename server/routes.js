@@ -9,6 +9,7 @@ import {
   parseCreateInvoice,
   parseUpdateInvoice,
   parseInvoiceStatus,
+  parseBatchUpdateInvoices,
 } from './validation.js';
 import {
   verifyCredentials,
@@ -228,6 +229,38 @@ export function buildRouter() {
           .json({ message: 'Database Error: Failed to Update Invoice.' });
       }
       res.json({ message: 'Invoice status updated.' });
+    }),
+  );
+
+  // SpyneJS-side addition: the bulk-edit table's Save All. One request, one
+  // transaction, only the named fields of the named invoices — so a save can
+  // never restate (and thereby clobber) a column or an invoice the user did
+  // not touch, however much external activity landed meanwhile. PATCH because
+  // every item is a partial update of an existing row.
+  router.patch(
+    '/invoices/batch',
+    h(async (req, res) => {
+      const parsed = parseBatchUpdateInvoices(req.body ?? {});
+      if (parsed.errors) return res.status(400).json(parsed);
+
+      const updates = parsed.data.updates.map(
+        ({ id, amount, date, status }) => ({
+          id,
+          // Same dollars->cents conversion as createInvoice/updateInvoice.
+          amountInCents: amount === undefined ? null : amount * 100,
+          date: date ?? null,
+          status: status ?? null,
+        }),
+      );
+
+      try {
+        await q.updateInvoicesBatch(updates);
+      } catch {
+        return res
+          .status(500)
+          .json({ message: 'Database Error: Failed to Update Invoices.' });
+      }
+      res.json({ message: `${updates.length} invoice(s) updated.` });
     }),
   );
 

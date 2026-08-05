@@ -192,3 +192,108 @@ $invoice-columns: minmax(0, 2.2fr) minmax(0, 2fr) minmax(0, 1.1fr)
     @apply gap-2 self-end p-0 pt-4;
   }
 }
+
+// ── Bulk edit: cursor, selection, edited marker, in-place editor ─────────────
+//
+// Every class below is toggled by a view from a channel fact — the table
+// resolves cursor/selection, the data channel owns the drafts — so, as with
+// is-card-layout above, the JS flag is the single authority and no CSS state
+// is derived independently of it.
+
+.invoice-item.is-selected {
+  @apply bg-blue-50;
+}
+
+// The unsaved-edit marker: an amber left edge plus a tint, visible in both
+// layouts without moving any track.
+.invoice-item.is-edited {
+  @apply bg-amber-50;
+  box-shadow: inset 3px 0 0 0 theme('colors.amber.400');
+}
+
+.ii-cell {
+  @apply cursor-pointer;
+  position: relative;
+}
+
+// The cell cursor — an inset ring so it cannot collide with the grid borders.
+.ii-cell.cell-cursor {
+  box-shadow: inset 0 0 0 2px theme('colors.blue.600');
+  border-radius: 0.25rem;
+}
+
+// An edited row keeps its left-edge marker visible alongside a cursor ring.
+.invoice-item.is-edited .ii-cell.cell-cursor {
+  box-shadow:
+    inset 0 0 0 2px theme('colors.blue.600');
+}
+
+// While a cell hosts an editor its display content steps aside; the editor
+// replaces it in the same box, so nothing reflows.
+.ii-cell.is-editing > [data-slot='cell-text'],
+.ii-status.is-editing > button {
+  display: none;
+}
+
+.cell-editor {
+  display: block;
+}
+
+.cell-editor-input {
+  @apply w-full rounded-md border border-blue-500 bg-white px-2 py-1 text-sm;
+  min-width: 0;
+
+  &:focus {
+    @apply outline-none ring-2 ring-blue-500;
+  }
+}
+
+// ── The save bar ─────────────────────────────────────────────────────────────
+//
+// Sticky above the viewport bottom so the count and Save All stay reachable
+// while scrolling a tall page; hidden entirely when there is nothing unsaved
+// and nothing selected.
+
+.invoice-save-bar {
+  @apply sticky bottom-4 z-10 mt-4;
+
+  &.is-hidden {
+    display: none;
+  }
+}
+
+.save-bar-inner {
+  @apply flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-lg;
+}
+
+.save-bar-status {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.save-bar-actions {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+.save-bar-bulk {
+  @apply flex items-center gap-2 border-r border-gray-200 pr-2;
+
+  &.is-hidden {
+    display: none;
+  }
+}
+
+.save-bar-btn {
+  @apply rounded-md px-3 py-2 text-sm font-medium transition-colors;
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-40;
+  }
+}
+
+.save-bar-btn-ghost {
+  @apply border border-gray-200 text-gray-700 hover:bg-gray-100;
+}
+
+.save-bar-btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-500;
+}

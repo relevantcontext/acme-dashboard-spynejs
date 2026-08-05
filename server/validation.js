@@ -73,3 +73,44 @@ const InvoiceStatus = FormSchema.pick({ status: true });
 
 export const parseInvoiceStatus = (body) =>
   parseWith(InvoiceStatus, body, 'Invalid Status. Failed to Update Invoice.');
+
+// ── SpyneJS-side addition (no Next.js counterpart) ───────────────────────────
+// The bulk-edit table's Save All: an array of partial updates, each naming at
+// least one of amount / date / status. Field rules reuse the form schema's so
+// an inline edit and the edit form accept exactly the same values; `date` is
+// new (the form never edits it) and takes the seed's own YYYY-MM-DD shape.
+
+const BatchUpdateItem = z
+  .object({
+    id: z.string().min(1),
+    amount: FormSchema.shape.amount.optional(),
+    status: FormSchema.shape.status.optional(),
+    date: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Please enter a valid date.' })
+      .optional(),
+  })
+  .refine(
+    (item) =>
+      item.amount !== undefined ||
+      item.status !== undefined ||
+      item.date !== undefined,
+    { message: 'Each update must change at least one field.' },
+  );
+
+const BatchUpdate = z.object({
+  updates: z.array(BatchUpdateItem).min(1),
+});
+
+export const parseBatchUpdateInvoices = (body) => {
+  const validated = BatchUpdate.safeParse({ updates: body.updates });
+
+  if (!validated.success) {
+    return {
+      errors: validated.error.flatten().fieldErrors,
+      message: 'Invalid Edits. Failed to Update Invoices.',
+    };
+  }
+
+  return { data: validated.data };
+};

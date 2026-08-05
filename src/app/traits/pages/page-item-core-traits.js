@@ -18,6 +18,7 @@ import { InvoicesCreateButtonView } from 'components/page-items/invoices-create-
 import { InvoicesCreateFormView } from 'components/page-items/invoices-create-form-view.js';
 import { InvoicesEditFormView } from 'components/page-items/invoices-edit-form-view.js';
 import { InvoicesPaginationContainer } from 'components/page-items/invoices-pagination-container.js';
+import { InvoicesSaveBarView } from 'components/page-items/invoices-save-bar-view.js';
 import { InvoicesTableView } from 'components/page-items/invoices-table-view.js';
 import { UIAcmeLogoView } from 'components/page-items/ui-acme-logo-view.js';
 import { LoginFormView } from 'components/page-items/login-form-view.js';
@@ -324,6 +325,7 @@ export class PageItemCoreTraits extends SpyneTrait {
       InvoicesCreateFormView,
       InvoicesEditFormView,
       InvoicesPaginationContainer,
+      InvoicesSaveBarView,
       InvoicesTableView,
       LoginFormView,
       UIAcmeLogoView,

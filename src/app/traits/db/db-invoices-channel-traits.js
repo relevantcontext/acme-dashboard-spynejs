@@ -4,6 +4,9 @@ import {
   sortInvoices,
   nextInvoiceSortValue,
   readInvoiceParams,
+  formatInvoiceAmount,
+  formatInvoiceDate,
+  applyInvoiceDrafts,
   INVOICE_PARAMS_EVENT,
   INVOICE_MOBILE_QUERY,
 } from 'utils/acme-invoice-utils.js';
@@ -156,6 +159,7 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
   static acmeInvoices$OnData(e) {
     const prevInvoices = this.props.invoices;
     const nextInvoices = e?.payload?.data?.invoices || [];
+    const nextDrafts = e?.payload?.edits?.draftsById || {};
 
     this.props.invoices = nextInvoices;
     this.props.customerOptions = e?.payload?.data?.customerOptions || [];
@@ -170,6 +174,12 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
 
         if (prevStatus === undefined || prevStatus === status) return;
 
+        // A row whose STATUS is under an unsaved draft shows the draft, not
+        // the held value — an external event or toggle repaint would clobber
+        // what the user typed. The held change still lands underneath; the
+        // pill re-syncs through CELLS_EVENT the moment the draft clears.
+        if (nextDrafts[String(id)]?.status !== undefined) return;
+
         this.sendChannelPayload('CHANNEL_ACME_INVOICES_STATUS_EVENT', {
           invoiceId: String(id),
           invoiceStatus: status,
@@ -178,7 +188,65 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
       });
     }
 
+    this.acmeInvoices$PublishCellDiffs(nextInvoices, nextDrafts);
     this.acmeInvoices$PublishList(true);
+  }
+
+  /**
+   * Conforms the raw fact "the unsaved-edit overlay moved" into per-invoice
+   * repaint vocabulary, exactly as the status diff above does for the dump:
+   * one CELLS_EVENT per invoice whose draft changed, carrying the EFFECTIVE
+   * display values (draft over held) already formatted, so the row only
+   * paints. [acquire-and-conform] [shape-data-for-logicless-template]
+   *
+   * Emitted BEFORE PublishList for the same replay-cache discipline as
+   * STATUS_EVENT.
+   */
+  static acmeInvoices$PublishCellDiffs(invoices, nextDrafts) {
+    const prevDrafts = this.props.editDrafts || {};
+
+    this.props.editDrafts = nextDrafts;
+
+    const changedIds = new Set(
+      [...Object.keys(prevDrafts), ...Object.keys(nextDrafts)].filter((id) => {
+        const prev = prevDrafts[id];
+        const next = nextDrafts[id];
+
+        if (prev === next) return false;
+
+        return (
+          prev == null ||
+          next == null ||
+          prev.amount !== next.amount ||
+          prev.date !== next.date ||
+          prev.status !== next.status
+        );
+      }),
+    );
+
+    if (changedIds.size === 0) return;
+
+    const invoiceById = new Map(
+      invoices.map((invoice) => [String(invoice.id), invoice]),
+    );
+
+    changedIds.forEach((id) => {
+      const held = invoiceById.get(id);
+
+      if (held == null) return;
+
+      const [effective] = applyInvoiceDrafts([held], nextDrafts);
+
+      this.sendChannelPayload('CHANNEL_ACME_INVOICES_CELLS_EVENT', {
+        invoiceId: id,
+        isEdited: nextDrafts[id] != null,
+        amountText: formatInvoiceAmount(effective.amount),
+        dateText: formatInvoiceDate(effective.date),
+        invoiceStatus: effective.status,
+        rawAmount: Number(effective.amount) / 100,
+        rawDate: String(effective.date).slice(0, 10),
+      });
+    });
   }
 
   static acmeInvoices$OnFormNavigation(e) {

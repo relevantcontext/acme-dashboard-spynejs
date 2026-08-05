@@ -102,6 +102,20 @@ export const ACME_ENDPOINTS = {
     mapFn: tag('mutation'),
   },
 
+  // The bulk-edit table's Save All: every unsaved edit in one PATCH, each item
+  // naming ONLY its drafted fields. Tagged with its own dataKey rather than the
+  // generic 'mutation' because its confirmation does draft-specific work
+  // (fold-and-clear the snapshot) before the shared refetch.
+  // [action-reconciliation-identity]
+  'batch-update-invoices': {
+    toRequest: ({ updates }) => ({
+      url: '/api/invoices/batch',
+      method: 'PATCH',
+      ...jsonBody({ updates }),
+    }),
+    mapFn: tag('batchSave'),
+  },
+
   // ── Live tick ─────────────────────────────────────────────────────────────
   //
   // The live payment simulator's poll-and-advance request. A POST because the

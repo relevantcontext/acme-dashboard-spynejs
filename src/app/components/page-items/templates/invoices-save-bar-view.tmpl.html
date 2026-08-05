@@ -1,0 +1,63 @@
+<div class="save-bar-inner">
+  <p class="save-bar-status" data-slot="status" aria-live="polite"></p>
+  <div class="save-bar-actions">
+    <span class="save-bar-bulk" data-slot="bulk">
+      <button
+        type="button"
+        class="save-bar-btn save-bar-btn-ghost"
+        data-event-type="invoiceBulk"
+        data-bulk-status="paid"
+        title="Set every selected row's status to paid"
+      >
+        Mark paid
+      </button>
+      <button
+        type="button"
+        class="save-bar-btn save-bar-btn-ghost"
+        data-event-type="invoiceBulk"
+        data-bulk-status="pending"
+        title="Set every selected row's status to pending"
+      >
+        Mark pending
+      </button>
+    </span>
+    <button
+      type="button"
+      class="save-bar-btn save-bar-btn-ghost"
+      data-slot="undo"
+      data-event-type="acmeData"
+      data-btn-type="edit-undo"
+      title="Undo (Ctrl/Cmd-Z)"
+    >
+      Undo
+    </button>
+    <button
+      type="button"
+      class="save-bar-btn save-bar-btn-ghost"
+      data-slot="redo"
+      data-event-type="acmeData"
+      data-btn-type="edit-redo"
+      title="Redo (Shift-Ctrl/Cmd-Z)"
+    >
+      Redo
+    </button>
+    <button
+      type="button"
+      class="save-bar-btn save-bar-btn-ghost"
+      data-slot="discard"
+      data-event-type="acmeData"
+      data-btn-type="discard-invoice-edits"
+    >
+      Discard
+    </button>
+    <button
+      type="button"
+      class="save-bar-btn save-bar-btn-primary"
+      data-slot="save"
+      data-event-type="acmeData"
+      data-btn-type="save-invoice-edits"
+    >
+      Save All
+    </button>
+  </div>
+</div>

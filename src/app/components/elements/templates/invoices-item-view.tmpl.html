@@ -9,9 +9,31 @@
   <p>{{name}}</p>
 </div>
 <p class="ii-email" role="cell">{{email}}</p>
-<p class="ii-amount" role="cell">{{amount}}</p>
-<p class="ii-date" role="cell">{{date}}</p>
-<div class="ii-status" role="cell">
+<div
+  class="ii-amount ii-cell"
+  role="cell"
+  data-event-type="invoiceCell"
+  data-field="amount"
+  data-invoice-id="{{attrInvoiceId}}"
+>
+  <span data-slot="cell-text">{{amount}}</span>
+</div>
+<div
+  class="ii-date ii-cell"
+  role="cell"
+  data-event-type="invoiceCell"
+  data-field="date"
+  data-invoice-id="{{attrInvoiceId}}"
+>
+  <span data-slot="cell-text">{{date}}</span>
+</div>
+<div
+  class="ii-status ii-cell"
+  role="cell"
+  data-event-type="invoiceCell"
+  data-field="status"
+  data-invoice-id="{{attrInvoiceId}}"
+>
   <button
     type="button"
     class="{{attrStatusClass}}"
