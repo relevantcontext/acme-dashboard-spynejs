@@ -156,6 +156,11 @@ Resources:
             TargetOriginId: api
             ViewerProtocolPolicy: https-only
             AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            # Found at B4 scale: without this, /api/bootstrap shipped its full
+            # 1.37 MB uncompressed (~190 KB gzipped) — the S3 behavior had
+            # Compress and this one didn't. CloudFront compresses on the fly
+            # when the viewer sends Accept-Encoding and the origin didn't.
+            Compress: true
             # CachingDisabled — an API response is per-session and must never be
             # served to a second visitor.
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
