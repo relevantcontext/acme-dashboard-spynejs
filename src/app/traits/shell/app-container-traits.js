@@ -3,6 +3,7 @@ import { StageContainer } from 'components/shell/stage-container.js';
 import { UIContainer } from 'components/shell/ui-container.js';
 import { LocalStorageNullView } from 'components/shell/null-views/local-storage-null-view.js';
 import { AcmeQueryParamsNullView } from 'components/shell/null-views/acme-query-params-null-view.js';
+import { QuickSearchView } from 'components/shell/quick-search-view.js';
 
 export class AppContainerTraits extends SpyneTrait {
   constructor(context) {
@@ -71,6 +72,9 @@ export class AppContainerTraits extends SpyneTrait {
   static app$OnAppViewRendered() {
     this.appendView(new UIContainer());
     this.appendView(new StageContainer());
+    // App-level chrome like the columns: mounted once, survives navigation,
+    // position:fixed so document order only matters for stacking.
+    this.appendView(new QuickSearchView());
     new LocalStorageNullView().appendToNull();
     new AcmeQueryParamsNullView().appendToNull();
   }

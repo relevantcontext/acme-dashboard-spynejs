@@ -18,7 +18,8 @@ import { AcmeNavTraits } from 'traits/nav/acme-nav-traits.js';
  */
 export class UISideNavView extends ViewStream {
   constructor(props = {}) {
-    const { signOutText = 'Sign Out' } = props.data || {};
+    const { signOutText = 'Sign Out', searchText = 'Search' } =
+      props.data || {};
 
     props.tagName = 'div';
     props.class = 'flex h-full flex-col px-3 py-4 md:px-2';
@@ -28,7 +29,9 @@ export class UISideNavView extends ViewStream {
     props.data = {
       ...props.data,
       signOutText,
+      searchText,
       svgPower: withClass('power', 'w-6'),
+      svgSearch: withClass('magnifyingGlass', 'w-6'),
     };
 
     super(props);
@@ -39,7 +42,12 @@ export class UISideNavView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [['button#sign-out', 'click']];
+    // The search button's dataset (eventType/btnType) IS the payload; the
+    // quick-search overlay narrows on it and opens.
+    return [
+      ['button#sign-out', 'click'],
+      ['button#quick-search-open', 'click'],
+    ];
   }
 
   onRendered() {

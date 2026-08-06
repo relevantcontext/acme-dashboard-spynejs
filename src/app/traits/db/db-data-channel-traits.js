@@ -135,8 +135,16 @@ export class AcmeDataChannelTraits extends SpyneTrait {
   }
 
   static acmeData$OnViewStreamInfo(e) {
-    if (e?.action !== 'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT') return;
     const payload = e?.payload || {};
+
+    // The quick-search overlay's pill. Same optimistic apply/rollback path as
+    // the CHANNEL_UI toggle above — one code path, two arrival boundaries.
+    if (e?.action === 'CHANNEL_ACME_DATA_TOGGLE_STATUS_EVENT') {
+      this.acmeData$ToggleInvoiceStatus(payload);
+      return;
+    }
+
+    if (e?.action !== 'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT') return;
     this.acmeData$Request(payload.btnType, payload);
   }
 

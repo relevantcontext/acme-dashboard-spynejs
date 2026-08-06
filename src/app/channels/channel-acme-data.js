@@ -72,6 +72,12 @@ export class ChannelAcmeData extends Channel {
       // built from real request metadata, unlike success payloads, which all
       // report the fetch channel's constructor url.
       'CHANNEL_ACME_DATA_ERROR_EVENT',
+
+      // A status toggle arriving over the ViewStream info boundary instead of
+      // CHANNEL_UI — the quick-search overlay's delegated rows cannot ride the
+      // broadcaster. Consumed in onViewStreamInfo; runs the SAME optimistic
+      // path as the table pill's UI event.
+      'CHANNEL_ACME_DATA_TOGGLE_STATUS_EVENT',
     ];
   }
 

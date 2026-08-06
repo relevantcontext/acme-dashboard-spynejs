@@ -57,6 +57,12 @@ export class ChannelAcmeInvoices extends Channel {
       'CHANNEL_ACME_INVOICES_EDIT_EVENT',
       // A validated response to a pagination control's CHANNEL_UI request.
       'CHANNEL_ACME_INVOICES_PAGINATION_EVENT',
+
+      // An edit request arriving over the ViewStream info boundary — the
+      // quick-search overlay's delegated rows cannot ride the broadcaster.
+      // Consumed in onViewStreamInfo; joins the SAME form-navigation path as
+      // the table row's pencil click.
+      'CHANNEL_ACME_INVOICES_OPEN_EDIT_EVENT',
       // A pagination ViewStream result relayed for the isolated table view.
       'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT',
 
