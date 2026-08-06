@@ -1,0 +1,80 @@
+<div
+  class="qs-backdrop fixed inset-0 z-40 bg-gray-950/40"
+  data-event-type="quickSearch"
+  data-btn-type="close"
+></div>
+<div
+  class="qs-panel fixed left-1/2 top-14 z-50 flex w-[640px] max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col rounded-lg bg-white shadow-2xl md:top-24"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Quick search"
+>
+  <div class="relative border-b border-gray-200 p-3">
+    <label for="quick-search-input" class="sr-only">
+      Search invoices and customers
+    </label>
+    <input
+      id="quick-search-input"
+      type="text"
+      autocomplete="off"
+      class="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 pr-14 text-sm outline-2 placeholder:text-gray-500"
+      placeholder="{{placeholder}}"
+      data-event-type="acmeSearch"
+      data-btn-type="quick-search"
+    />
+    {{svgMagnifyingGlass}}
+    <button
+      id="quick-search-close"
+      type="button"
+      data-event-type="quickSearch"
+      data-btn-type="close"
+      class="absolute right-6 top-1/2 -translate-y-1/2 rounded border border-gray-200 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 hover:bg-gray-100"
+      aria-label="Close search"
+    >
+      Esc
+    </button>
+  </div>
+
+  <!-- One CLICK binding on this stable container delegates for every row
+       beneath it; rows are re-rendered wholesale on data changes and can
+       therefore never be bound individually. data-event-prevent-default keeps
+       row anchors from full-page navigating. -->
+  <div
+    class="qs-results max-h-[60vh] overflow-y-auto p-2"
+    data-slot="qs-results"
+    data-event-type="quickSearchResults"
+    data-event-prevent-default="true"
+    role="listbox"
+    aria-label="Search results"
+  >
+    <section data-qs-group="customers">
+      <h3
+        class="px-3 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-gray-500"
+      >
+        Customers <span data-qs-count="customers"></span>
+      </h3>
+      <div data-slot="qs-customers"></div>
+    </section>
+
+    <section data-qs-group="invoices">
+      <h3
+        class="px-3 pb-1 pt-2 text-xs font-medium uppercase tracking-wide text-gray-500"
+      >
+        Invoices <span data-qs-count="invoices"></span>
+      </h3>
+      <div data-slot="qs-invoices"></div>
+    </section>
+
+    <p data-qs-empty class="hidden px-3 py-6 text-center text-sm text-gray-500">
+      No matching customers or invoices.
+    </p>
+  </div>
+
+  <div
+    class="hidden items-center gap-4 border-t border-gray-200 px-4 py-2 text-[11px] text-gray-500 md:flex"
+  >
+    <span><kbd class="font-sans">&#8593;&#8595;</kbd> to navigate</span>
+    <span><kbd class="font-sans">&#8629;</kbd> to open</span>
+    <span><kbd class="font-sans">esc</kbd> to close</span>
+  </div>
+</div>

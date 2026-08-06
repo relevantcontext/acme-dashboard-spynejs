@@ -72,6 +72,16 @@ export class ChannelAcmeData extends Channel {
       // built from real request metadata, unlike success payloads, which all
       // report the fetch channel's constructor url.
       'CHANNEL_ACME_DATA_ERROR_EVENT',
+
+      // Intake from the quick-search overlay (sendInfoToChannel), never
+      // emitted. The overlay's result rows are re-rendered wholesale, so
+      // their pills cannot carry the per-element CHANNEL_UI binding the table
+      // rows use; this action is the same toggle intent by the ViewStream
+      // info path, routed straight to the same optimistic handler.
+      [
+        'CHANNEL_ACME_DATA_TOGGLE_INVOICE_STATUS_EVENT',
+        'acmeData$OnToggleStatusInfo',
+      ],
     ];
   }
 

@@ -18,7 +18,8 @@ import { AcmeNavTraits } from 'traits/nav/acme-nav-traits.js';
  */
 export class UISideNavView extends ViewStream {
   constructor(props = {}) {
-    const { signOutText = 'Sign Out' } = props.data || {};
+    const { signOutText = 'Sign Out', searchText = 'Search' } =
+      props.data || {};
 
     props.tagName = 'div';
     props.class = 'flex h-full flex-col px-3 py-4 md:px-2';
@@ -28,7 +29,14 @@ export class UISideNavView extends ViewStream {
     props.data = {
       ...props.data,
       signOutText,
+      searchText,
+      // The hint mirrors what the overlay actually listens for: metaKey OR
+      // ctrlKey plus K. Platform decides which one to advertise.
+      searchShortcut: /Mac|iPhone|iPad/.test(navigator.platform)
+        ? '⌘K'
+        : 'Ctrl K',
       svgPower: withClass('power', 'w-6'),
+      svgMagnifyingGlass: withClass('magnifyingGlass', 'w-6'),
     };
 
     super(props);
@@ -39,7 +47,13 @@ export class UISideNavView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [['button#sign-out', 'click']];
+    // The search button is the sidenav's visible route into the quick-search
+    // overlay; the click rides CHANNEL_UI and the overlay narrows on its
+    // eventType — this view knows nothing about what opens.
+    return [
+      ['button#sign-out', 'click'],
+      ['button#quick-search-open', 'click'],
+    ];
   }
 
   onRendered() {

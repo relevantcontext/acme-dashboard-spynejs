@@ -14,6 +14,7 @@ import { ChannelAcmeAuth } from 'channels/channel-acme-auth.js';
 import { ChannelAcmeData } from 'channels/channel-acme-data.js';
 import { ChannelAcmeInvoices } from 'channels/channel-acme-invoices.js';
 import { ChannelAcmeCustomers } from 'channels/channel-acme-customers.js';
+import { ChannelAcmeQuickSearch } from 'channels/channel-acme-quicksearch.js';
 //plugins
 
 // views
@@ -142,6 +143,11 @@ SpyneApp.registerChannel(new ChannelAcmeData());
 // resolve against.
 SpyneApp.registerChannel(new ChannelAcmeInvoices());
 SpyneApp.registerChannel(new ChannelAcmeCustomers());
+
+// The quick-search overlay's cross-domain projection (Cmd-K / Ctrl-K): one
+// query matched against invoices AND customers at once. Same tier and same
+// registration rule as the two above — it resolves against the data channel.
+SpyneApp.registerChannel(new ChannelAcmeQuickSearch());
 
 // A ChannelFetch request can only be sent from a ViewStream, so this null-
 // appended view listens to both channels and performs them. It renders nothing

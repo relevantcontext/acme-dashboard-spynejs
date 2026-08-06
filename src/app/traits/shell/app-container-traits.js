@@ -3,6 +3,7 @@ import { StageContainer } from 'components/shell/stage-container.js';
 import { UIContainer } from 'components/shell/ui-container.js';
 import { LocalStorageNullView } from 'components/shell/null-views/local-storage-null-view.js';
 import { AcmeQueryParamsNullView } from 'components/shell/null-views/acme-query-params-null-view.js';
+import { QuickSearchOverlayView } from 'components/shell/quick-search-overlay-view.js';
 
 export class AppContainerTraits extends SpyneTrait {
   constructor(context) {
@@ -71,6 +72,10 @@ export class AppContainerTraits extends SpyneTrait {
   static app$OnAppViewRendered() {
     this.appendView(new UIContainer());
     this.appendView(new StageContainer());
+    // App-level chrome, not a page item: the quick-search palette must answer
+    // Cmd-K from ANY signed-in page, so it mounts once beside the columns
+    // (hidden, fixed-position) and gates itself on CHANNEL_APP's pageId.
+    this.appendView(new QuickSearchOverlayView());
     new LocalStorageNullView().appendToNull();
     new AcmeQueryParamsNullView().appendToNull();
   }

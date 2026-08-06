@@ -141,6 +141,17 @@ export class AcmeDataChannelTraits extends SpyneTrait {
   }
 
   /**
+   * The quick-search overlay's pill click, arriving as a declared intake
+   * action (registered with this method in channel-acme-data.js) rather than
+   * through CHANNEL_UI — its rows are re-rendered wholesale and cannot hold
+   * per-element broadcasts. From here on it IS the table's toggle: same
+   * optimistic apply, same request, same rollback, same STATUS_EVENT repaint.
+   */
+  static acmeData$OnToggleStatusInfo(e) {
+    this.acmeData$ToggleInvoiceStatus(e?.payload ?? {});
+  }
+
+  /**
    * The one way a request leaves this channel. ACME_ENDPOINTS turns the btnType
    * plus the UI payload into fetch props, including the mapFn that stamps the
    * response, so everything downstream is generic.

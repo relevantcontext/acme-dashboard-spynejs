@@ -1,4 +1,7 @@
-import { buildAcmeSearch } from 'utils/acme-utils.js';
+// Relative rather than the `utils/` alias: web-test-runner's alias mapping
+// does not reach transitive imports, so the alias form left this module —
+// and every test importing it — unloadable in the unit-test browser.
+import { buildAcmeSearch } from './acme-utils.js';
 
 /**
  * The client-side equivalent of fetchFilteredInvoices / fetchInvoicesPages.

@@ -1,0 +1,26 @@
+{{#}}
+<a
+  class="qs-row group flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-gray-100 aria-selected:bg-sky-100"
+  href="{{attrHref}}"
+  data-qs-kind="customer"
+  data-qs-id="{{attrCustomerId}}"
+  data-qs-query="{{attrQuery}}"
+  role="option"
+  aria-selected="false"
+>
+  <img
+    src="{{attrImageSrc}}"
+    class="rounded-full"
+    width="28"
+    height="28"
+    alt="{{attrImageAlt}}"
+  />
+  <span class="min-w-0 flex-1">
+    <span class="block truncate text-sm font-medium text-gray-900"
+      >{{name}}</span
+    >
+    <span class="block truncate text-xs text-gray-500">{{email}}</span>
+  </span>
+  <span class="whitespace-nowrap text-xs text-gray-500">{{invoicesLabel}}</span>
+</a>
+{{/}}

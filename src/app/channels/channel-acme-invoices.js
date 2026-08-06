@@ -64,6 +64,15 @@ export class ChannelAcmeInvoices extends Channel {
       // flag also rides every LIST and VISIBLE_IDS payload; this action exists
       // for LIVE crossings while a table is already mounted.
       'CHANNEL_ACME_INVOICES_DISPLAY_EVENT',
+
+      // Intake from the quick-search overlay (sendInfoToChannel), never
+      // emitted: {btnType:'edit', invoiceId} routed straight to the SAME
+      // form-navigation handler the table's pencil anchor reaches through
+      // CHANNEL_UI, so EDIT_EVENT precedes the route change by one path.
+      [
+        'CHANNEL_ACME_INVOICES_FORM_NAVIGATION_EVENT',
+        'acmeInvoices$OnFormNavigation',
+      ],
     ];
   }
 

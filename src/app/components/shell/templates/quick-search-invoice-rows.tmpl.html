@@ -1,0 +1,41 @@
+{{#}}
+<a
+  class="qs-row group flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-gray-100 aria-selected:bg-sky-100"
+  href="{{attrEditHref}}"
+  data-qs-kind="invoice"
+  data-qs-id="{{attrInvoiceId}}"
+  role="option"
+  aria-selected="false"
+>
+  <img
+    src="{{attrImageSrc}}"
+    class="rounded-full"
+    width="28"
+    height="28"
+    alt="{{attrImageAlt}}"
+  />
+  <span class="min-w-0 flex-1">
+    <span class="block truncate text-sm font-medium text-gray-900"
+      >{{name}}</span
+    >
+    <span class="block truncate text-xs text-gray-500">{{email}}</span>
+  </span>
+  <span class="hidden w-24 whitespace-nowrap text-right text-xs text-gray-500 sm:block"
+    >{{date}}</span
+  >
+  <span class="w-20 whitespace-nowrap text-right text-sm text-gray-900"
+    >{{amount}}</span
+  >
+  <button
+    type="button"
+    class="{{attrStatusClass}}"
+    data-qs-action="toggle"
+    data-invoice-id="{{attrInvoiceId}}"
+    title="Toggle paid / pending"
+  >
+    {{#isPending}}{{label}}{{svgClock}}{{/isPending}}
+    {{#isPaid}}{{label}}{{svgCheck}}{{/isPaid}}
+  </button>
+  <span class="w-5 text-gray-400 group-hover:text-blue-600">{{svgPencil}}</span>
+</a>
+{{/}}
