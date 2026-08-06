@@ -1,0 +1,101 @@
+<!--
+  Rendered by QuickSearchOverlayTraits into [data-slot="qs-results"] on every
+  RESULTS/OPEN emission. Every section is TOP-LEVEL by design (headers, row
+  arrays, empty states are separate flat keys), so no section ever nests inside
+  another — DomElementTemplate allows one level, and this template spends none
+  of it. Status pill facts arrive as finished strings (statusLabel/statusIcon),
+  not section objects, for the same reason.
+
+  Interactivity contract: this markup carries FACTS only (data-qs-kind and the
+  ids). The container above is the broadcast boundary; the quick-search channel
+  resolves clicks from event.target, and the keyboard highlight addresses rows
+  by data-qs-index.
+-->
+{{#emptyPrompt}}
+<p class="px-4 py-10 text-center text-sm text-gray-500">{{message}}</p>
+{{/emptyPrompt}}
+{{#noResults}}
+<p class="px-4 py-10 text-center text-sm text-gray-500">{{message}}</p>
+{{/noResults}}
+{{#customersHeader}}
+<h3
+  class="sticky top-0 border-b border-gray-100 bg-gray-50 px-4 py-2 text-xs font-medium uppercase tracking-wide text-gray-500"
+>
+  {{label}} ({{count}})
+</h3>
+{{/customersHeader}}
+{{#customerRows}}
+<a
+  class="qs-row flex cursor-pointer items-center gap-3 border-b border-gray-100 px-4 py-2 hover:bg-gray-50"
+  role="option"
+  data-qs-index="{{qsIndex}}"
+  data-qs-kind="customer"
+  data-customer-id="{{attrCustomerId}}"
+  data-customer-name="{{name}}"
+  href="{{attrHref}}"
+>
+  <img
+    src="{{attrImageSrc}}"
+    class="rounded-full"
+    width="28"
+    height="28"
+    alt="{{attrImageAlt}}"
+  />
+  <span class="min-w-0 flex-1">
+    <span class="block truncate text-sm font-medium">{{name}}</span>
+    <span class="block truncate text-xs text-gray-500">{{email}}</span>
+  </span>
+  <span class="whitespace-nowrap text-xs text-gray-500"
+    >{{totalInvoices}} invoices</span
+  >
+</a>
+{{/customerRows}}
+{{#invoicesHeader}}
+<h3
+  class="sticky top-0 border-b border-gray-100 bg-gray-50 px-4 py-2 text-xs font-medium uppercase tracking-wide text-gray-500"
+>
+  {{label}} ({{count}})
+</h3>
+{{/invoicesHeader}}
+{{#invoiceRows}}
+<div
+  class="qs-row flex items-center gap-3 border-b border-gray-100 px-4 py-2 hover:bg-gray-50"
+  role="option"
+  data-qs-index="{{qsIndex}}"
+  data-invoice-id="{{attrInvoiceId}}"
+>
+  <a
+    class="flex min-w-0 flex-1 cursor-pointer items-center gap-3"
+    data-qs-kind="invoice"
+    data-invoice-id="{{attrInvoiceId}}"
+    href="{{attrEditHref}}"
+    title="Edit invoice"
+  >
+    <img
+      src="{{attrImageSrc}}"
+      class="rounded-full"
+      width="28"
+      height="28"
+      alt="{{attrImageAlt}}"
+    />
+    <span class="min-w-0 flex-1">
+      <span class="block truncate text-sm font-medium">{{name}}</span>
+      <span class="block truncate text-xs text-gray-500">{{email}}</span>
+    </span>
+    <span class="whitespace-nowrap text-sm font-medium">{{amount}}</span>
+    <span class="hidden whitespace-nowrap text-xs text-gray-500 md:inline"
+      >{{date}}</span
+    >
+    {{svgPencil}}
+  </a>
+  <button
+    type="button"
+    class="{{attrStatusClass}}"
+    data-qs-kind="toggle"
+    data-invoice-id="{{attrInvoiceId}}"
+    title="Toggle paid / pending"
+  >
+    {{statusLabel}}{{statusIcon}}
+  </button>
+</div>
+{{/invoiceRows}}

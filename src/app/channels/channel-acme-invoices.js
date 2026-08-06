@@ -59,6 +59,13 @@ export class ChannelAcmeInvoices extends Channel {
       // A pagination ViewStream result relayed for the isolated table view.
       'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT',
 
+      // A navigation instruction sent BY a ViewStream (the quick-search
+      // overlay's relay) via sendInfoToChannel — consumed in
+      // onViewStreamInfo, never emitted. btnType 'edit' reuses the form
+      // navigation path; 'customer-invoices' routes to the invoices list
+      // filtered to one customer.
+      'CHANNEL_ACME_INVOICES_NAV_EVENT',
+
       // The row/card breakpoint, conformed from the WINDOW mediaQuery. The
       // flag also rides every LIST and VISIBLE_IDS payload; this action exists
       // for LIVE crossings while a table is already mounted.

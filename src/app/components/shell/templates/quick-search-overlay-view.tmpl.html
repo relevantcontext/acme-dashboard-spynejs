@@ -1,0 +1,40 @@
+<div
+  class="qs-backdrop absolute inset-0 bg-gray-500 bg-opacity-40"
+  data-event-type="acmeQuickSearch"
+  data-btn-type="close"
+></div>
+<div
+  class="qs-panel relative mx-auto mt-16 flex w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl md:mt-24"
+>
+  <div class="relative border-b border-gray-200">
+    <label for="quick-search-input" class="sr-only">Quick search</label>
+    <input
+      id="quick-search-input"
+      type="text"
+      autocomplete="off"
+      class="block w-full border-0 py-4 pl-11 pr-16 text-sm outline-none placeholder:text-gray-500 focus:ring-0"
+      placeholder="{{attrPlaceholder}}"
+      data-event-type="acmeQuickSearch"
+      data-btn-type="query"
+    />
+    {{svgMagnifyingGlass}}
+    <kbd
+      class="absolute right-4 top-1/2 -translate-y-1/2 rounded border border-gray-200 px-1.5 py-0.5 text-xs text-gray-400"
+      >Esc</kbd
+    >
+  </div>
+  <div
+    class="max-h-[60vh] overflow-y-auto overscroll-contain"
+    data-slot="qs-results"
+    data-event-type="acmeQuickSearch"
+    data-btn-type="results"
+    data-event-prevent-default="true"
+  ></div>
+  <div
+    class="flex gap-4 border-t border-gray-200 px-4 py-2 text-xs text-gray-400"
+  >
+    <span>&#8593;&#8595; to navigate</span>
+    <span>Enter to open</span>
+    <span>Esc to close</span>
+  </div>
+</div>

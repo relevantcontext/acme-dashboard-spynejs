@@ -3,6 +3,8 @@ import { StageContainer } from 'components/shell/stage-container.js';
 import { UIContainer } from 'components/shell/ui-container.js';
 import { LocalStorageNullView } from 'components/shell/null-views/local-storage-null-view.js';
 import { AcmeQueryParamsNullView } from 'components/shell/null-views/acme-query-params-null-view.js';
+import { QuickSearchOverlayView } from 'components/shell/quick-search-overlay-view.js';
+import { AppHotkeysView } from 'components/shell/null-views/app-hotkeys-view.js';
 
 export class AppContainerTraits extends SpyneTrait {
   constructor(context) {
@@ -71,6 +73,13 @@ export class AppContainerTraits extends SpyneTrait {
   static app$OnAppViewRendered() {
     this.appendView(new UIContainer());
     this.appendView(new StageContainer());
+    // Cmd/Ctrl-K quick search. App-level like the columns above — it must
+    // answer the shortcut from ANY page, so it cannot belong to a page. It
+    // mounts hidden and is painted by CHANNEL_ACME_QUICK_SEARCH.
+    this.appendView(new QuickSearchOverlayView());
+    // Adopts document.body (no append): declares the global keydown broadcast
+    // the quick-search channel reads Cmd/Ctrl-K and its navigation keys from.
+    new AppHotkeysView();
     new LocalStorageNullView().appendToNull();
     new AcmeQueryParamsNullView().appendToNull();
   }

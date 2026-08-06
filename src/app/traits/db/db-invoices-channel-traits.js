@@ -150,7 +150,7 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
    *                 ever be born onto the partial STATUS payload.
    *   LIST_EVENT    the recomputed match, flagged isDataRefresh so pagination
    *                 keeps the current page rather than treating a data refresh
-   *                 like a new search. 
+   *                 like a new search.
    */
   static acmeInvoices$OnData(e) {
     const prevInvoices = this.props.invoices;
@@ -283,6 +283,47 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
     });
   }
 
+  /**
+   * A navigation instruction from a ViewStream (the quick-search overlay's
+   * relay), arriving through onViewStreamInfo because sendInfoToChannel is the
+   * one bridge a non-page surface has into this channel.
+   *
+   *   edit                the same path a table row's pencil takes —
+   *                       OnFormNavigation reads e.payload.invoiceId, emits
+   *                       EDIT_EVENT and routes, so the edit page a quick-
+   *                       search activation lands on is indistinguishable
+   *                       from one reached through the table.
+   *
+   *   customer-invoices   route to the invoices LIST, then set its query to
+   *                       the customer's name. Order matters and is the
+   *                       reason both writes live here: the route channel's
+   *                       pushState drops the search string, so the query is
+   *                       published AFTER the route lands and amends that
+   *                       same history entry (PublishParams' default
+   *                       replaceState) — one Back press leaves the whole
+   *                       visit. The params dispatch then re-runs
+   *                       PublishList, and filterInvoices matches the name
+   *                       column, which IS the customer's name — the same
+   *                       rows a hand-typed search for that customer shows.
+   */
+  static acmeInvoices$OnNavRequest(e) {
+    const { btnType, customerName } = e?.payload || {};
+
+    if (btnType === 'edit') {
+      this.acmeInvoices$OnFormNavigation(e);
+      return;
+    }
+
+    if (btnType !== 'customer-invoices') return;
+
+    this.sendPayloadToRouteChannel({
+      pageId: 'dashboard',
+      topicId: 'invoices',
+      optionId: '',
+    });
+    this.acmeInvoices$PublishParams({ query: customerName ?? '', sort: '' });
+  }
+
   static acmeInvoices$PublishParams(params, historyMode = 'replace') {
     this.sendChannelPayload('CHANNEL_ACME_INVOICES_UPDATE_PARAMS_EVENT', {
       params,
@@ -334,6 +375,11 @@ export class AcmeInvoicesChannelTraits extends SpyneTrait {
    */
   static acmeInvoices$OnViewStreamInfo(e) {
     const { action, payload } = e || {};
+
+    if (action === 'CHANNEL_ACME_INVOICES_NAV_EVENT') {
+      this.acmeInvoices$OnNavRequest(e);
+      return;
+    }
 
     if (action !== 'CHANNEL_ACME_INVOICES_VISIBLE_IDS_EVENT') return;
 

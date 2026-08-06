@@ -29,6 +29,13 @@ export class UISideNavView extends ViewStream {
       ...props.data,
       signOutText,
       svgPower: withClass('power', 'w-6'),
+      // The quick-search affordance. The visible hint mirrors the shortcut the
+      // WINDOW-channel listener actually answers to on this platform.
+      searchText: 'Search',
+      searchShortcut: /Mac|iP(hone|ad|od)/.test(navigator.platform)
+        ? '⌘K'
+        : 'Ctrl K',
+      svgSearch: withClass('magnifyingGlass', 'w-6'),
     };
 
     super(props);
@@ -39,7 +46,13 @@ export class UISideNavView extends ViewStream {
   }
 
   broadcastEvents() {
-    return [['button#sign-out', 'click']];
+    // Two static buttons, each carrying its own eventType/btnType dataset:
+    // sign-out routes to the auth flow, quick-search-open to the quick-search
+    // channel's CHANNEL_UI subscription.
+    return [
+      ['button#sign-out', 'click'],
+      ['button#quick-search-open', 'click'],
+    ];
   }
 
   onRendered() {

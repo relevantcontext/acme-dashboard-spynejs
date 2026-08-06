@@ -26,7 +26,14 @@ export class DashboardStatsTraits extends SpyneTrait {
     // produced an element; the constructor-rendered values already show it.
     if (values == null || this.props.el == null) return;
 
-    this.props.el$('').els.forEach((el) => {
+    // The [data-card-value] elements the template declares for exactly this
+    // repaint. The empty-string selector this previously used resolves to the
+    // view ROOT (cxt + ' ' + '' trims back to the root selector), so the
+    // "repaint" replaced the entire grid's innerText with the value for an
+    // undefined card type — i.e. wiped all four cards on the first
+    // post-mutation dump (and on mount, whenever the replayed payload was an
+    // UPDATED rather than the first LOADED).
+    this.props.el$('[data-card-value]').els.forEach((el) => {
       el.innerText = getDashboardCardValue(values, el.dataset.cardValue);
     });
   }

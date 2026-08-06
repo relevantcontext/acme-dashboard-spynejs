@@ -108,7 +108,11 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
    * assistive tech reads the same fact the arrow shows. [live-mirror-via-el$]
    */
   static invoicesTableRows$ApplySortIndicator(sortKey, sortDir) {
-    this.props.el$('').els.forEach((el) => {
+    // The columnheader spans, addressed by the data-sort-col fact they carry.
+    // The empty-string selector this previously used resolves to the view
+    // ROOT (cxt + ' ' + '' trims back to the root selector), so aria-sort was
+    // stamped onto the table root and the header indicator never painted.
+    this.props.el$('[data-sort-col]').els.forEach((el) => {
       const isActive = el.dataset.sortCol === sortKey;
       const ariaSort = isActive
         ? sortDir === 'desc'
@@ -149,9 +153,16 @@ export class InvoicesTableRowsTraits extends SpyneTrait {
     const container = props.el$(ITEMS_SELECTOR).el;
     if (container == null) return;
 
+    // The item ROOTS inside the region — the elements whose data-invoice-id
+    // answers "which rows already exist". The truncated `${ITEMS_SELECTOR} `
+    // selector this previously used trims back to the CONTAINER itself, whose
+    // dataset has no invoiceId, so existingIds was always {undefined}: every
+    // sync re-minted every visible row, and each data refresh (a status
+    // toggle, a mutation's authoritative refetch) DUPLICATED the whole page
+    // of rows in place.
     const existingIds = new Set(
       props
-        .el$(`${ITEMS_SELECTOR} `)
+        .el$(`${ITEMS_SELECTOR} .invoice-item`)
         .els.map((el) => el.dataset.invoiceId),
     );
 

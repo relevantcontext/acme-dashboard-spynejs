@@ -7,6 +7,21 @@
 <div
   class="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2"
 >
+  <button
+    type="button"
+    id="quick-search-open"
+    data-event-type="acmeQuickSearch"
+    data-btn-type="open"
+    title="Quick search ({{searchShortcut}})"
+    class="flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
+  >
+    {{svgSearch}}
+    <span class="hidden md:block">{{searchText}}</span>
+    <kbd
+      class="ml-auto hidden rounded border border-gray-200 px-1.5 py-0.5 text-xs font-normal text-gray-400 md:block"
+      >{{searchShortcut}}</kbd
+    >
+  </button>
   <div data-slot="nav-links" class="contents"></div>
   <div class="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
   <form>

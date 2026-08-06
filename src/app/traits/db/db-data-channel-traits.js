@@ -5,7 +5,7 @@ import { computeInvoiceStatusTotals } from 'utils/acme-invoice-utils.js';
 
 // The toggle endpoint's URL, recognized on ERROR payloads — error payloads are
 // built from real request metadata, so this is the one reliable way to map a
-// failed request back to its intent. 
+// failed request back to its intent.
 const TOGGLE_URL_RE = /\/api\/invoices\/([^/]+)\/status/;
 
 /**
@@ -136,8 +136,13 @@ export class AcmeDataChannelTraits extends SpyneTrait {
 
   static acmeData$OnViewStreamInfo(e) {
     if (e?.action !== 'CHANNEL_ACME_DATA_INVOICE_SUBMIT_EVENT') return;
-    const payload = e?.payload || {};
-    this.acmeData$Request(payload.btnType, payload);
+    // Routed through the SAME branch as CHANNEL_UI events, so an invoice
+    // mutation behaves identically whichever door it came in:
+    // create/update-invoice goes to acmeData$Request exactly as before, and a
+    // toggle-invoice-status sent by a ViewStream (the quick-search overlay's
+    // relay) takes the optimistic path a pill click takes — apply, publish,
+    // reconcile — rather than a bare request.
+    this.acmeData$OnUiEvent(e);
   }
 
   /**
@@ -209,7 +214,7 @@ export class AcmeDataChannelTraits extends SpyneTrait {
   /**
    * Writes one invoice's status into the held dump, immutably — payload data is
    * frozen, and the held arrays are references into published payloads, so the
-   * patch builds new objects rather than mutating. 
+   * patch builds new objects rather than mutating.
    *
    * The derived slices move WITH the fact: the two card sums are recomputed
    * from the patched invoices (same arithmetic and formatting as the server),
@@ -329,7 +334,7 @@ export class AcmeDataChannelTraits extends SpyneTrait {
    * payload carried only an error, a page mounting after a failed mutation would
    * have no data even though the channel has data. Carrying everything every
    * time means a replayed error still lets a page render its content AND surface
-   * the failure, rather than choosing. 
+   * the failure, rather than choosing.
    *
    * The corollary: no action may ever emit a partial payload. Adding one
    * silently stops this channel being a source of truth.
@@ -408,7 +413,7 @@ export class AcmeDataChannelTraits extends SpyneTrait {
       // construction: that mutation's own response will request a fresh one.
       // Applying it would clobber newer provisional state with older server
       // state — the empirically-proven mergeMap failure. Discarding it is the
-      // deliberate take-latest choice. 
+      // deliberate take-latest choice.
       if (this.props.acmePendingMutations > 0) return;
 
       // The dump now IS the authority; any surviving toggle intents have been
