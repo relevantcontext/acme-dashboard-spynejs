@@ -1,0 +1,61 @@
+@use '../tokens' as *;
+
+// Dark Theme — semantic mapping of raw tokens
+
+// Brand
+/*
+$brand: $color-primary-500;
+$brand-contrast: $color-neutral-950;
+
+// Backgrounds
+$bg: $color-neutral-900;
+$paper: $color-neutral-800;
+$border: $color-neutral-700;
+
+// Text
+$text-primary: $color-neutral-100;
+$text-secondary: $color-neutral-400;
+$text-inverse: $color-neutral-950;
+$text-muted: $color-neutral-500;
+
+// Status
+$success: $color-supporting-1-600;
+$info: $color-supporting-2-600;
+$error: $color-supporting-3-600;
+$warn: $color-supporting-4-600;
+*/
+
+@use '../tokens' as *;
+
+$dark-theme: (
+  // Environment
+  bg-base: $color-neutral-950,
+
+  brand: $color-primary-300,
+  brand-contrast: $color-neutral-950,
+
+  // App
+  bg: $color-neutral-900,
+  surface: $color-neutral-850,
+  // NEW → midway between bg and paper
+  paper: $color-neutral-800,
+  border: $color-neutral-700,
+
+  // Text
+  text-link: $color-primary-200,
+  text-visited: $color-primary-300,
+
+  text-primary: $color-neutral-100,
+  text-secondary: $color-neutral-200,
+  text-inverse: $color-neutral-950,
+  text-muted: $color-neutral-500,
+
+  // Status
+  success: #0d9488,
+  on-success: #ffffff,
+  info: #38bdf8,
+  error: #f87171,
+  warn: #facc15,
+  danger: #dc2626,
+  on-danger: #ffffff
+);

@@ -1,0 +1,32 @@
+// File: src/scss/00-spynejs-design-system/_core/_globals.scss
+// Unified barrel for tokens + theme
+// Elements and components should @use this file.
+
+// Re-expose all token files
+@forward '../tokens/colors';
+@forward '../tokens/spacing';
+@forward '../tokens/typography';
+@forward '../tokens/motion';
+@forward '../tokens/elevation';
+@forward '../tokens/radius';
+
+// Re-expose the active theme (light by default via theme/_index.scss)
+@forward '../theme';
+
+// If you add mixins/functions later, forward them here too.
+// @forward './mixins';
+// @forward './functions';
+/* Text selection highlight */
+::selection {
+  background: var(--primary-100, #bae3ff); // fallback if CSS var not defined
+  color: var(--primary-900, #002159);
+}
+
+::-moz-selection {
+  background: var(--primary-100, #bae3ff);
+  color: var(--primary-900, #002159);
+}
+
+:root {
+  --max-content-width: 72rem;
+}

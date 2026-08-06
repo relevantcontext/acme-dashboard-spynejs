@@ -1,0 +1,49 @@
+<div class="ii-customer" role="cell">
+  <img
+    src="{{attrImageSrc}}"
+    class="rounded-full"
+    width="28"
+    height="28"
+    alt="{{attrImageAlt}}"
+  />
+  <p>{{name}}</p>
+</div>
+<p class="ii-email" role="cell">{{email}}</p>
+<p class="ii-amount" role="cell">{{amount}}</p>
+<p class="ii-date" role="cell">{{date}}</p>
+<div class="ii-status" role="cell">
+  <button
+    type="button"
+    class="{{attrStatusClass}}"
+    data-event-type="acmeData"
+    data-btn-type="toggle-invoice-status"
+    data-invoice-id="{{attrInvoiceId}}"
+    title="Toggle paid / pending"
+  >
+    {{#isPending}}{{label}}{{svgClock}}{{/isPending}}
+    {{#isPaid}}{{label}}{{svgCheck}}{{/isPaid}}
+  </button>
+</div>
+<div class="ii-actions" role="cell">
+  <a
+    class="rounded-md border p-2 hover:bg-gray-100"
+    href="{{attrEditHref}}"
+    data-event-type="acmeInvoices"
+    data-btn-type="edit"
+    data-invoice-id="{{attrInvoiceId}}"
+    data-event-prevent-default="true"
+  >
+    {{svgPencil}}
+    <span class="sr-only">Edit</span>
+  </a>
+  <button
+    type="button"
+    class="rounded-md border p-2 hover:bg-gray-100"
+    data-event-type="acmeData"
+    data-btn-type="delete-invoice"
+    data-invoice-id="{{attrInvoiceId}}"
+  >
+    {{svgTrash}}
+    <span class="sr-only">Delete</span>
+  </button>
+</div>

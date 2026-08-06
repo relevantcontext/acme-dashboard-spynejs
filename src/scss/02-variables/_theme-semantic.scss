@@ -1,0 +1,40 @@
+// _theme-semantic.scss
+/* Light theme (example) */
+:root {
+  --brand: var(--color-primary-600);
+  --brand-contrast: var(--color-neutral-50);
+  --text: var(--color-neutral-950);
+  --text-muted: var(--color-neutral-700);
+  --bg: var(--color-neutral-50);
+  --paper: var(--color-neutral-0, #ffffff); /* optional */
+  --border: var(--color-neutral-200);
+  --link: var(--color-primary-600);
+  --link-selected: var(--color-primary-300);
+
+  --success: var(--color-supporting-1-600);
+  --warn: var(--color-supporting-4-600);
+  --error: var(--color-supporting-3-600);
+  --rule: var(--color-neutral-100);
+  --rule-muted: var(--color-neutral-100);
+}
+
+/* Dark theme (example) */
+[data-theme='dark'] {
+  --brand: var(--color-primary-400);
+  --brand-contrast: var(--color-neutral-950);
+  --text: var(--color-neutral-100);
+  --text-muted: var(--color-neutral-300);
+  --bg: var(--color-neutral-950);
+  --paper: var(--color-neutral-900);
+  --border: var(--color-neutral-700);
+
+  --success: var(--color-supporting-1-400);
+  --warn: var(--color-supporting-4-400);
+  --error: var(--color-supporting-3-400);
+
+  --link: var(--color-primary-300);
+  --link-selected: var(--color-primary-100);
+
+  --rule: var(--color-neutral-700);
+  --rule-muted: var(--color-neutral-800);
+}

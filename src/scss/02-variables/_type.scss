@@ -1,0 +1,94 @@
+// _type.scss
+// -----------------------------------------------------------------------------
+// Base typography styles consuming design tokens
+// -----------------------------------------------------------------------------
+
+/* Headings (semantic, wired to type scale + weights) */
+h1,
+.h1 {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  margin: 0 0 var(--space-4);
+}
+
+h2,
+.h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  margin: 0 0 var(--space-3);
+}
+
+h3,
+.h3 {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  margin: 0 0 var(--space-3);
+}
+
+h4,
+.h4 {
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-normal);
+  margin: 0 0 var(--space-2);
+}
+
+h5,
+.h5 {
+  font-size: var(--fs-h5);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-normal);
+  margin: 0 0 var(--space-2);
+}
+
+h6,
+.h6 {
+  font-size: var(--fs-h6);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  margin: 0 0 var(--space-1);
+}
+
+/* Paragraphs */
+p,
+.p {
+  font-size: 1rem;
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  margin: 0 0 var(--space-3);
+  color: var(--text);
+}
+
+/* Small text */
+.small {
+  font-size: 0.875rem;
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+}
+
+/* Links */
+a {
+  color: var(--brand);
+  text-decoration: none;
+  font-weight: var(--fw-medium);
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+/* Lists */
+ul,
+ol {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-5);
+}
+
+li {
+  margin-bottom: var(--space-2);
+}

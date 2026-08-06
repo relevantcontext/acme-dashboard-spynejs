@@ -1,0 +1,94 @@
+@use '../../02-variables/globals' as globals;
+@use '../../02-variables/mixins' as mixins;
+@use '../../02-variables/palette' as palette;
+@use '../../00-spynejs-design-system/tokens/spacing' as spacing;
+
+.breadcrumbs {
+  position: relative;
+  margin: 0 auto;
+  max-width: var(--max-content-width);
+  padding: 2.5rem 1rem 0.5rem 0;
+  display: flex;
+  pointer-events: none;
+  //background: var(--paper);
+  //left: 300px;
+
+  .breadcrumb-content {
+    pointer-events: all;
+  }
+
+  h3 {
+    //color: var(--text-primary);
+  }
+
+  .breadcrumbs-list {
+    /* Reset default list styling */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    display: flex; /* or inline-flex, depending on desired layout */
+
+    li {
+      /* Each breadcrumb item */
+      margin-right: 8px;
+      font-size: 0.875rem;
+
+      /* Only insert a separator before items that are not the first */
+      /*     &:not(:first-child)::before {
+        content: '>'; !* or '/' *!
+        margin-right: 8px;
+        color: currentColor; !* inherits color from the element, optional *!
+      }
+
+      !* Hide the li completely if needed *!
+      &.breadcrumb-item--hidden {
+        display: none;
+      }*/
+    }
+
+    .breadcrumb-item {
+      display: inline-flex; /* or inline-block */
+      align-items: baseline;
+      margin-right:.5rem;
+      text-transform: none;
+      font-family: "Lusitania", "Lusitania Fallback", sans-serif;
+
+      /* Add a separator for every item except the first visible one */
+      &:not(:first-child)::before {
+        content: '/';
+        font-size: 1.25rem;
+        margin-right: .75rem;
+        font-weight: 100;
+        margin-left: .25rem;
+        //color: var(--text-primary);
+      }
+
+      /* Hidden: simply remove from layout entirely */
+      &.breadcrumb-item--hidden {
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      /* Active: optionally style the entire li or anchor differently */
+      &.breadcrumb-item--active a {
+        //font-weight: bold;
+       // font-weight: 600;
+       // text-decoration: underline;
+        // color: var(--link);
+       // color: var(--text-primary);
+
+        cursor: pointer;
+      }
+
+      /* For the anchor inside li */
+      a {
+        text-decoration: none;
+      //  color: var(--text-primary);
+        /* inactive anchor styles if needed */
+      }
+    }
+  }
+
+  //====
+}

@@ -1,0 +1,63 @@
+<!doctype html>
+<html data-theme="dark2" lang="en">
+  <head>
+    <title>spa base alpha</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Basic Metadata -->
+    <meta
+      name="description"
+      content="A base template for building SpyneJS applications."
+    />
+    <meta name="author" content="Your Name or Organization" />
+
+
+    <!--
+      Inter + Lusitana, matching the Next.js Acme app's app/ui/fonts.ts:
+      Inter on the body, Lusitana (400/700, the only weights it ships) on
+      headings, the logo wordmark and the dashboard card figures.
+
+      Both families are requested in ONE stylesheet call rather than two, so
+      this costs a single round trip.
+
+      Next.js does this with next/font/google, which downloads and self-hosts
+      the files at build time — no runtime request to Google at all. That is a
+      genuine advantage it has here, and it is deliberately not replicated: a
+      plain <link> is the ordinary way to do this, and the difference is itself
+      worth showing rather than papering over.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lusitana:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Optional: Open Graph -->
+    <!--
+    <meta property="og:title" content="SpyneJS Base App" />
+    <meta property="og:description" content="A base template for building SpyneJS apps." />
+    <meta property="og:image" content="https://example.com/assets/og-image.png" />
+    <meta property="og:url" content="https://example.com" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    -->
+
+    <!-- Optional: Favicon & Touch Icon -->
+    <!--
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    -->
+
+    <!-- Optional: Manifest & Theme Color (PWA) -->
+    <!--
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#ffffff" />
+    -->
+  </head>
+  <body>
+    <!-- NoScript Fallback -->
+    <noscript> You need to enable JavaScript to run this app. </noscript>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+@use '../../02-variables/palette' as palette;
+
+#menu_toggle {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  //top: 7.5px;
+  top: 0;
+  left: 15px;
+  z-index: 9999;
+  text-align: left;
+  text-indent: -9999em;
+  transition: all 100ms ease-in-out;
+  cursor: pointer;
+  pointer-events: none;
+  display: none;
+  transform: scale(0.8);
+  @media (max-width: 768px) {
+    pointer-events: all;
+    opacity: 1;
+    display: block;
+  }
+}
+
+#menu_toggle span,
+#menu_toggle span:before,
+#menu_toggle span:after {
+  display: block;
+  content: '';
+  width: 30px;
+  height: 2px;
+  position: absolute;
+  left: 0;
+  top: -5px;
+  background: var(--text-muted);
+  transition: all 0.2s cubic-bezier(0, 0.275, 0.125, 1);
+  transform-origin: 50% 0;
+}
+
+#menu_toggle span {
+  background: none;
+}
+
+#menu_toggle span {
+  top: 14px;
+}
+
+#menu_toggle span:after {
+  top: 5px;
+  transform-origin: 50% 100%;
+}
+
+#menu_toggle:hover {
+  opacity: 0.6;
+  filter: alpha(opacity=60);
+}
+
+#menu_toggle.open span {
+  background-color: transparent !important;
+}
+
+#menu_toggle.open span:before {
+  transform: translateY(5px) translateX(0px) rotate(45deg);
+}
+
+#menu_toggle.open span:after {
+  transform: translateY(-5px) translateX(0px) rotate(-45deg);
+}
+
+#menu_toggle.black span:before,
+#menu_toggle.black span:after {
+  background: #221f1f;
+}
+
+#menu_toggle {
+  div.line {
+    display: block;
+    content: '';
+    width: 30px;
+    height: 2px;
+    position: absolute;
+    left: 0;
+    top: 30px;
+    background: var(--text-muted);
+    transition: all 0.2s cubic-bezier(0, 0.275, 0.125, 1);
+    transform-origin: 50% 0;
+  }
+
+  &.open {
+    div.line {
+      opacity: 0;
+    }
+  }
+}

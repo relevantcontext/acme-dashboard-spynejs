@@ -1,0 +1,42 @@
+@use 'sass:string';
+@use 'sass:meta';
+@use '../core/globals' as *;
+
+// ---------------------------------------------
+// Responsive System
+// ---------------------------------------------
+$breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  '2xl': 1536px, // ✅ keep as string
+) !default;
+
+// ---------------------------------------------
+// Mixin: respond
+// ---------------------------------------------
+@mixin respond($bp) {
+  @media (min-width: map-get($breakpoints, $bp)) {
+    @content;
+  }
+}
+
+// ---------------------------------------------
+// Mixin: responsive-variants
+// ---------------------------------------------
+@mixin responsive-variants($selector) {
+  @each $bp, $size in $breakpoints {
+    // Ensure key is a string
+    $bp-str: if(meta.type-of($bp) == 'string', $bp, quote($bp));
+
+    // Escape if starts with a number (e.g. "2xl")
+    $escaped-bp: if(string.index($bp-str, '2') == 1, '\\32#{$bp-str}', $bp-str);
+
+    @media (min-width: #{$size}) {
+      .#{$escaped-bp}\:#{$selector} {
+        @content;
+      }
+    }
+  }
+}

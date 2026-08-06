@@ -1,0 +1,27 @@
+// Border radius tokens
+
+$radius-xs: 2px;
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+$radius-xl: 12px;
+$radius-2xl: 16px;
+$radius-full: 9999px;
+
+$radius-map: (
+  xs: $radius-xs,
+  sm: $radius-sm,
+  md: $radius-md,
+  lg: $radius-lg,
+  xl: $radius-xl,
+  2xl: $radius-2xl,
+  full: $radius-full,
+);
+
+@mixin inject-radius-vars {
+  main#app {
+    @each $key, $value in $radius-map {
+      --radius-#{$key}: #{$value};
+    }
+  }
+}

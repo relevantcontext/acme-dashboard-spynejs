@@ -1,0 +1,162 @@
+// _variables.scss
+// -----------------------------------------------------------------------------
+// Variables & Tokens (non-color)
+// Colors are defined in: _palette.scss + _palette-vars.scss
+// Semantic color aliases are defined in: _theme-semantic.scss
+// -----------------------------------------------------------------------------
+
+@use 'sass:map';
+@use 'sass:math';
+
+// 1) Z-INDEX & LAYOUT ---------------------------------------------------------
+$z-index-ui: 10000 !default;
+
+$z-index-app-ui: 4500 !default;
+$z-index-app-pages: 4000 !default;
+$z-index-main-container: 5000 !default;
+$z-index-generator-loading: 6000 !default;
+
+$app-header-height: 50px !default;
+
+$container-max: 72rem !default; // 1152px
+$container-pad: 1rem !default;
+
+$page-width: 1200px;
+
+// 2) TYPOGRAPHY ---------------------------------------------------------------
+// Families (SCSS tokens)
+$font-sans:
+  ui-sans-serif,
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  Roboto,
+  'Helvetica Neue',
+  Arial,
+  'Noto Sans',
+  'Liberation Sans',
+  sans-serif !default;
+
+$font-mono:
+  ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+  monospace !default;
+
+// Type scale (mobile-first, responsive where useful)
+$type-scale: (
+  h1: clamp(2rem, 1.5rem + 2vw, 3rem),
+  // ~32 → 48px
+  h2: clamp(1.5rem, 1.2rem + 1vw, 2.25rem),
+  // ~24 → 36px
+  h3: clamp(1.25rem, 1.1rem + 0.5vw, 1.75rem),
+  // ~20 → 28px
+  h4: 1.125rem,
+  // 18px
+  h5: 1rem,
+  // 16px
+  h6: 0.875rem, // 14px
+) !default;
+
+// Optional weights/line-heights as tokens
+$font-weights: (
+  regular: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+) !default;
+
+$line-heights: (
+  tight: 1.2,
+  normal: 1.5,
+  loose: 1.75,
+) !default;
+
+// 3) SPACING & RADII ----------------------------------------------------------
+$spacing-scale: (
+  // 4px grid
+  0: 0,
+  1: 0.25rem,
+  // 4
+  2: 0.5rem,
+  // 8
+  3: 0.75rem,
+  // 12
+  4: 1rem,
+  // 16
+  5: 1.5rem,
+  // 24
+  6: 2rem,
+  // 32
+  7: 3rem,
+  // 48
+  8: 4rem // 64
+) !default;
+
+$radius-scale: (
+  0: 0,
+  1: 0.125rem,
+  2: 0.25rem,
+  3: 0.5rem,
+  4: 1rem,
+) !default;
+
+// 4) SHADOWS (SCSS-only tokens) ----------------------------------------------
+$shadow-1:
+  0 1px 2px rgba(0, 0, 0, 0.08),
+  0 2px 8px rgba(0, 0, 0, 0.06) !default;
+$shadow-2:
+  0 4px 16px rgba(0, 0, 0, 0.12),
+  0 8px 24px rgba(0, 0, 0, 0.1) !default;
+
+// 5) CSS CUSTOM PROPERTIES EXPORT --------------------------------------------
+// NOTE: Color ramps are emitted by _palette-vars.scss
+// Semantic aliases are handled in _theme-semantic.scss
+
+:root {
+  // Fonts
+  --font-sans: #{$font-sans};
+  --font-mono: #{$font-mono};
+
+  // Type scale
+  @each $tag, $size in $type-scale {
+    --fs-#{$tag}: #{$size};
+  }
+
+  // Font weights
+  @each $k, $v in $font-weights {
+    --fw-#{$k}: #{$v};
+  }
+
+  // Line heights
+  @each $k, $v in $line-heights {
+    --lh-#{$k}: #{$v};
+  }
+
+  // Spacing & radius
+  @each $k, $v in $spacing-scale {
+    --space-#{$k}: #{$v};
+  }
+  @each $k, $v in $radius-scale {
+    --radius-#{$k}: #{$v};
+  }
+
+  // Layout
+  --container-max: #{$container-max};
+  --container-pad: #{$container-pad};
+  --app-header-height: #{$app-header-height};
+  --page-width: #{$page-width};
+
+  // Z-index (commonly exposed)
+  --z-ui: #{$z-index-ui};
+  --z-app-ui: #{$z-index-app-ui};
+  --z-app-pages: #{$z-index-app-pages};
+  --z-main-container: #{$z-index-main-container};
+  --z-generator-loading: #{$z-index-generator-loading};
+}
+
+// 6) OPTIONAL UTILITIES (TYPE CLASSES) ---------------------------------------
+// Decouple semantic tag from visual size
+@each $tag, $size in $type-scale {
+  .text-#{$tag} {
+    font-size: var(--fs-#{$tag});
+  }
+}

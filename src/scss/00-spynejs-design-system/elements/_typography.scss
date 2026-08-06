@@ -1,0 +1,64 @@
+@use '../core/globals' as *;
+@use '../utilities/responsive' as resp;
+@use 'sass:map';
+
+@mixin typography-styles($prefix: '', $addPrefixToCssVars: false) {
+  // decide whether to prefix CSS var names
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  // inject typography vars
+  @each $name, $value in $typography-tokens {
+    --#{$prefixVar}#{$name}: #{$value};
+  }
+
+  font-family: var(--#{$prefixVar}font-sans);
+  font-size: var(--#{$prefixVar}font-size-base);
+  line-height: var(--#{$prefixVar}line-height-normal);
+  color: var(--#{$prefixVar}text-primary);
+  -webkit-font-smoothing: antialiased;
+
+  h1,
+  .#{$prefix}h1 {
+    font-size: var(--#{$prefixVar}font-size-4xl);
+    font-weight: var(--#{$prefixVar}font-weight-bold);
+    line-height: var(--#{$prefixVar}line-height-tight);
+    margin-bottom: var(--#{$prefixVar}spacing-4);
+    color: var(--#{$prefixVar}text-primary);
+  }
+
+  h2,
+  .#{$prefix}h2 {
+    font-size: var(--#{$prefixVar}font-size-3xl);
+    font-weight: var(--#{$prefixVar}font-weight-semibold);
+    line-height: var(--#{$prefixVar}line-height-snug);
+    margin-bottom: var(--#{$prefixVar}spacing-3);
+    color: var(--#{$prefixVar}text-primary);
+  }
+
+  h3,
+  .#{$prefix}h3 {
+    font-size: var(--#{$prefixVar}font-size-2xl);
+    font-weight: var(--#{$prefixVar}font-weight-semibold);
+    line-height: var(--#{$prefixVar}line-height-snug);
+    margin-bottom: var(--#{$prefixVar}spacing-2);
+    color: var(--#{$prefixVar}text-primary);
+  }
+
+  p {
+    margin: 0 0 var(--#{$prefixVar}spacing-4) 0;
+    font-size: var(--#{$prefixVar}font-size-base);
+    line-height: var(--#{$prefixVar}line-height-relaxed);
+    color: var(--#{$prefixVar}text-secondary);
+  }
+
+  small,
+  .#{$prefix}text-sm {
+    font-size: var(--#{$prefixVar}font-size-sm);
+    line-height: var(--#{$prefixVar}line-height-normal);
+    color: var(--#{$prefixVar}text-muted);
+  }
+}

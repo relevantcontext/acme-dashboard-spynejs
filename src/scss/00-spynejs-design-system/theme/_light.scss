@@ -1,0 +1,62 @@
+@use '../tokens' as *;
+
+// Light Theme — semantic mapping of raw tokens
+
+// Brand
+/*
+$brand: $color-primary-600;
+$brand-contrast: $color-neutral-0;
+
+// Backgrounds
+$bg: $color-neutral-50;
+$paper: $color-neutral-0;
+$border: $color-neutral-200;
+
+// Text
+$text-primary: $color-neutral-900;
+$text-secondary: $color-neutral-600;
+$text-inverse: $color-neutral-0;
+$text-muted: $color-neutral-500;
+
+// Status
+$success: $color-supporting-1-600;
+$info: $color-supporting-2-600;
+$error: $color-supporting-3-600;
+$warn: $color-supporting-4-600;
+*/
+
+@use '../tokens' as *;
+
+$light-theme: (
+  // Brand
+  brand: $color-primary-600,
+  brand-contrast: $color-neutral-0,
+
+  // Backgrounds
+  bg: $color-neutral-50,
+  surface: $color-neutral-75,
+  // NEW → subtle elevation layer
+  paper: $color-neutral-0,
+  border: $color-neutral-200,
+
+  // Text
+  text-primary: $color-neutral-900,
+  text-secondary: $color-neutral-600,
+  text-inverse: $color-neutral-0,
+  text-muted: $color-neutral-500,
+  text-link: $color-primary-600,
+  text-visited: $color-primary-700,
+
+  // Status
+  success: #0d9488,
+  // green 600
+  on-success: #ffffff,
+  info: #0284c7,
+  // blue 600
+  error: #dc2626,
+  // red 600
+  warn: #ca8a04,
+  // amber 600
+  danger: #dc2626,
+  on-danger: #ffffff
+);

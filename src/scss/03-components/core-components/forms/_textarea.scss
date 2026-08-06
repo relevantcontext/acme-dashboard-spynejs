@@ -1,0 +1,96 @@
+@use '../../../00-spynejs-design-system/core/globals' as *;
+
+@mixin textarea-styles($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  label {
+    display: block;
+    margin-bottom: var(--#{$prefixVar}spacing-2);
+    font-size: var(--#{$prefixVar}font-size-sm);
+    font-weight: var(--#{$prefixVar}font-weight-medium);
+    color: var(--#{$prefixVar}text-secondary);
+
+    &.required::after {
+      content: ' *';
+      color: var(--#{$prefixVar}danger);
+      font-weight: var(--#{$prefixVar}font-weight-bold);
+    }
+  }
+
+  textarea {
+    display: block;
+    width: 100%;
+    min-height: 6rem;
+    resize: vertical;
+    padding: var(--#{$prefixVar}spacing-2) var(--#{$prefixVar}spacing-3);
+    font-family: var(--#{$prefixVar}font-sans);
+    font-size: var(--#{$prefixVar}font-size-base);
+    line-height: var(--#{$prefixVar}line-height-relaxed);
+    color: var(--#{$prefixVar}text-primary);
+
+    background-color: var(--#{$prefixVar}paper);
+    border: 1px solid var(--#{$prefixVar}border);
+    border-radius: var(--#{$prefixVar}radius-md);
+    margin-bottom: var(--#{$prefixVar}spacing-4);
+
+    transition:
+      border-color var(--#{$prefixVar}duration-200)
+        var(--#{$prefixVar}ease-in-out),
+      box-shadow var(--#{$prefixVar}duration-200)
+        var(--#{$prefixVar}ease-in-out);
+
+    &:focus {
+      outline: none;
+      border-color: var(--#{$prefixVar}brand);
+      box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--#{$prefixVar}brand) 40%, transparent);
+      background-color: var(--#{$prefixVar}paper);
+    }
+
+    &:disabled {
+      background-color: var(--#{$prefixVar}bg);
+      color: var(--#{$prefixVar}text-muted);
+      border-color: var(--#{$prefixVar}border);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  }
+
+  // Validation States
+  textarea.success {
+    border-color: var(--#{$prefixVar}success);
+    background-color: color-mix(
+      in srgb,
+      var(--#{$prefixVar}success) 8%,
+      var(--#{$prefixVar}paper)
+    );
+  }
+
+  textarea.error,
+  textarea.danger {
+    border-color: var(--#{$prefixVar}danger);
+    background-color: color-mix(
+      in srgb,
+      var(--#{$prefixVar}danger) 8%,
+      var(--#{$prefixVar}paper)
+    );
+
+    &:focus {
+      box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--#{$prefixVar}danger) 40%, transparent);
+    }
+  }
+
+  textarea.warning {
+    border-color: var(--#{$prefixVar}warning);
+    background-color: color-mix(
+      in srgb,
+      var(--#{$prefixVar}warning) 8%,
+      var(--#{$prefixVar}paper)
+    );
+  }
+}

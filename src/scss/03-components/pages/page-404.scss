@@ -1,0 +1,59 @@
+@use '../../02-variables/globals' as globals;
+@use '../../02-variables/mixins' as mixins;
+@use '../../02-variables/palette' as palette;
+
+.app-page {
+  #page-404 {
+    position: absolute;
+  }
+}
+
+#page-404 {
+  position: relative;
+
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; // calc(100% - 52px);
+  min-height: calc(100vh - 124px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  p {
+    color: palette.$Primary-900;
+  }
+
+  .page-404-content {
+    position: relative;
+    margin-top: 16vh;
+    z-index: 111111;
+    min-width: 400px;
+    display: flex;
+    align-items: center;
+    //background: orange;
+    align-content: center;
+    justify-content: center;
+  }
+
+  svg {
+    position: absolute;
+    top: 20px;
+
+    path {
+      fill: var(--ld-primary-400);
+    }
+
+    .cls-404-2 {
+      font-size: 72px;
+      @include mixins.add-main-font();
+      font-weight: 500;
+    }
+
+    .cls-404-3 {
+      font-size: 0.8rem;
+      @include mixins.add-main-font();
+      fill: palette.$Primary-400;
+    }
+  }
+}

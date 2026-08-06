@@ -1,0 +1,89 @@
+@use '../core/globals' as *;
+
+@mixin link-styles($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  @if $prefix == '' or $prefix == null {
+    // Default: style plain anchors only
+    a {
+      color: var(--#{$prefixVar}text-link);
+      text-decoration: none;
+      transition: color
+        var(--#{$prefixVar}duration-200)
+        var(--#{$prefixVar}ease-in-out);
+
+      &:hover {
+        color: color-mix(
+          in srgb,
+          var(--#{$prefixVar}text-link) 85%,
+          var(--#{$prefixVar}paper)
+        );
+        text-decoration: underline;
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0
+          0
+          0
+          3px
+          color-mix(in srgb, var(--#{$prefixVar}text-link) 40%, transparent);
+      }
+
+      &:visited {
+        color: color-mix(
+          in srgb,
+          var(--#{$prefixVar}text-link) 50%,
+          var(--#{$prefixVar}primary-300)
+        );
+        &.btn {
+          color: color-mix(
+            in srgb,
+            var(--#{$prefixVar}text-link) 10%,
+            var(--#{$prefixVar}neutral-100)
+          );
+        }
+      }
+    }
+  } @else {
+    // Prefixed: style prefixed link classes
+    .#{$prefix}link,
+    a.#{$prefix}link {
+      color: var(--#{$prefixVar}text-link);
+      text-decoration: none;
+      transition: color
+        var(--#{$prefixVar}duration-200)
+        var(--#{$prefixVar}ease-in-out);
+
+      &:hover {
+        color: color-mix(
+          in srgb,
+          var(--#{$prefixVar}text-link) 85%,
+          var(--#{$prefixVar}paper)
+        );
+        text-decoration: underline;
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0
+          0
+          0
+          3px
+          color-mix(in srgb, var(--#{$prefixVar}text-link) 40%, transparent);
+      }
+
+      &:visited {
+        color: color-mix(
+          in srgb,
+          var(--#{$prefixVar}text-link) 80%,
+          var(--#{$prefixVar}paper)
+        );
+      }
+    }
+  }
+}
