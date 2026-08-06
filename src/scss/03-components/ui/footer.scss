@@ -1,0 +1,21 @@
+@use '../../02-variables/palette' as palette;
+
+/* Site Footer */
+.site-footer,
+#site-footer {
+  height: var(--footer-height);
+  background-color: var(--bg);
+  border-top: 1px solid var(--rule);
+
+  .footer-content {
+    inline-size: min(100%, var(--max-content-width));
+    margin-inline: auto;
+    padding-inline: clamp(0.25rem, 2vw, 1rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    color: var(--text-muted);
+    min-width: 0;
+  }
+}

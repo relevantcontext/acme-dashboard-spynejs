@@ -1,0 +1,65 @@
+@use '../../../00-spynejs-design-system/core/globals' as *;
+
+@mixin radio-styles($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  label.radio {
+    display: flex;
+    align-items: center;
+    gap: var(--#{$prefixVar}spacing-2);
+    cursor: pointer;
+    font-size: var(--#{$prefixVar}font-size-base);
+    font-weight: var(--#{$prefixVar}font-weight-normal);
+    color: var(--#{$prefixVar}text-primary);
+    margin-bottom: var(--#{$prefixVar}spacing-3);
+
+    input[type='radio'] {
+      appearance: none;
+      width: 1.125rem; // ~18px
+      height: 1.125rem;
+      border: 2px solid var(--#{$prefixVar}border);
+      border-radius: 50%; // circle
+      background-color: var(--#{$prefixVar}paper);
+      display: grid;
+      place-content: center;
+      cursor: pointer;
+      transition:
+        border-color var(--#{$prefixVar}duration-200)
+          var(--#{$prefixVar}ease-in-out),
+        background-color var(--#{$prefixVar}duration-200)
+          var(--#{$prefixVar}ease-in-out);
+
+      &:checked {
+        border-color: var(--#{$prefixVar}brand);
+        background-color: var(--#{$prefixVar}paper);
+
+        &::before {
+          content: '';
+          width: 0.5rem;
+          height: 0.5rem;
+          border-radius: 50%;
+          background-color: var(--#{$prefixVar}brand);
+        }
+      }
+
+      &:disabled {
+        background-color: var(--#{$prefixVar}bg);
+        border-color: var(--#{$prefixVar}border);
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      &.success:checked::before {
+        background-color: var(--#{$prefixVar}success);
+      }
+
+      &.error:checked::before {
+        background-color: var(--#{$prefixVar}danger);
+      }
+    }
+  }
+}

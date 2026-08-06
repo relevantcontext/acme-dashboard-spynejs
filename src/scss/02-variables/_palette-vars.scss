@@ -1,0 +1,20 @@
+// _palette-vars.scss
+@use 'sass:map';
+@use 'sass:color';
+@use '_palette' as p;
+
+// "r g b" triplet for CSS rgb(var(--...)/alpha) usage
+@function rgb-parts($c) {
+  @return "#{color.channel($c, 'red',   $space: rgb)} \
+          #{color.channel($c, 'green', $space: rgb)} \
+          #{color.channel($c, 'blue',  $space: rgb)}";
+}
+
+:root {
+  @each $ramp, $scale in p.$palette {
+    @each $step, $hex in $scale {
+      --color-#{$ramp}-#{$step}: #{$hex};
+      --color-#{$ramp}-#{$step}-rgb: #{rgb-parts($hex)};
+    }
+  }
+}

@@ -1,0 +1,58 @@
+@use '../core/globals' as *;
+
+// ---------------------------------------------------
+// Container Query Utilities
+// ---------------------------------------------------
+// Provides:
+// 1. $containers map (container breakpoints)
+// 2. @mixin container($bp) for component-level styling
+// 3. @mixin container-variants($selector) for utility classes
+// ---------------------------------------------------
+
+// Container breakpoints (based on ch for content-driven widths)
+$containers: (
+  sm: 30ch,
+  // small text blocks
+  md: 45ch,
+  // medium content
+  lg: 60ch,
+  // wide cards/grids
+  xl: 80ch, // app shells
+) !default;
+
+// ---------------------------------------------------
+// Mixin: container
+// Usage in component styles:
+//   .card {
+//     @include container(md) {
+//       flex-direction: row;
+//     }
+//   }
+// ---------------------------------------------------
+@mixin container($bp) {
+  @container (min-width: map-get($containers, $bp)) {
+    @content;
+  }
+}
+
+// ---------------------------------------------------
+// Mixin: container-variants
+// Usage inside utilities:
+//   @include container-variants("flex-row") {
+//     flex-direction: row;
+//   }
+// Generates:
+//   .c-sm:flex-row
+//   .c-md:flex-row
+//   .c-lg:flex-row
+//   .c-xl:flex-row
+// ---------------------------------------------------
+@mixin container-variants($selector) {
+  @each $bp, $size in $containers {
+    @container (min-width: #{$size}) {
+      .c-#{$bp}\:#{$selector} {
+        @content;
+      }
+    }
+  }
+}

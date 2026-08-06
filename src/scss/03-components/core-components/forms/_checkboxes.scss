@@ -1,0 +1,119 @@
+@mixin checkbox-styles($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  label.checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--#{$prefixVar}spacing-2);
+    cursor: pointer;
+    font-size: var(--#{$prefixVar}font-size-base);
+    color: var(--#{$prefixVar}text-primary);
+    margin-bottom: var(--#{$prefixVar}spacing-3);
+
+    input[type='checkbox'] {
+      appearance: none;
+      width: 1.125rem; // 18px
+      height: 1.125rem;
+      border: 2px solid var(--#{$prefixVar}border);
+      border-radius: var(--#{$prefixVar}radius-sm);
+      background-color: var(--#{$prefixVar}paper);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition:
+        border-color var(--#{$prefixVar}duration-200)
+          var(--#{$prefixVar}ease-in-out),
+        background-color var(--#{$prefixVar}duration-200)
+          var(--#{$prefixVar}ease-in-out);
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+
+      &:checked {
+        border-color: var(--#{$prefixVar}brand);
+        background-color: var(--#{$prefixVar}brand);
+
+        &::before {
+          content: '';
+          width: 0.4rem; // scaled checkmark
+          height: 0.65rem; // proportionally smaller
+          border: solid var(--#{$prefixVar}on-primary, #fff);
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg) translate(-1px, -1px); // nudge for visual centering
+        }
+      }
+
+      &:indeterminate {
+        border-color: var(--#{$prefixVar}brand);
+        background-color: var(--#{$prefixVar}brand);
+
+        &::before {
+          content: '';
+          width: 0.6rem;
+          height: 2px;
+          background-color: var(--#{$prefixVar}on-primary, #fff);
+          transform: translate(-1px, -1px);
+        }
+      }
+
+      &:disabled {
+        background-color: var(--#{$prefixVar}bg);
+        border-color: var(--#{$prefixVar}border);
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      // Validation states
+      &.success:checked {
+        background-color: var(--#{$prefixVar}success);
+        border-color: var(--#{$prefixVar}success);
+      }
+
+      &.error:checked {
+        background-color: var(--#{$prefixVar}danger);
+        border-color: var(--#{$prefixVar}danger);
+      }
+    }
+
+    // Hint + error text remain unchanged
+    .input-hint {
+      font-size: var(--font-size-sm);
+      margin-top: var(--spacing-1);
+      color: var(--text-secondary);
+
+      &.success {
+        color: var(--success);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-1);
+
+        &::before {
+          content: '✓';
+          font-weight: bold;
+        }
+      }
+    }
+
+    .input-error-label {
+      font-size: var(--font-size-sm);
+      margin-top: var(--spacing-1);
+      color: var(--danger);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+
+      &::before {
+        content: '✕';
+        font-weight: bold;
+      }
+    }
+  }
+}

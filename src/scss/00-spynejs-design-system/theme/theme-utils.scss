@@ -1,0 +1,34 @@
+// scss/theme-utils.scss
+
+@use 'sass:map';
+
+/// ---------------------------
+/// Theme Utilities
+/// ---------------------------
+/// Provides:
+/// 1. `theme-vars($map, $prefix, $addPrefixToCssVars)` mixin → Outputs CSS custom properties
+/// 2. `theme-color($map, $key)` function → Returns SCSS variable directly
+/// ---------------------------
+
+/// Mixin: Generate CSS variables from a theme map
+/// Usage:
+///   main#app { @include theme-vars($light-theme); }
+///   #my-plugin { @include theme-vars($light-theme, 'devtool-', true); }
+@mixin theme-vars($theme-map, $prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  @each $key, $value in $theme-map {
+    --#{$prefixVar}#{$key}: #{$value};
+  }
+}
+
+/// Function: Get a theme value at build time (SCSS context)
+/// Usage:
+///   .button { background: theme-color($light-theme, brand); }
+@function theme-color($theme-map, $key) {
+  @return map.get($theme-map, $key);
+}

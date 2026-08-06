@@ -1,0 +1,110 @@
+//@use '01-vendors/normalize.css';
+//@use '02-variables/mixins.scss';
+
+// Acme components. Deliberately ABOVE the block comment below and not inside
+// it: that block disables the SpyneJS design system, and these are not part of
+// it. @use must also precede any style rule in the file.
+@use '03-components/acme/invoices-table';
+@use '03-components/ui/breadcrumbs.scss';
+
+// ---------------------------------------------
+// App shell layout
+// ---------------------------------------------
+// The two rules the shell needs, written here rather than by loading
+// 03-components/pages/pages.scss — that file is inside the disabled block
+// below and brings .page-view, .page-item and section-title with it, none of
+// which this app uses.
+// Both are two-class selectors, (0,2,0), so they beat the Tailwind utilities on
+// the same element, (0,1,0), without an id or !important.
+
+// UIContainer hides itself on any route that is not the dashboard.
+.slot-ui.hide {
+  display: none;
+}
+
+// Shell-less routes (home, login, 404) drop StageContainer's page gutter: those
+// templates bring their own padding, and home's `min-h-screen` main would
+// otherwise stack on top of `p-6 md:p-12` and push the column past 100vh.
+.slot-page.is-full-bleed {
+  padding: 0;
+  nav.breadcrumbs {
+    display: none;
+  }
+}
+
+// 1. SpyneJS Design System
+
+/*
+@use '00-spynejs-design-system/utilities/flex-utils' as flex;
+@use '00-spynejs-design-system/utilities/grid-utils' as grid;
+@use '00-spynejs-design-system/utilities/spacing-utils' as spacing;
+@use '00-spynejs-design-system/index' as designSystem;
+
+@use '~node_modules/highlight.js/scss/qtcreator-dark';
+
+@use '03-components/ui/containers';
+
+@use '03-components/pages/pages.scss';
+@use '03-components/pages/page-404.scss';
+@use '03-components/ui/header.scss';
+@use '03-components/ui/menu-drawer.scss';
+@use '03-components/ui/menu-hamburger.scss';
+@use '03-components/ui/footer.scss';
+@use '03-components/ui/_codeblock';
+
+@use '03-components/cards/cards';
+@use '03-components/cards/cards-grid';
+@use '03-components/core-components/forms/inputs' as inputs;
+@use '03-components/core-components/forms/textarea' as textarea;
+@use '03-components/core-components/forms/checkboxes' as checkboxes;
+@use '03-components/core-components/forms/radio' as radio;
+@use '03-components/core-components/forms/select' as select;
+@use '03-components/core-components/sections/hero';
+
+@use '03-components/ui/containers' as *;
+*/
+// TO DISABLE THE DESIGN SYSTEM COMMENT ON THE DESIGN INJECTION
+//@include designSystem.inject-design-system('main#app');
+
+// temp csm mode fix
+body.spyne-plugin-cms-mode{
+  header#site-header{
+    width: 50vw;
+  }
+}
+
+
+
+// ---------------------------------------------
+// Inject utilities (scoped to #app to avoid global pollution)
+// ---------------------------------------------
+main#app {
+
+  --logo-color: #323f4b; /* neutral-800 for light mode */
+
+  &[data-theme='dark'] {
+    --logo-color: #e4e7eb; /* neutral-100 for dark mode */
+  }
+
+  // The design system's utility and form styles are NOT injected. Tailwind owns
+  // styling for the Acme UI, and these collided with it: scoped under main#app
+  // they carry specificity like (1,1,2) against Tailwind's (0,1,0), so
+  // `main#app .justify-center` beat `md:justify-start` and
+  // `main#app input[type=email]` beat `pl-10`. Every collision silently won
+  // against the class actually written in the markup.
+  // Removed rather than fought, so there is one styling system on these pages:
+  //   flex-utilities, grid-utilities, spacing-utilities,
+  //   input-styles, label-styles, textarea-styles, checkbox-styles,
+  //   radio-styles, select-styles,
+  //   header/main/form/footer-container
+}
+
+// ---------------------------------------------
+// Main app container
+// ---------------------------------------------
+// No layout declarations. AppContainer carries the dashboard shell's own
+// classes — `flex h-screen flex-col md:flex-row md:overflow-hidden`, straight
+// from dashboard/layout.tsx — and `#app` at (1,0,0) would outscore every one of
+// them at (0,1,0). `flex-direction: column` here is what would pin the shell to
+// a column and keep the sidenav from moving beside the page at md, which is the
+// same collision already removed from #stage-view and from main#app.

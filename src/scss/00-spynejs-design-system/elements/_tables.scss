@@ -1,0 +1,44 @@
+@use '../core/globals' as *;
+
+@mixin table-styles($prefix: '', $addPrefixToCssVars: false) {
+  // Decide if CSS variables should also be prefixed
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  .#{$prefix}table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--#{$prefixVar}font-size-sm);
+    line-height: var(--#{$prefixVar}line-height-normal);
+    margin-bottom: var(--#{$prefixVar}spacing-6);
+    background-color: var(--#{$prefixVar}paper);
+  }
+
+  .#{$prefix}table th,
+  .#{$prefix}table td {
+    padding: var(--#{$prefixVar}spacing-3) var(--#{$prefixVar}spacing-4);
+    border: 1px solid var(--#{$prefixVar}border);
+    text-align: left;
+  }
+
+  .#{$prefix}table th {
+    font-weight: var(--#{$prefixVar}font-weight-semibold);
+    background-color: var(--#{$prefixVar}bg);
+    color: var(--#{$prefixVar}text-primary);
+  }
+
+  .#{$prefix}table td {
+    color: var(--#{$prefixVar}text-secondary);
+  }
+
+  .#{$prefix}table tr:nth-child(even) td {
+    background-color: var(--#{$prefixVar}neutral-50);
+  }
+
+  .#{$prefix}table tr:hover td {
+    background-color: var(--#{$prefixVar}neutral-100);
+  }
+}

@@ -1,0 +1,21 @@
+@forward 'colors';
+@forward 'spacing';
+@forward 'typography';
+@forward 'motion';
+@forward 'elevation';
+@forward 'radius';
+
+@use './colors' as colors;
+@use './spacing' as spacing;
+@use './elevation' as elevation;
+@use './motion' as motion;
+@use './radius' as radius;
+
+// Developers can comment out any of these lines if they don’t want those tokens
+
+@include colors.inject-palette-vars;
+@include spacing.inject-breakpoint-vars;
+@include spacing.inject-spacing-vars;
+@include elevation.inject-elevation-vars;
+@include motion.inject-motion-vars;
+@include radius.inject-radius-vars;

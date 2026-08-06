@@ -1,0 +1,129 @@
+@use '../core/globals' as *;
+@use '../tokens/colors' as *; // brings in $semantic-colors
+@use 'sass:map';
+
+@mixin button-styles($prefix: '') {
+  .#{$prefix}btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-family: $font-sans;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition:
+      background 0.2s,
+      color 0.2s,
+      border-color 0.2s;
+
+    &[disabled],
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  @each $name, $tokens in $semantic-colors {
+    $base: map.get($tokens, base);
+    $on: map.get($tokens, on);
+    $hover: map.get($tokens, hover);
+    $active: map.get($tokens, active);
+
+    @if $base and $on and $hover and $active {
+      // Filled
+      .#{$prefix}btn-#{$name} {
+        background: #{$base};
+        color: #{$on};
+
+        &:hover {
+          background: #{$hover};
+        }
+        &:active {
+          background: #{$active};
+        }
+      }
+
+      // Outline
+      .#{$prefix}btn-outline-#{$name} {
+        border: 1px solid #{$base};
+        color: #{$base};
+        background: transparent;
+
+        &:hover {
+          background: #{$hover};
+          color: #{$on};
+        }
+        &:active {
+          background: #{$active};
+          color: #{$on};
+        }
+      }
+
+      // Plain
+      .#{$prefix}btn-plain-#{$name} {
+        background: transparent;
+        border: none;
+        color: #{$base};
+
+        &:hover {
+          color: #{$hover};
+        }
+        &:active {
+          color: #{$active};
+        }
+      }
+    }
+  }
+
+  // Sizes
+  .#{$prefix}btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  .#{$prefix}btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.125rem;
+  }
+
+  // Icons
+  .#{$prefix}btn i:first-child {
+    margin-right: 0.5rem;
+  }
+  .#{$prefix}btn i:last-child {
+    margin-left: 0.5rem;
+  }
+
+  .#{$prefix}btn-icon-only {
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    justify-content: center;
+  }
+
+  // Loading
+  .#{$prefix}btn-loading {
+    position: relative;
+    pointer-events: none;
+
+    .spinner {
+      margin-right: 0.5rem;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      width: 1em;
+      height: 1em;
+      animation: spin 0.75s linear infinite;
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

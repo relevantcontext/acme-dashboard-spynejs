@@ -1,0 +1,150 @@
+@use 'sass:map';
+
+$Primary-050: #e6f6ff;
+$Primary-100: #bae3ff;
+$Primary-200: #7cc4fa;
+$Primary-300: #47a3f3;
+$Primary-400: #2186eb;
+$Primary-500: #0967d2;
+$Primary-600: #0552b5;
+$Primary-700: #03449e;
+$Primary-800: #01337d;
+$Primary-900: #002159;
+$Neutral-050: #f5f7fa;
+$Neutral-100: #e4e7eb;
+$Neutral-200: #cbd2d9;
+$Neutral-300: #9aa5b1;
+$Neutral-400: #7b8794;
+$Neutral-500: #616e7c;
+$Neutral-600: #52606d;
+$Neutral-700: #3e4c59;
+$Neutral-800: #323f4b;
+$Neutral-900: #1f2933;
+$Neutral-950: #0c0f13;
+$Supporting-1-050: #e1fcf8;
+$Supporting-1-100: #c1fef6;
+$Supporting-1-200: #92fdf2;
+$Supporting-1-300: #62f4eb;
+$Supporting-1-400: #3ae7e1;
+$Supporting-1-500: #1cd4d4;
+$Supporting-1-600: #0fb5ba;
+$Supporting-1-700: #099aa4;
+$Supporting-1-800: #07818f;
+$Supporting-1-900: #05606e;
+$Supporting-2-050: #ffe8d9;
+$Supporting-2-100: #ffd0b5;
+$Supporting-2-200: #ffb088;
+$Supporting-2-300: #ff9466;
+$Supporting-2-400: #f9703e;
+$Supporting-2-500: #f35627;
+$Supporting-2-600: #de3a11;
+$Supporting-2-700: #c52707;
+$Supporting-2-800: #ad1d07;
+$Supporting-2-900: #841003;
+$Supporting-3-050: #ffe3e3;
+$Supporting-3-100: #ffbdbd;
+$Supporting-3-200: #ff9b9b;
+$Supporting-3-300: #f86a6a;
+$Supporting-3-400: #ef4e4e;
+$Supporting-3-500: #e12d39;
+$Supporting-3-600: #cf1124;
+$Supporting-3-700: #ab091e;
+$Supporting-3-800: #8a041a;
+$Supporting-3-900: #610316;
+$Supporting-4-050: #fffbea;
+$Supporting-4-100: #fff3c4;
+$Supporting-4-200: #fce588;
+$Supporting-4-300: #fadb5f;
+$Supporting-4-400: #f7c948;
+$Supporting-4-500: #f0b429;
+$Supporting-4-600: #de911d;
+$Supporting-4-700: #cb6e17;
+$Supporting-4-800: #b44d12;
+$Supporting-4-900: #8d2b0b;
+
+// Raw ramps (lowercase/kebab keys keep output tidy)
+$primary: (
+  50: #e6f6ff,
+  100: #bae3ff,
+  200: #7cc4fa,
+  300: #47a3f3,
+  400: #2186eb,
+  500: #0967d2,
+  600: #0552b5,
+  700: #03449e,
+  800: #01337d,
+  900: #002159,
+);
+
+$neutral: (
+  50: #f5f7fa,
+  100: #e4e7eb,
+  200: #cbd2d9,
+  300: #9aa5b1,
+  400: #7b8794,
+  500: #616e7c,
+  600: #52606d,
+  700: #3e4c59,
+  800: #323f4b,
+  900: #1f2933,
+  950: #0c0f13,
+);
+
+$supporting-1: (
+  50: #e1fcf8,
+  100: #c1fef6,
+  200: #92fdf2,
+  300: #62f4eb,
+  400: #3ae7e1,
+  500: #1cd4d4,
+  600: #0fb5ba,
+  700: #099aa4,
+  800: #07818f,
+  900: #05606e,
+);
+$supporting-2: (
+  50: #ffe8d9,
+  100: #ffd0b5,
+  200: #ffb088,
+  300: #ff9466,
+  400: #f9703e,
+  500: #f35627,
+  600: #de3a11,
+  700: #c52707,
+  800: #ad1d07,
+  900: #841003,
+);
+$supporting-3: (
+  50: #ffe3e3,
+  100: #ffbdbd,
+  200: #ff9b9b,
+  300: #f86a6a,
+  400: #ef4e4e,
+  500: #e12d39,
+  600: #cf1124,
+  700: #ab091e,
+  800: #8a041a,
+  900: #610316,
+);
+$supporting-4: (
+  50: #fffbea,
+  100: #fff3c4,
+  200: #fce588,
+  300: #fadb5f,
+  400: #f7c948,
+  500: #f0b429,
+  600: #de911d,
+  700: #cb6e17,
+  800: #b44d12,
+  900: #8d2b0b,
+);
+
+// Master palette map
+$palette: (
+  primary: $primary,
+  neutral: $neutral,
+  supporting-1: $supporting-1,
+  supporting-2: $supporting-2,
+  supporting-3: $supporting-3,
+  supporting-4: $supporting-4,
+) !default;

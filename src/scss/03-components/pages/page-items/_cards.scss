@@ -1,0 +1,18 @@
+.page-item--card {
+  display: grid;
+  gap: 0.5rem;
+
+  .card-media {
+    aspect-ratio: 16/9;
+    background: #0001;
+  }
+  .card-title {
+    font-weight: 600;
+  }
+  .card-subtext {
+    color: var(--text-muted);
+  }
+  .card-actions {
+    margin-block-start: 0.5rem;
+  }
+}

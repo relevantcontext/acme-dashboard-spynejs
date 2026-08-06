@@ -1,0 +1,64 @@
+@use '../core/globals' as *;
+
+@mixin grid-utilities($prefix: '', $addPrefixToCssVars: false) {
+  // Decide if CSS vars should be prefixed
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  // Display
+  .#{$prefix}grid {
+    display: grid;
+  }
+  .#{$prefix}inline-grid {
+    display: inline-grid;
+  }
+
+  // Auto flow
+  .#{$prefix}grid-flow-row {
+    grid-auto-flow: row;
+  }
+  .#{$prefix}grid-flow-col {
+    grid-auto-flow: column;
+  }
+  .#{$prefix}grid-flow-dense {
+    grid-auto-flow: dense;
+  }
+  .#{$prefix}grid-flow-row-dense {
+    grid-auto-flow: row dense;
+  }
+  .#{$prefix}grid-flow-col-dense {
+    grid-auto-flow: column dense;
+  }
+
+  // Template Columns
+  @for $i from 1 through 12 {
+    .#{$prefix}grid-cols-#{$i} {
+      grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
+    }
+  }
+
+  // Template Rows
+  @for $i from 1 through 12 {
+    .#{$prefix}grid-rows-#{$i} {
+      grid-template-rows: repeat(#{$i}, minmax(0, 1fr));
+    }
+  }
+
+  // Gap Utilities (themeable via vars)
+  @each $i in (0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 56, 64) {
+    $val: var(--#{$prefixVar}spacing-#{$i});
+
+    .#{$prefix}gap-#{$i} {
+      gap: #{$val};
+    }
+    .#{$prefix}gap-x-#{$i} {
+      column-gap: #{$val};
+    }
+    .#{$prefix}gap-y-#{$i} {
+      row-gap: #{$val};
+    }
+  }
+}

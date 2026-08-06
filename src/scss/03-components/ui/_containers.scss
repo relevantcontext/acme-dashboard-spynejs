@@ -1,0 +1,115 @@
+@use '../../00-spynejs-design-system/core/globals' as *; // bring in radius, colors, etc.
+
+/* ===== Container Utility ===== */
+.container {
+  inline-size: 100%;
+  max-inline-size: var(--max-content-width, 72rem); // ~1152px default
+  margin-inline: auto;
+
+  /* Responsive gutters */
+  padding-inline: clamp(1rem, 4vw, 2rem);
+  padding-block: clamp(1rem, 3vw, 2rem);
+  min-block-size: 0;
+}
+
+/* Fluid (no max width) */
+.container.is-fluid {
+  max-inline-size: none;
+}
+
+/* Full-bleed child inside centered container */
+.container .full-bleed {
+  margin-inline: calc(50% - 50vw);
+  max-inline-size: 100vw;
+  padding-inline: 0;
+}
+
+/* Compact spacing for small screens */
+@media (max-width: 767px) {
+  .container {
+    padding-inline: 1rem;
+    padding-block: 1rem;
+    gap: 1rem;
+  }
+}
+
+// Main container
+@mixin main-container($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  main#app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--#{$prefixVar}background);
+    color: var(--#{$prefixVar}text-primary);
+  }
+}
+
+// Header container
+@mixin header-container($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  header#site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--#{$prefixVar}spacing-4);
+    padding-inline: 0;
+    background-color: var(--#{$prefixVar}bg-base);
+    border-bottom: 1px solid var(--#{$prefixVar}border);
+  }
+}
+
+// Footer container
+@mixin footer-container($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  footer#site-footer {
+    margin-top: auto; // pushes footer to bottom
+    padding-block: var(--#{$prefixVar}spacing-4);
+    padding-inline: 0;
+    background-color: var(--#{$prefixVar}surface);
+    border-top: 1px solid var(--#{$prefixVar}border);
+    color: var(--#{$prefixVar}text-secondary);
+    font-size: var(--#{$prefixVar}font-size-sm);
+    z-index: var(--#{$prefixVar}z-index-50);
+    text-align: center;
+  }
+}
+
+// Form container
+@mixin form-container($prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  .form-container {
+    max-width: 40rem; // ~640px
+    margin: 0 auto;
+    padding: var(--#{$prefixVar}spacing-6);
+    background-color: var(--#{$prefixVar}paper);
+    border: 1px solid var(--#{$prefixVar}border);
+    border-radius: var(--#{$prefixVar}radius-md);
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--#{$prefixVar}spacing-4);
+    }
+  }
+}

@@ -1,0 +1,63 @@
+@use '../core/globals' as *;
+@use 'responsive' as resp;
+
+// Generator: Margin utilities
+@mixin _margin-utils($prop, $abbr, $prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  @each $i in (0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 56, 64) {
+    $val: var(--#{$prefixVar}spacing-#{$i});
+
+    .#{$prefix}#{$abbr}-#{$i} {
+      #{$prop}: #{$val};
+    }
+
+    @include resp.responsive-variants('#{$prefix}#{$abbr}-#{$i}') {
+      #{$prop}: #{$val};
+    }
+  }
+}
+
+// Generator: Padding utilities
+@mixin _padding-utils($prop, $abbr, $prefix: '', $addPrefixToCssVars: false) {
+  $prefixVar: if(
+    $addPrefixToCssVars and $prefix != '' and $prefix != null,
+    '#{$prefix}',
+    ''
+  );
+
+  @each $i in (0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 56, 64) {
+    $val: var(--#{$prefixVar}spacing-#{$i});
+
+    .#{$prefix}#{$abbr}-#{$i} {
+      #{$prop}: #{$val};
+    }
+
+    @include resp.responsive-variants('#{$prefix}#{$abbr}-#{$i}') {
+      #{$prop}: #{$val};
+    }
+  }
+}
+
+// Public entrypoint mixin
+@mixin spacing-utilities($prefix: '', $addPrefixToCssVars: false) {
+  @include _margin-utils(margin, m, $prefix, $addPrefixToCssVars);
+  @include _margin-utils(margin-top, mt, $prefix, $addPrefixToCssVars);
+  @include _margin-utils(margin-right, mr, $prefix, $addPrefixToCssVars);
+  @include _margin-utils(margin-bottom, mb, $prefix, $addPrefixToCssVars);
+  @include _margin-utils(margin-left, ml, $prefix, $addPrefixToCssVars);
+  @include _margin-utils(margin-inline, mx, $prefix, $addPrefixToCssVars);
+  @include _margin-utils(margin-block, my, $prefix, $addPrefixToCssVars);
+
+  @include _padding-utils(padding, p, $prefix, $addPrefixToCssVars);
+  @include _padding-utils(padding-top, pt, $prefix, $addPrefixToCssVars);
+  @include _padding-utils(padding-right, pr, $prefix, $addPrefixToCssVars);
+  @include _padding-utils(padding-bottom, pb, $prefix, $addPrefixToCssVars);
+  @include _padding-utils(padding-left, pl, $prefix, $addPrefixToCssVars);
+  @include _padding-utils(padding-inline, px, $prefix, $addPrefixToCssVars);
+  @include _padding-utils(padding-block, py, $prefix, $addPrefixToCssVars);
+}

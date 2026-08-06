@@ -1,0 +1,90 @@
+@use '../../02-variables/globals' as globals;
+@use '../../02-variables/mixins' as mixins;
+@use '../../02-variables/palette' as palette;
+@use '../../00-spynejs-design-system/tokens' as *;
+
+
+#menu-drawer {
+  position: fixed;
+  top: $spacing-12;
+  left: 0;
+  width: 248px;
+  height: calc(100% - #{$spacing-12});
+  background: var(--bg-base);
+  border-right: 1px solid var(--border);
+  z-index: var(--z-index-10);
+
+  transform: translateX(-100%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+          transform 0.25s ease-in-out,
+          opacity 0.25s ease-in-out,
+          visibility 0s linear 0.25s;
+
+  &.open {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transition:
+            transform 0.25s ease-in-out,
+            opacity 0.125s ease-in-out,
+            visibility 0s linear 0s;
+
+    border-top-right-radius: 4px;
+    box-shadow: 9px 0 15px -9px rgba(0, 0, 0, 0.3);
+  }
+
+  .branding {
+    .site-title-text {
+      text-decoration: none;
+      pointer-events: none;
+      // color: palette.$Neutral-900;
+      padding: 0 0 1rem 0;
+      font-weight: 500;
+    }
+
+    border-bottom: 1px solid var(--rule);
+    padding: 0.5rem;
+  }
+
+  a.nav {
+    text-decoration: none;
+    display: block;
+    position: relative;
+    font-size: 1rem;
+    line-height: 105%;
+    pointer-events: all;
+    cursor: pointer;
+    padding: 4px 8px;
+
+    margin-left: 1rem;
+    text-transform: uppercase;
+    font-weight: 500;
+
+    &.selected {
+      pointer-events: none;
+      color: var(--text-link-selected);
+    }
+
+    &:hover {
+      //background: palette.$Neutral-950;
+      // color: var(--link-selected);
+    }
+
+    &.nav-level-1 {
+      margin-top: 0.7rem;
+    }
+
+    &.nav-level-2 {
+      left: 1rem;
+    }
+    &.nav-level-3 {
+      left: 2rem;
+    }
+  }
+}

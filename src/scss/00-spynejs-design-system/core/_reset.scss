@@ -1,0 +1,18 @@
+// Normalize / reset styles — minimal opinion
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html,
+body {
+  margin: 0;
+  block-size: 100%;
+  min-inline-size: 320px; // prevent ultra-narrow breakage
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
