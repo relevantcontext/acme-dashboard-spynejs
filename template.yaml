@@ -23,8 +23,7 @@ Parameters:
     Description: Public hostname. Must sit inside HostedZoneId below.
   HostedZoneId:
     Type: String
-    Default: ZPB47SSBRJ5KC
-    Description: Route53 zone for spynejs.com.
+    Description: Route53 zone id for the DomainName above. Pass at deploy time.
   PostgresUrl:
     Type: String
     NoEcho: true
